@@ -9,11 +9,11 @@ import {
   Platform,
   ActivityIndicator,
 } from 'react-native';
-import { useLocalSearchParams, router } from 'expo-router';
-import { useSelector, useDispatch } from 'react-redux';
+import ScreenHeader from '@/components/ScreenHeader';
+import { useLocalSearchParams } from 'expo-router';
+import { useQuery, useMutation } from '@apollo/client/react';
 import { ISSUES } from '@/data/issues';
-import { RootState, AppDispatch, showAlert } from '@/store';
-import { sendMessage, getAssistantResponse, clearChat } from '@/store/chat';
+import { showAlert, GET_CHAT_MESSAGES, SEND_MESSAGE, CLEAR_CHAT } from '@/lib/apollo';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 import { IconSymbol } from '@/components/icon-symbol';
@@ -22,12 +22,22 @@ export default function Chat() {
   const { issueKey } = useLocalSearchParams<{ issueKey: string }>();
   const issue = useMemo(() => ISSUES.find((i) => i.key === issueKey), [issueKey]);
 
-  const dispatch = useDispatch<AppDispatch>();
-  const messages = useSelector(
-    (state: RootState) => state.chat.messagesByIssue[issueKey ?? 'general'] || [],
-  );
-  const loading = useSelector((state: RootState) => state.chat.loading);
-  const error = useSelector((state: RootState) => state.chat.error);
+  const {
+    data,
+    loading: queryLoading,
+    error,
+  } = useQuery(GET_CHAT_MESSAGES, {
+    variables: { issueKey: issueKey ?? 'general' },
+  });
+  const [sendMessageMutation, { loading: sendLoading }] = useMutation(SEND_MESSAGE, {
+    refetchQueries: [{ query: GET_CHAT_MESSAGES, variables: { issueKey: issueKey ?? 'general' } }],
+  });
+  const [clearChatMutation] = useMutation(CLEAR_CHAT, {
+    refetchQueries: [{ query: GET_CHAT_MESSAGES, variables: { issueKey: issueKey ?? 'general' } }],
+  });
+
+  const messages = data?.chatMessages || [];
+  const loading = queryLoading || sendLoading;
 
   const [inputText, setInputText] = useState('');
   const flatListRef = useRef<FlatList>(null);
@@ -36,7 +46,6 @@ export default function Chat() {
 
   useEffect(() => {
     if (error) {
-      // You could dispatch a showAlert here if you have an alert system
       console.error('Chat error:', error);
     }
   }, [error]);
@@ -47,25 +56,12 @@ export default function Chat() {
     const text = inputText.trim();
     setInputText('');
 
-    const resultAction = await dispatch(
-      sendMessage({
+    await sendMessageMutation({
+      variables: {
         issueKey: issue?.key ?? 'general',
-        issueTitle: issue?.title,
-        issueTags: issue?.tags,
         text,
-      }),
-    );
-
-    if (sendMessage.fulfilled.match(resultAction)) {
-      dispatch(
-        getAssistantResponse({
-          issueKey: issue?.key ?? 'general',
-          issueTitle: issue?.title,
-          issueTags: issue?.tags,
-          updatedMessages: resultAction.payload.updatedMessages,
-        }),
-      );
-    }
+      },
+    });
   }
 
   return (
@@ -73,69 +69,44 @@ export default function Chat() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={{ flex: 1, backgroundColor: colors.background }}
     >
-      <View style={{ flex: 1, padding: 20, paddingTop: 18 }}>
-        <View
-          style={{
-            marginTop: 40,
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <View style={{ flex: 1, marginRight: 16 }}>
-            <Text style={{ fontSize: 24, fontWeight: '900', color: colors.text }}>
-              {issue?.title ?? 'Chat'}
-            </Text>
-            <Text style={{ color: colors.mutedText, fontSize: 13, fontWeight: '700' }}>
-              AI COACHING ASSISTANT
-            </Text>
-          </View>
-          <View style={{ flexDirection: 'row', gap: 10 }}>
-            {messages.length > 0 && (
+      <View style={{ flex: 1, padding: UI.spacing.xl, paddingTop: Platform.OS === 'ios' ? 18 : 8 }}>
+        <ScreenHeader
+          title={issue?.title ?? 'Chat'}
+          subtitle="AI COACHING ASSISTANT"
+          showBack
+          rightElement={
+            messages.length > 0 ? (
               <Pressable
                 onPress={() => {
-                  dispatch(
-                    showAlert({
-                      title: 'Clear conversation?',
-                      message: 'This will delete all messages for this topic.',
-                      actions: [
-                        { text: 'Cancel', style: 'cancel' },
-                        {
-                          text: 'Clear',
-                          style: 'destructive',
-                          onPress: () => dispatch(clearChat(issueKey ?? 'general')),
-                        },
-                      ],
-                    }),
+                  showAlert(
+                    'Clear conversation?',
+                    'This will delete all messages for this topic.',
+                    [
+                      { text: 'Cancel', style: 'cancel' },
+                      {
+                        text: 'Clear',
+                        style: 'destructive',
+                        onPress: () =>
+                          clearChatMutation({ variables: { issueKey: issueKey ?? 'general' } }),
+                      },
+                    ],
                   );
                 }}
-                style={{
+                style={({ pressed }) => ({
                   width: 44,
                   height: 44,
                   borderRadius: 22,
                   backgroundColor: theme === 'light' ? '#fee2e2' : '#442222',
                   alignItems: 'center',
                   justifyContent: 'center',
-                }}
+                  opacity: pressed ? 0.7 : 1,
+                })}
               >
                 <IconSymbol name="trash" size={22} color={theme === 'light' ? '#ef4444' : '#f88'} />
               </Pressable>
-            )}
-            <Pressable
-              onPress={() => router.back()}
-              style={{
-                width: 44,
-                height: 44,
-                borderRadius: 22,
-                backgroundColor: colors.card,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Text style={{ color: colors.text, fontSize: 20, fontWeight: '900' }}>←</Text>
-            </Pressable>
-          </View>
-        </View>
+            ) : null
+          }
+        />
 
         <FlatList
           ref={flatListRef}
@@ -228,7 +199,7 @@ export default function Chat() {
                 textAlign: 'center',
               }}
             >
-              {error}
+              {error.message}
             </Text>
           </View>
         )}
@@ -278,14 +249,15 @@ export default function Chat() {
           <Pressable
             onPress={handleSend}
             disabled={!inputText.trim() || loading}
-            style={{
+            style={({ pressed }) => ({
               width: 52,
               height: 52,
               borderRadius: 26,
               backgroundColor: inputText.trim() && !loading ? colors.primary : colors.divider,
               alignItems: 'center',
               justifyContent: 'center',
-            }}
+              opacity: pressed ? 0.7 : 1,
+            })}
           >
             <IconSymbol
               name="paperplane.fill"

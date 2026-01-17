@@ -2,18 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useSelector, useDispatch } from 'react-redux';
-import { AppDispatch, fetchAll } from '@/store';
-import { selectMindMateWellnessScore } from '@/store/selectors';
+import { useQuery } from '@apollo/client/react';
+import { GET_ALL_DATA } from '@/lib/apollo';
+import { calculateWellnessScore } from '@/lib/wellness';
 import ScoreCard from '@/components/ScoreCard';
 
 export default function ProfileCompletion() {
-  const dispatch = useDispatch<AppDispatch>();
+  const { data } = useQuery(GET_ALL_DATA);
   const [name, setName] = useState<string | null>(null);
-  const wellness = useSelector(selectMindMateWellnessScore);
+  const wellness = calculateWellnessScore(data);
 
   useEffect(() => {
-    dispatch(fetchAll());
     (async () => {
       const raw = await AsyncStorage.getItem('profile:v1');
       if (raw) {
@@ -21,7 +20,7 @@ export default function ProfileCompletion() {
         setName(p?.name ?? null);
       }
     })();
-  }, [dispatch]);
+  }, []);
 
   return (
     <View style={{ flex: 1, backgroundColor: '#6f6660', padding: 24, paddingTop: 60 }}>

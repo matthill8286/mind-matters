@@ -1,11 +1,13 @@
-import React, { useMemo } from 'react';
-import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
+import React, { useMemo, useEffect } from 'react';
+import { View, Text, Pressable, ScrollView, StyleSheet, Platform } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 import { STRESS_VIDEOS } from '@/data/stressVideos';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useMutation } from '@apollo/client/react';
+import { ADD_STRESS_COMPLETION, GET_STRESS_KIT } from '@/lib/apollo';
 
 const QUOTES = [
   'Take a deep breath and let go of what you cannot control.',
@@ -18,12 +20,23 @@ const QUOTES = [
   'Peace comes from within. Do not seek it without.',
 ];
 
+import ScreenHeader from '@/components/ScreenHeader';
+
 export default function WatchVideoScreen() {
   const { videoId } = useLocalSearchParams<{ videoId: string }>();
+  const [addCompletion] = useMutation(ADD_STRESS_COMPLETION, {
+    refetchQueries: [{ query: GET_STRESS_KIT }],
+  });
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
 
   const video = STRESS_VIDEOS.find((v) => v.id === videoId);
+
+  useEffect(() => {
+    if (video) {
+      addCompletion({ variables: { exerciseId: video.id, title: video.title } });
+    }
+  }, [addCompletion, video]);
 
   const player = useVideoPlayer(video?.url, (p) => {
     p.loop = true;
@@ -39,7 +52,12 @@ export default function WatchVideoScreen() {
       <View
         style={[
           styles.container,
-          { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' },
+          {
+            backgroundColor: colors.background,
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: 24,
+          },
         ]}
       >
         <Text style={{ color: colors.text }}>Video not found.</Text>
@@ -52,17 +70,10 @@ export default function WatchVideoScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <Pressable
-            onPress={() => router.back()}
-            style={[styles.backButton, { backgroundColor: colors.card }]}
-          >
-            <MaterialIcons name="arrow-back" size={24} color={colors.text} />
-          </Pressable>
-          <Text style={[styles.title, { color: colors.text }]}>{video.title}</Text>
-        </View>
-
+      <View style={{ paddingHorizontal: UI.spacing.xl }}>
+        <ScreenHeader title={video.title} showBack />
+      </View>
+      <ScrollView showsVerticalScrollIndicator={false} style={{ marginTop: 14 }}>
         <View style={styles.videoContainer}>
           <VideoView style={styles.video} player={player} allowsFullscreen allowsPictureInPicture />
         </View>
@@ -87,7 +98,7 @@ export default function WatchVideoScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 18,
+    paddingTop: Platform.OS === 'ios' ? 18 : 8,
   },
   header: {
     flexDirection: 'row',

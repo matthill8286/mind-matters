@@ -16,6 +16,6 @@ module.exports = defineConfig([
   },
   prettierConfig,
   {
-    ignores: ['dist/*'],
+    ignores: ['dist/*', 'gql/*'],
   },
 ]);

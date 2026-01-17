@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, ActivityIndicator } from 'react-native';
 import { setupWakeDetection } from '@/lib/wakeDetection';
-import { setSuggestedWake, store } from '@/store';
+import { setSuggestedWake, sleepModeVar } from '@/lib/apollo';
 
 export default function Index() {
   useEffect(() => {
@@ -41,9 +41,8 @@ export default function Index() {
 
   useEffect(() => {
     return setupWakeDetection({
-      store,
-      selectSleepStartISO: (s) => s.app.sleepModeStartISO,
-      setSuggestedWakeAction: setSuggestedWake,
+      getSleepStartISO: () => sleepModeVar().sleepModeStartISO,
+      setSuggestedWake: setSuggestedWake,
     });
   }, []);
 

@@ -1,29 +1,41 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import TrialUpgrade from '../app/(auth)/trial-upgrade';
-import { Provider } from 'react-redux';
-import { configureStore } from '@reduxjs/toolkit';
-import userReducer from '../store/user';
+import { MockedProvider } from '@apollo/client/testing';
+import { SET_SUBSCRIPTION } from '../lib/apollo';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-describe('TrialUpgrade Screen', () => {
-  let store: any;
-
-  beforeEach(() => {
-    store = configureStore({
-      reducer: {
-        user: userReducer,
+const mocks = [
+  {
+    request: {
+      query: SET_SUBSCRIPTION,
+      variables: {
+        input: expect.anything(),
       },
-    });
+    },
+    result: {
+      data: {
+        setSubscription: {
+          type: 'trial',
+          expiryDate: '2026-01-23T16:48:00.000Z',
+          __typename: 'Subscription',
+        },
+      },
+    },
+  },
+];
+
+describe('TrialUpgrade Screen', () => {
+  beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it('renders correctly with all plans', () => {
     const { getByText } = render(
-      <Provider store={store}>
+      <MockedProvider mocks={[]} addTypename={false}>
         <TrialUpgrade />
-      </Provider>,
+      </MockedProvider>,
     );
 
     expect(getByText('MindMate Premium')).toBeTruthy();
@@ -35,9 +47,9 @@ describe('TrialUpgrade Screen', () => {
 
   it('selects 7-day trial and navigates to assessment', async () => {
     const { getByText } = render(
-      <Provider store={store}>
+      <MockedProvider mocks={mocks} addTypename={false}>
         <TrialUpgrade />
-      </Provider>,
+      </MockedProvider>,
     );
 
     fireEvent.press(getByText('Start Free Trial'));
@@ -53,9 +65,9 @@ describe('TrialUpgrade Screen', () => {
 
   it('selects monthly plan and navigates to assessment', async () => {
     const { getByText } = render(
-      <Provider store={store}>
+      <MockedProvider mocks={mocks} addTypename={false}>
         <TrialUpgrade />
-      </Provider>,
+      </MockedProvider>,
     );
 
     fireEvent.press(getByText('Pay with Card or Mobile'));
@@ -74,9 +86,9 @@ describe('TrialUpgrade Screen', () => {
 
   it('selects lifetime plan and navigates to assessment', async () => {
     const { getByText } = render(
-      <Provider store={store}>
+      <MockedProvider mocks={mocks} addTypename={false}>
         <TrialUpgrade />
-      </Provider>,
+      </MockedProvider>,
     );
 
     fireEvent.press(getByText('Lifetime Access'));

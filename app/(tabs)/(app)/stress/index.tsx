@@ -1,21 +1,21 @@
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import { View, Text, Pressable, ScrollView, Platform } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
-import { router, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Colors, UI } from '@/constants/theme';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState, showAlert } from '@/store';
+import { useQuery } from '@apollo/client/react';
+import { showAlert, GET_STRESS_KIT } from '@/lib/apollo';
 import { IconSymbol } from '@/components/icon-symbol';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function StressHub() {
   const router = useRouter();
-  const dispatch = useDispatch();
   const theme = useColorScheme() ?? 'light';
   const { hasFullAccess } = useSubscription();
   const colors = Colors[theme];
-  const kit = useSelector((state: RootState) => state.stress.stressKit);
+  const { data } = useQuery(GET_STRESS_KIT);
+  const kit = data?.stressKit || { quickPhrase: '' };
 
   return (
     <View
@@ -23,7 +23,7 @@ export default function StressHub() {
         flex: 1,
         backgroundColor: colors.background,
         padding: UI.spacing.xl,
-        paddingTop: 18,
+        paddingTop: Platform.OS === 'ios' ? 18 : 8,
       }}
     >
       <ScreenHeader
@@ -136,7 +136,7 @@ function Card({
   icon: string;
   color: string;
 }) {
-  const dispatch = useDispatch();
+  const router = useRouter();
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
 
@@ -144,16 +144,10 @@ function Card({
     <Pressable
       onPress={() => {
         if (isLocked) {
-          dispatch(
-            showAlert({
-              title: 'Premium Feature',
-              message: 'Upgrade to lifetime access to unlock this tool.',
-              actions: [
-                { text: 'Cancel', style: 'cancel' },
-                { text: 'Upgrade', onPress: () => router.push('/(auth)/trial-upgrade') },
-              ],
-            }),
-          );
+          showAlert('Premium Feature', 'Upgrade to lifetime access to unlock this tool.', [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Upgrade', onPress: () => router.push('/(auth)/trial-upgrade') },
+          ]);
           return;
         }
         onPress();

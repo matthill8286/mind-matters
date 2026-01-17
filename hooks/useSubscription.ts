@@ -1,8 +1,9 @@
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store';
+import { useQuery } from '@apollo/client/react';
+import { GET_USER_DATA } from '@/lib/apollo';
 
 export function useSubscription() {
-  const subscription = useSelector((state: RootState) => state.user.subscription);
+  const { data } = useQuery(GET_USER_DATA);
+  const subscription = data?.subscription;
 
   const isExpired =
     subscription?.type === 'trial' &&

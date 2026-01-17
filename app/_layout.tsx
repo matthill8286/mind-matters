@@ -1,11 +1,11 @@
 import { Stack } from 'expo-router';
 import { AlertModal } from '@/components/AlertModal';
-import { Provider } from 'react-redux';
-import { store } from '@/store';
+import { ApolloProvider } from '@apollo/client/react';
+import { client } from '@/lib/apollo';
 
 export default function RootLayout() {
   return (
-    <Provider store={store}>
+    <ApolloProvider client={client}>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="(onboarding)" />
@@ -17,6 +17,6 @@ export default function RootLayout() {
         <Stack.Screen name="(utils)" />
       </Stack>
       <AlertModal />
-    </Provider>
+    </ApolloProvider>
   );
 }

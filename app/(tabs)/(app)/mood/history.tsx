@@ -1,51 +1,45 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import { View, Text, Pressable, FlatList, ScrollView } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { View, Text, Pressable, ScrollView, Platform } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
 import Calendar from '@/components/Calendar';
 import { MoodCheckIn } from '@/lib/mood';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch, fetchMoodCheckIns, deleteMoodCheckIn, showAlert } from '@/store';
+import { useQuery, useMutation } from '@apollo/client/react';
+import { showAlert, GET_MOOD_CHECKINS, DELETE_MOOD_CHECKIN } from '@/lib/apollo';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 import { router } from 'expo-router';
 
 export default function MoodHistory() {
-  const dispatch = useDispatch<AppDispatch>();
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
-  const items = useSelector((s: RootState) => s.mood.moodCheckIns);
+  const { data } = useQuery(GET_MOOD_CHECKINS);
+  const [deleteMoodMutation] = useMutation(DELETE_MOOD_CHECKIN, {
+    refetchQueries: [{ query: GET_MOOD_CHECKINS }],
+  });
+
+  const items = data?.moodCheckIns || [];
   const [selectedDate, setSelectedDate] = useState(new Date());
 
-  useEffect(() => {
-    dispatch(fetchMoodCheckIns());
-  }, []);
-
   const markedDates = useMemo(() => {
-    return Array.from(new Set(items.map((i) => i.createdAt.split('T')[0])));
+    return Array.from(new Set(items.map((i: MoodCheckIn) => i.createdAt.split('T')[0])));
   }, [items]);
 
   const filteredItems = useMemo(() => {
     const iso = selectedDate.toISOString().split('T')[0];
-    return items.filter((i) => i.createdAt.split('T')[0] === iso);
+    return items.filter((i: MoodCheckIn) => i.createdAt.split('T')[0] === iso);
   }, [items, selectedDate]);
 
   async function remove(id: string) {
-    dispatch(
-      showAlert({
-        title: 'Delete check-in?',
-        message: 'This can’t be undone.',
-        actions: [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Delete',
-            style: 'destructive',
-            onPress: async () => {
-              await dispatch(deleteMoodCheckIn(id));
-            },
-          },
-        ],
-      }),
-    );
+    showAlert('Delete check-in?', 'This can’t be undone.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          await deleteMoodMutation({ variables: { id } });
+        },
+      },
+    ]);
   }
 
   return (
@@ -54,30 +48,14 @@ export default function MoodHistory() {
         flex: 1,
         backgroundColor: colors.background,
         padding: UI.spacing.xl,
-        paddingTop: 18,
+        paddingTop: Platform.OS === 'ios' ? 18 : 8,
       }}
     >
+      <ScreenHeader title="Mood History" showBack />
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 24 }}
+        contentContainerStyle={{ paddingBottom: 24, marginTop: 14 }}
         showsVerticalScrollIndicator={false}
       >
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 10 }}>
-          <Pressable
-            onPress={() => router.back()}
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 20,
-              backgroundColor: colors.card,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Text style={{ color: colors.text, fontSize: 20 }}>←</Text>
-          </Pressable>
-          <Text style={{ fontSize: 24, fontWeight: '900', color: colors.text }}>Mood History</Text>
-        </View>
-
         <View style={{ marginTop: 20, gap: 12 }}>
           <Calendar
             selectedDate={selectedDate}

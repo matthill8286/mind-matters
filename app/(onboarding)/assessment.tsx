@@ -11,8 +11,8 @@ import {
   NativeScrollEvent,
 } from 'react-native';
 import { router } from 'expo-router';
-import { useDispatch } from 'react-redux';
-import { AppDispatch, setAssessment, showAlert } from '@/store';
+import { useMutation } from '@apollo/client/react';
+import { SET_ASSESSMENT, showAlert } from '@/lib/apollo';
 
 import Chips from '@/components/Chips';
 import SoundPulse from '@/components/SoundPulse';
@@ -411,7 +411,7 @@ function PlaybackButton({ uri }: { uri: string }) {
 }
 
 export default function AssessmentScreen() {
-  const dispatch = useDispatch<AppDispatch>();
+  const [saveAssessment] = useMutation(SET_ASSESSMENT);
   const [step, setStep] = useState(0);
   const [a, setA] = useState<Assessment>({
     createdAt: new Date().toISOString(),
@@ -465,16 +465,11 @@ export default function AssessmentScreen() {
 
   async function next() {
     if (!canContinue) {
-      dispatch(
-        showAlert({
-          title: 'Just one more thing',
-          message: 'Please fill in this step to continue.',
-        }),
-      );
+      showAlert('Just one more thing', 'Please fill in this step to continue.');
       return;
     }
     if (step === STEPS.length - 1) {
-      await dispatch(setAssessment(a));
+      await saveAssessment({ variables: { input: a } });
       router.replace('/(onboarding)/assessment-summary');
       return;
     }
@@ -495,12 +490,7 @@ export default function AssessmentScreen() {
       // Actually expo-audio should be updating the state.
     } catch (e) {
       setRecordingFor(null);
-      dispatch(
-        showAlert({
-          title: 'Microphone needed',
-          message: 'Please allow microphone access to record.',
-        }),
-      );
+      showAlert('Microphone needed', 'Please allow microphone access to record.');
       console.error('Recording start error:', e);
     }
   }
@@ -533,12 +523,7 @@ export default function AssessmentScreen() {
       setDraftTranscript(''); // Clear transcript after saving
     } catch (e) {
       setRecordingFor(null);
-      dispatch(
-        showAlert({
-          title: 'Recording error',
-          message: 'Could not save the recording. Please try again.',
-        }),
-      );
+      showAlert('Recording error', 'Could not save the recording. Please try again.');
       console.error('Recording stop error:', e);
     }
   }

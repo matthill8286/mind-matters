@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Pressable, TextInput, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, Pressable, TextInput, ScrollView, StyleSheet, Platform } from 'react-native';
 import { router } from 'expo-router';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState, setProfile, showAlert } from '@/store';
+import { useQuery, useMutation } from '@apollo/client/react';
+import { GET_USER_DATA, SET_PROFILE, showAlert } from '@/lib/apollo';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 import ScreenHeader from '@/components/ScreenHeader';
@@ -76,10 +76,13 @@ function RadioOption({
 }
 
 export default function ProfileEdit() {
-  const dispatch = useDispatch<AppDispatch>();
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
-  const profile = useSelector((s: RootState) => s.user.profile);
+  const { data } = useQuery(GET_USER_DATA);
+  const profile = data?.profile;
+  const [updateProfile] = useMutation(SET_PROFILE, {
+    refetchQueries: [{ query: GET_USER_DATA }],
+  });
 
   const [name, setName] = useState(profile?.name || '');
   const [intention, setIntention] = useState(profile?.intention || '');
@@ -102,81 +105,76 @@ export default function ProfileEdit() {
       updatedAt: new Date().toISOString(),
     };
 
-    await dispatch(setProfile(updatedProfile));
-    dispatch(showAlert({ title: 'Success', message: 'Profile updated successfully.' }));
+    await updateProfile({ variables: { input: updatedProfile } });
+    showAlert('Success', 'Profile updated successfully.');
     router.back();
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
-      <View style={{ paddingHorizontal: 24, paddingTop: 60, flex: 1 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20, gap: 12 }}>
-          <Pressable
-            onPress={() => router.back()}
-            style={{
-              width: 44,
-              height: 44,
-              borderRadius: 22,
-              borderWidth: 1,
-              borderColor: colors.border,
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: colors.card,
-            }}
-          >
-            <Text style={{ color: colors.text, fontSize: 24 }}>←</Text>
-          </Pressable>
-          <Text style={{ color: colors.text, fontSize: 18, fontWeight: '700' }}>Edit Profile</Text>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: colors.background,
+        padding: UI.spacing.xl,
+        paddingTop: Platform.OS === 'ios' ? 18 : 8,
+      }}
+    >
+      <ScreenHeader title="Edit Profile" showBack />
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 40, marginTop: 14 }}
+      >
+        <Text style={[styles.label, { color: colors.mutedText }]}>Your Name</Text>
+        <TextInput
+          value={name}
+          onChangeText={setName}
+          placeholder="Your name or nickname"
+          placeholderTextColor={colors.placeholder}
+          style={[styles.input, { backgroundColor: colors.inputBg, color: colors.text }]}
+        />
+
+        <Text style={[styles.label, { marginTop: 24, color: colors.mutedText }]}>Primary Goal</Text>
+        <View style={{ marginTop: 12 }}>
+          {['Calm', 'Focus', 'Sleep', 'Stress', 'Confidence', 'Balance'].map((opt) => (
+            <RadioOption
+              key={opt}
+              label={opt}
+              selected={intention === opt}
+              onPress={() => setIntention(opt)}
+            />
+          ))}
         </View>
 
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
-          <Text style={styles.label}>Your Name</Text>
-          <TextInput
-            value={name}
-            onChangeText={setName}
-            placeholder="Your name or nickname"
-            placeholderTextColor={colors.placeholder}
-            style={[styles.input, { backgroundColor: colors.inputBg, color: colors.text }]}
-          />
+        <Text style={[styles.label, { marginTop: 24, color: colors.mutedText }]}>
+          Preferred Check-in Time
+        </Text>
+        <View style={{ marginTop: 12 }}>
+          {['Morning', 'Evening', 'Anytime'].map((opt) => (
+            <RadioOption
+              key={opt}
+              label={opt}
+              selected={routine === opt}
+              onPress={() => setRoutine(opt)}
+            />
+          ))}
+        </View>
 
-          <Text style={[styles.label, { marginTop: 24 }]}>Primary Goal</Text>
-          <View style={{ marginTop: 12 }}>
-            {['Calm', 'Focus', 'Sleep', 'Stress', 'Confidence', 'Balance'].map((opt) => (
-              <RadioOption
-                key={opt}
-                label={opt}
-                selected={intention === opt}
-                onPress={() => setIntention(opt)}
-              />
-            ))}
-          </View>
-
-          <Text style={[styles.label, { marginTop: 24 }]}>Preferred Check-in Time</Text>
-          <View style={{ marginTop: 12 }}>
-            {['Morning', 'Evening', 'Anytime'].map((opt) => (
-              <RadioOption
-                key={opt}
-                label={opt}
-                selected={routine === opt}
-                onPress={() => setRoutine(opt)}
-              />
-            ))}
-          </View>
-
-          <Pressable
-            onPress={handleSave}
-            style={{
-              marginTop: 32,
-              paddingVertical: 18,
-              borderRadius: 30,
-              backgroundColor: '#828a6a',
-              alignItems: 'center',
-            }}
-          >
-            <Text style={{ color: 'white', fontWeight: '800', fontSize: 16 }}>Save Changes</Text>
-          </Pressable>
-        </ScrollView>
-      </View>
+        <Pressable
+          onPress={handleSave}
+          style={{
+            marginTop: 32,
+            paddingVertical: 18,
+            borderRadius: 30,
+            backgroundColor: colors.primary,
+            alignItems: 'center',
+          }}
+        >
+          <Text style={{ color: colors.onPrimary, fontWeight: '800', fontSize: 16 }}>
+            Save Changes
+          </Text>
+        </Pressable>
+      </ScrollView>
     </View>
   );
 }

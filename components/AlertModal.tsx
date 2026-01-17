@@ -1,11 +1,10 @@
 import React from 'react';
 import { Modal, View, Text, Pressable, StyleSheet } from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState, hideAlert } from '@/store';
+import { useReactiveVar } from '@apollo/client/react';
+import { alertVar, hideAlert } from '@/lib/apollo';
 
 export const AlertModal = () => {
-  const alert = useSelector((state: RootState) => state.ui.alert);
-  const dispatch = useDispatch();
+  const alert = useReactiveVar(alertVar);
 
   if (!alert.visible) return null;
 
@@ -14,7 +13,7 @@ export const AlertModal = () => {
       transparent
       visible={alert.visible}
       animationType="fade"
-      onRequestClose={() => dispatch(hideAlert())}
+      onRequestClose={() => hideAlert()}
     >
       <View style={styles.overlay}>
         <View style={styles.container}>
@@ -31,7 +30,7 @@ export const AlertModal = () => {
                   action.style === 'cancel' && styles.cancelButton,
                 ]}
                 onPress={() => {
-                  dispatch(hideAlert());
+                  hideAlert();
                   action.onPress?.();
                 }}
               >

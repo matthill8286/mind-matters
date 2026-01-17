@@ -1,16 +1,14 @@
 import React from 'react';
-import { View, Text, Pressable, FlatList } from 'react-native';
+import { View, Text, Pressable, FlatList, Platform } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
 import { router } from 'expo-router';
 import { ISSUES } from '@/data/issues';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSubscription } from '@/hooks/useSubscription';
-import { useDispatch } from 'react-redux';
-import { showAlert, AppDispatch } from '@/store';
+import { showAlert } from '@/lib/apollo';
 import { Colors, UI } from '@/constants/theme';
 
 export default function Chatbot() {
-  const dispatch = useDispatch<AppDispatch>();
   const theme = useColorScheme() ?? 'light';
   const { hasFullAccess } = useSubscription();
   const colors = Colors[theme];
@@ -21,7 +19,7 @@ export default function Chatbot() {
         flex: 1,
         backgroundColor: colors.background,
         padding: UI.spacing.xl,
-        paddingTop: 18,
+        paddingTop: Platform.OS === 'ios' ? 18 : 8,
       }}
     >
       <ScreenHeader title="AI Therapy Chatbot" subtitle="Pick a topic to chat about." />
@@ -35,15 +33,13 @@ export default function Chatbot() {
           <Pressable
             onPress={() => {
               if (!hasFullAccess) {
-                dispatch(
-                  showAlert({
-                    title: 'Premium Feature',
-                    message: 'Upgrade to lifetime access to chat with the AI companion.',
-                    actions: [
-                      { text: 'Cancel', style: 'cancel' },
-                      { text: 'Upgrade', onPress: () => router.push('/(auth)/trial-upgrade') },
-                    ],
-                  }),
+                showAlert(
+                  'Premium Feature',
+                  'Upgrade to lifetime access to chat with the AI companion.',
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Upgrade', onPress: () => router.push('/(auth)/trial-upgrade') },
+                  ],
                 );
                 return;
               }

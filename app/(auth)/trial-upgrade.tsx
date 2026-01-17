@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Pressable, ScrollView, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, Pressable, ScrollView, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useDispatch } from 'react-redux';
-import { AppDispatch, setSubscription, showAlert } from '@/store';
+import { useMutation } from '@apollo/client/react';
+import { SET_SUBSCRIPTION, showAlert } from '@/lib/apollo';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 
 export default function TrialUpgrade() {
-  const dispatch = useDispatch<AppDispatch>();
+  const [updateSubscription] = useMutation(SET_SUBSCRIPTION);
   const [isNewUser, setIsNewUser] = useState(true);
   const [loading, setLoading] = useState(false);
 
@@ -36,12 +36,14 @@ export default function TrialUpgrade() {
       setLoading(false);
       const expiryDate = new Date();
       expiryDate.setDate(expiryDate.getDate() + 7);
-      await dispatch(
-        setSubscription({
-          type: 'trial',
-          expiryDate: expiryDate.toISOString(),
-        }),
-      );
+      await updateSubscription({
+        variables: {
+          input: {
+            type: 'trial',
+            expiryDate: expiryDate.toISOString(),
+          },
+        },
+      });
       router.push('/(auth)/payment-success');
     }, 1000);
   }
@@ -84,7 +86,7 @@ export default function TrialUpgrade() {
       }
     } catch (error) {
       console.error('Error creating checkout session:', error);
-      dispatch(showAlert({ title: 'Error', message: String(error) }));
+      showAlert('Error', String(error));
       return null;
     }
   };

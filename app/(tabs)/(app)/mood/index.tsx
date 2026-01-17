@@ -1,16 +1,17 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, Pressable, FlatList, TextInput, ScrollView } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { View, Text, Pressable, TextInput, ScrollView, Platform } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
 import Chips from '@/components/Chips';
 import MoodChart from '@/components/MoodChart';
 import { MoodCheckIn } from '@/lib/mood';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch, fetchMoodCheckIns, addMoodCheckIn, showAlert } from '@/store';
+import { useQuery, useMutation } from '@apollo/client/react';
+import { showAlert, GET_MOOD_CHECKINS, ADD_MOOD_CHECKIN } from '@/lib/apollo';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 import { router } from 'expo-router';
 import { useSubscription } from '@/hooks/useSubscription';
 import { IconSymbol } from '@/components/icon-symbol';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 const MOODS: MoodCheckIn['mood'][] = ['Great', 'Good', 'Okay', 'Low', 'Bad'];
 const ENERGY = ['1', '2', '3', '4', '5'];
@@ -25,11 +26,17 @@ function moodToScore(m: MoodCheckIn['mood']) {
 }
 
 export default function Mood() {
-  const dispatch = useDispatch<AppDispatch>();
   const theme = useColorScheme() ?? 'light';
   const { hasFullAccess } = useSubscription();
   const colors = Colors[theme];
-  const items = useSelector((s: RootState) => s.mood.moodCheckIns);
+
+  const { data, loading } = useQuery(GET_MOOD_CHECKINS);
+  const [addMoodMutation] = useMutation(ADD_MOOD_CHECKIN, {
+    refetchQueries: [{ query: GET_MOOD_CHECKINS }],
+  });
+
+  const items = data?.moodCheckIns || [];
+
   const [mood, setMood] = useState<MoodCheckIn['mood']>('Okay');
   const [energy, setEnergy] = useState<MoodCheckIn['energy']>(3);
   const [stress, setStress] = useState<MoodCheckIn['stress']>(5);
@@ -43,10 +50,6 @@ export default function Mood() {
     backgroundColor: colors.inputBg,
     color: colors.text,
   };
-
-  useEffect(() => {
-    dispatch(fetchMoodCheckIns());
-  }, []);
 
   const insights = useMemo(() => {
     if (items.length < 3) return null;
@@ -67,16 +70,10 @@ export default function Mood() {
 
   async function saveCheckIn() {
     if (!hasFullAccess) {
-      dispatch(
-        showAlert({
-          title: 'Premium Feature',
-          message: 'Upgrade to lifetime access to log new mood check-ins.',
-          actions: [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Upgrade', onPress: () => router.push('/(auth)/trial-upgrade') },
-          ],
-        }),
-      );
+      showAlert('Premium Feature', 'Upgrade to lifetime access to log new mood check-ins.', [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Upgrade', onPress: () => router.push('/(auth)/trial-upgrade') },
+      ]);
       return;
     }
     const entryDate = new Date();
@@ -90,11 +87,11 @@ export default function Mood() {
       note: note.trim() || undefined,
       tags: tags.length ? tags : undefined,
     };
-    await dispatch(addMoodCheckIn(entry));
+    await addMoodMutation({ variables: { input: entry } });
     setNote('');
     setTags([]);
     setTagText('');
-    dispatch(showAlert({ title: 'Saved', message: 'Your mood check-in was saved.' }));
+    showAlert('Saved', 'Your mood check-in was saved.');
   }
 
   return (

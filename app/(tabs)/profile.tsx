@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import { View, Text, Pressable, ScrollView, Platform } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Colors, UI } from '@/constants/theme';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch, fetchProfile } from '@/store';
+import { useQuery } from '@apollo/client/react';
+import { GET_USER_DATA } from '@/lib/apollo';
 import { IconSymbol } from '@/components/icon-symbol';
 
 async function signOut() {
@@ -16,15 +16,14 @@ async function signOut() {
 }
 
 export default function Profile() {
-  const dispatch = useDispatch<AppDispatch>();
   const [email, setEmail] = useState<string | null>(null);
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
-  const profile = useSelector((s: RootState) => s.user.profile);
+  const { data } = useQuery(GET_USER_DATA);
+  const profile = data?.profile;
   const { subscription, isExpired, isLifetime } = useSubscription();
 
   useEffect(() => {
-    dispatch(fetchProfile());
     (async () => {
       const raw = await AsyncStorage.getItem('auth:session:v1');
       if (raw) setEmail(JSON.parse(raw)?.email ?? null);
@@ -67,7 +66,7 @@ export default function Profile() {
         flex: 1,
         backgroundColor: colors.background,
         padding: UI.spacing.xl,
-        paddingTop: 18,
+        paddingTop: Platform.OS === 'ios' ? 18 : 8,
       }}
     >
       <ScrollView showsVerticalScrollIndicator={false}>

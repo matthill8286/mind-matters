@@ -1,5 +1,4 @@
 import { AppState, AppStateStatus } from "react-native";
-import type { Store } from "@reduxjs/toolkit";
 
 /**
  * Heuristic wake detection (Option A).
@@ -9,16 +8,14 @@ import type { Store } from "@reduxjs/toolkit";
  * wake time ("now").
  */
 export function setupWakeDetection(params: {
-  store: Store;
-  selectSleepStartISO: (state: any) => string | null | undefined;
-  setSuggestedWakeAction: (payload: { wakeISO: string }) => any;
+  getSleepStartISO: () => string | null | undefined;
+  setSuggestedWake: (wakeISO: string) => void;
   minHours?: number;
   maxHours?: number;
 }) {
   const {
-    store,
-    selectSleepStartISO,
-    setSuggestedWakeAction,
+    getSleepStartISO,
+    setSuggestedWake,
     minHours = 3,
     maxHours = 14,
   } = params;
@@ -31,8 +28,7 @@ export function setupWakeDetection(params: {
 
     if (!becameActive) return;
 
-    const state = store.getState();
-    const startISO = selectSleepStartISO(state);
+    const startISO = getSleepStartISO();
     if (!startISO) return;
 
     const startMs = new Date(startISO).getTime();
@@ -40,7 +36,7 @@ export function setupWakeDetection(params: {
     const hours = (nowMs - startMs) / (1000 * 60 * 60);
 
     if (hours >= minHours && hours <= maxHours) {
-      store.dispatch(setSuggestedWakeAction({ wakeISO: new Date(nowMs).toISOString() }));
+      setSuggestedWake(new Date(nowMs).toISOString());
     }
   });
 
