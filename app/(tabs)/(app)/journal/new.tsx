@@ -1,17 +1,24 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, Pressable, TextInput, ScrollView } from 'react-native';
+import { View, Text, Pressable, TextInput, ScrollView, Platform } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import ScreenHeader from '@/components/ScreenHeader';
 import Chips from '@/components/Chips';
 import { JOURNAL_PROMPTS } from '@/data/journalPrompts';
 import { JournalEntry } from '@/lib/journal';
-import { useDispatch } from 'react-redux';
-import { AppDispatch, upsertJournalEntry } from '@/store';
+import { useMutation } from '@apollo/client/react';
+import { UPSERT_JOURNAL_ENTRY, GET_JOURNAL_ENTRIES } from '@/lib/apollo';
+
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Colors, UI } from '@/constants/theme';
 
 const MOODS = ['Calm', 'Okay', 'Anxious', 'Sad', 'Angry', 'Overwhelmed'];
 
 export default function NewJournalEntry() {
-  const dispatch = useDispatch<AppDispatch>();
+  const theme = useColorScheme() ?? 'light';
+  const colors = Colors[theme];
+  const [upsertEntry] = useMutation(UPSERT_JOURNAL_ENTRY, {
+    refetchQueries: [{ query: GET_JOURNAL_ENTRIES }],
+  });
   const { promptId, date } = useLocalSearchParams<{ promptId?: string; date?: string }>();
   const prompt = useMemo(() => JOURNAL_PROMPTS.find((p) => p.id === promptId), [promptId]);
 
@@ -21,22 +28,27 @@ export default function NewJournalEntry() {
   const [tags, setTags] = useState<string[]>([]);
   const [tagText, setTagText] = useState('');
 
+  const inputStyle = {
+    marginTop: 10,
+    padding: 12,
+    borderRadius: UI.radius.md,
+    backgroundColor: colors.inputBg,
+    color: colors.text,
+  };
+
   async function save() {
     const entryDate = date ? new Date(date) : new Date();
-    // If it's a past date, keep the selected date but maybe use a fixed time if it's not today
-    // Or just use the selected date as is.
     const now = entryDate.toISOString();
-    const entry: JournalEntry = {
+    const entryInput = {
       id: String(Date.now()),
       createdAt: now,
       updatedAt: now,
       title: (title || 'Untitled').trim(),
-      body: body.trim(),
+      content: body.trim(),
       mood,
       tags,
-      promptId: prompt?.id ?? null,
     };
-    await dispatch(upsertJournalEntry(entry));
+    await upsertEntry({ variables: { input: entryInput } });
     router.replace('/(tabs)/journal');
   }
 
@@ -49,7 +61,14 @@ export default function NewJournalEntry() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f6f4f2', padding: 24, paddingTop: 18 }}>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: colors.background,
+        padding: UI.spacing.xl,
+        paddingTop: Platform.OS === 'ios' ? 18 : 8,
+      }}
+    >
       <ScreenHeader
         title="New Journal Entry"
         subtitle={
@@ -59,54 +78,58 @@ export default function NewJournalEntry() {
               ? `Prompt: ${prompt.title}`
               : 'Write a quick reflection.'
         }
+        showBack
       />
 
-      <ScrollView contentContainerStyle={{ paddingBottom: 24, gap: 12, marginTop: 12 }}>
-        <View style={{ backgroundColor: 'white', padding: 14, borderRadius: 18 }}>
-          <Text style={{ fontWeight: '900' }}>Title</Text>
+      <ScrollView contentContainerStyle={{ paddingBottom: 24, gap: 12, marginTop: 14 }}>
+        <View style={{ backgroundColor: colors.card, padding: 14, borderRadius: UI.radius.lg }}>
+          <Text style={{ fontWeight: '900', color: colors.text }}>Title</Text>
           <TextInput
             value={title}
             onChangeText={setTitle}
             placeholder="Give it a title…"
-            style={input}
+            placeholderTextColor={colors.placeholder}
+            style={inputStyle}
           />
         </View>
 
-        <View style={{ backgroundColor: 'white', padding: 14, borderRadius: 18 }}>
-          <Text style={{ fontWeight: '900' }}>Mood</Text>
+        <View style={{ backgroundColor: colors.card, padding: 14, borderRadius: UI.radius.lg }}>
+          <Text style={{ fontWeight: '900', color: colors.text }}>Mood</Text>
           <Chips options={MOODS} value={mood ?? undefined} onChange={(v) => setMood(v as string)} />
         </View>
 
-        <View style={{ backgroundColor: 'white', padding: 14, borderRadius: 18 }}>
-          <Text style={{ fontWeight: '900' }}>Write</Text>
+        <View style={{ backgroundColor: colors.card, padding: 14, borderRadius: UI.radius.lg }}>
+          <Text style={{ fontWeight: '900', color: colors.text }}>Write</Text>
           <TextInput
             value={body}
             onChangeText={setBody}
             placeholder="Start writing…"
+            placeholderTextColor={colors.placeholder}
             multiline
-            style={[input, { height: 220, textAlignVertical: 'top' }]}
+            style={[inputStyle, { height: 220, textAlignVertical: 'top' }]}
           />
         </View>
 
-        <View style={{ backgroundColor: 'white', padding: 14, borderRadius: 18 }}>
-          <Text style={{ fontWeight: '900' }}>Tags</Text>
+        <View style={{ backgroundColor: colors.card, padding: 14, borderRadius: UI.radius.lg }}>
+          <Text style={{ fontWeight: '900', color: colors.text }}>Tags</Text>
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
             <TextInput
               value={tagText}
               onChangeText={setTagText}
               placeholder="Add a tag…"
-              style={[input, { flex: 1, marginTop: 0 }]}
+              placeholderTextColor={colors.placeholder}
+              style={[inputStyle, { flex: 1, marginTop: 0 }]}
             />
             <Pressable
               onPress={addTag}
               style={{
-                backgroundColor: '#a07b55',
+                backgroundColor: colors.primary,
                 paddingHorizontal: 14,
-                borderRadius: 16,
+                borderRadius: UI.radius.md,
                 justifyContent: 'center',
               }}
             >
-              <Text style={{ color: 'white', fontWeight: '900' }}>Add</Text>
+              <Text style={{ color: colors.onPrimary, fontWeight: '900' }}>Add</Text>
             </Pressable>
           </View>
 
@@ -118,14 +141,16 @@ export default function NewJournalEntry() {
                 style={{
                   paddingHorizontal: 10,
                   paddingVertical: 6,
-                  borderRadius: 999,
-                  backgroundColor: '#f2f2f2',
+                  borderRadius: UI.radius.pill,
+                  backgroundColor: colors.inputBg,
                 }}
               >
-                <Text style={{ fontWeight: '800', opacity: 0.75 }}>#{t} ✕</Text>
+                <Text style={{ fontWeight: '800', color: colors.text, opacity: 0.75 }}>#{t} ✕</Text>
               </Pressable>
             ))}
-            {tags.length === 0 ? <Text style={{ opacity: 0.6 }}>No tags yet.</Text> : null}
+            {tags.length === 0 ? (
+              <Text style={{ color: colors.mutedText, opacity: 0.6 }}>No tags yet.</Text>
+            ) : null}
           </View>
         </View>
 
@@ -134,30 +159,16 @@ export default function NewJournalEntry() {
             onPress={save}
             style={{
               flex: 1,
-              backgroundColor: '#a07b55',
+              backgroundColor: colors.primary,
               padding: 16,
-              borderRadius: 18,
+              borderRadius: UI.radius.lg,
               alignItems: 'center',
             }}
           >
-            <Text style={{ color: 'white', fontWeight: '900' }}>Save</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => router.back()}
-            style={{
-              flex: 1,
-              backgroundColor: '#eee',
-              padding: 16,
-              borderRadius: 18,
-              alignItems: 'center',
-            }}
-          >
-            <Text style={{ fontWeight: '900' }}>Cancel</Text>
+            <Text style={{ color: colors.onPrimary, fontWeight: '900' }}>Save</Text>
           </Pressable>
         </View>
       </ScrollView>
     </View>
   );
 }
-
-const input: any = { marginTop: 10, padding: 12, borderRadius: 16, backgroundColor: '#f2f2f2' };

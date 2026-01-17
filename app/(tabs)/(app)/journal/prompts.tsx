@@ -1,10 +1,15 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, Pressable, TextInput, FlatList } from 'react-native';
+import { View, Text, Pressable, TextInput, FlatList, Platform } from 'react-native';
 import { router } from 'expo-router';
 import ScreenHeader from '@/components/ScreenHeader';
 import { JOURNAL_PROMPTS } from '@/data/journalPrompts';
 
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Colors, UI } from '@/constants/theme';
+
 export default function JournalPrompts() {
+  const theme = useColorScheme() ?? 'light';
+  const colors = Colors[theme];
   const [q, setQ] = useState('');
 
   const data = useMemo(() => {
@@ -16,18 +21,32 @@ export default function JournalPrompts() {
   }, [q]);
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f6f4f2', padding: 24, paddingTop: 18 }}>
-      <ScreenHeader title="Journal Prompts" subtitle="Pick one to start writing." />
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: colors.background,
+        padding: UI.spacing.xl,
+        paddingTop: Platform.OS === 'ios' ? 18 : 8,
+      }}
+    >
+      <ScreenHeader title="Journal Prompts" subtitle="Pick one to start writing." showBack />
 
       <TextInput
         value={q}
         onChangeText={setQ}
         placeholder="Search prompts…"
-        style={{ marginTop: 12, backgroundColor: 'white', padding: 12, borderRadius: 16 }}
+        placeholderTextColor={colors.placeholder}
+        style={{
+          marginTop: 14,
+          backgroundColor: colors.card,
+          padding: 12,
+          borderRadius: UI.radius.md,
+          color: colors.text,
+        }}
       />
 
       <FlatList
-        style={{ marginTop: 12 }}
+        style={{ marginTop: 14 }}
         data={data}
         keyExtractor={(i) => i.id}
         contentContainerStyle={{ gap: 10, paddingBottom: 18 }}
@@ -36,29 +55,16 @@ export default function JournalPrompts() {
             onPress={() =>
               router.push({ pathname: '/(tabs)/(app)/journal/new', params: { promptId: item.id } })
             }
-            style={{ padding: 14, borderRadius: 18, backgroundColor: 'white' }}
+            style={{ padding: 14, borderRadius: UI.radius.lg, backgroundColor: colors.card }}
           >
-            <Text style={{ fontSize: 16, fontWeight: '900' }}>{item.title}</Text>
-            <Text style={{ opacity: 0.7, marginTop: 4 }}>{item.prompt}</Text>
-            <Text style={{ opacity: 0.6, marginTop: 8, fontWeight: '800' }}>
+            <Text style={{ fontSize: 16, fontWeight: '900', color: colors.text }}>{item.title}</Text>
+            <Text style={{ color: colors.mutedText, marginTop: 4 }}>{item.prompt}</Text>
+            <Text style={{ color: colors.primary, marginTop: 8, fontWeight: '800' }}>
               {item.category.toUpperCase()}
             </Text>
           </Pressable>
         )}
       />
-
-      <Pressable
-        onPress={() => router.back()}
-        style={{
-          marginTop: 10,
-          padding: 14,
-          borderRadius: 18,
-          backgroundColor: '#eee',
-          alignItems: 'center',
-        }}
-      >
-        <Text style={{ fontWeight: '900' }}>Back</Text>
-      </Pressable>
     </View>
   );
 }

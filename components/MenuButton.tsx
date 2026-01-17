@@ -1,21 +1,27 @@
 import React from 'react';
-import { Pressable, Text } from 'react-native';
+import { Pressable } from 'react-native';
 import { router } from 'expo-router';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Colors } from '@/constants/theme';
 
 export default function MenuButton() {
+  const theme = useColorScheme() ?? 'light';
+  const colors = Colors[theme];
+
   return (
     <Pressable
       onPress={() => router.push('/menu')}
-      style={{
-        paddingHorizontal: 12,
-        paddingVertical: 10,
+      style={({ pressed }) => ({
+        paddingHorizontal: 8,
+        paddingVertical: 8,
         borderRadius: 14,
-        backgroundColor: '#eee',
-      }}
+        opacity: pressed ? 0.7 : 1,
+      })}
       accessibilityRole="button"
       accessibilityLabel="Open menu"
     >
-      <Text style={{ fontWeight: '900' }}>Menu</Text>
+      <MaterialIcons name="menu" size={26} color={colors.text} />
     </Pressable>
   );
 }

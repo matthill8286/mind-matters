@@ -1,10 +1,9 @@
-import React, { useEffect, useMemo } from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import React, { useMemo } from 'react';
+import { View, Text, Pressable, ScrollView, Platform } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
 import { router } from 'expo-router';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch, fetchAll } from '@/store';
-import { selectMindMateWellnessScore } from '@/store/selectors';
+import { useGetAllDataQuery } from '@/gql';
+import { calculateWellnessScore } from '@/lib/wellness';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Colors, UI } from '@/constants/theme';
@@ -14,18 +13,14 @@ import ScoreCard from '@/components/ScoreCard';
 import { IconSymbol } from '@/components/icon-symbol';
 
 export default function Home() {
-  const dispatch = useDispatch<AppDispatch>();
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
   const { isExpired } = useSubscription();
-  const moodCheckIns = useSelector((s: RootState) => s.mood.moodCheckIns);
-  const journalEntries = useSelector((s: RootState) => s.journal.journalEntries);
-  const wellness = useSelector(selectMindMateWellnessScore);
-  const assessment = useSelector((s: RootState) => s.user.assessment);
-
-  useEffect(() => {
-    dispatch(fetchAll());
-  }, [dispatch]);
+  const { data } = useGetAllDataQuery();
+  const moodCheckIns = data?.moodCheckIns || [];
+  const journalEntries = data?.journalEntries || [];
+  const assessment = data?.assessment;
+  const wellness = useMemo(() => calculateWellnessScore(data), [data]);
 
   const moodCount = moodCheckIns.length;
   const journalCount = journalEntries.length;
@@ -81,15 +76,14 @@ export default function Home() {
         flex: 1,
         backgroundColor: colors.background,
         padding: UI.spacing.xl,
-        paddingTop: 18,
+        paddingTop: Platform.OS === 'ios' ? 18 : 8,
       }}
     >
+      <ScreenHeader title="Home" subtitle="Your wellbeing snapshot and quick actions." />
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 26 }}
+        contentContainerStyle={{ paddingBottom: 26, marginTop: 14 }}
         showsVerticalScrollIndicator={false}
       >
-        <ScreenHeader title="Home" subtitle="Your wellbeing snapshot and quick actions." />
-
         {isExpired && (
           <Pressable
             onPress={() => router.push('/(auth)/trial-upgrade')}

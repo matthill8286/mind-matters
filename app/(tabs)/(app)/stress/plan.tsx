@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Pressable, ScrollView, TextInput } from 'react-native';
+import { View, Text, Pressable, ScrollView, TextInput, Platform } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
 import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch, updateStressKit, showAlert } from '@/store';
+import { useQuery, useMutation } from '@apollo/client/react';
+import { GET_STRESS_KIT, UPDATE_STRESS_KIT, showAlert } from '@/lib/apollo';
 import { StressKit } from '@/lib/stress';
 import { IconSymbol } from '@/components/icon-symbol';
 
@@ -13,8 +13,11 @@ export default function StressPlan() {
   const router = useRouter();
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
-  const dispatch = useDispatch<AppDispatch>();
-  const kit = useSelector((state: RootState) => state.stress.stressKit);
+  const { data } = useQuery(GET_STRESS_KIT);
+  const kit = data?.stressKit || {};
+  const [updateKit] = useMutation(UPDATE_STRESS_KIT, {
+    refetchQueries: [{ query: GET_STRESS_KIT }],
+  });
   const [draft, setDraft] = useState<StressKit>(kit);
 
   const inputStyle = {
@@ -25,8 +28,10 @@ export default function StressPlan() {
   };
 
   useEffect(() => {
-    setDraft(kit);
-  }, [kit]);
+    if (data?.stressKit) {
+      setDraft(data.stressKit);
+    }
+  }, [data]);
 
   const addItem = (field: keyof StressKit, value: string) => {
     const v = value.trim();
@@ -57,13 +62,8 @@ export default function StressPlan() {
       people: (draft.people || []).filter(Boolean),
       notes: draft.notes || '',
     };
-    await dispatch(updateStressKit(next));
-    dispatch(
-      showAlert({
-        title: 'Saved',
-        message: 'Your Stress Kit was updated.',
-      }),
-    );
+    await updateKit({ variables: { input: next } });
+    showAlert('Saved', 'Your Stress Kit was updated.');
     router.back();
   }
 
@@ -73,17 +73,18 @@ export default function StressPlan() {
         flex: 1,
         backgroundColor: colors.background,
         padding: UI.spacing.xl,
-        paddingTop: 18,
+        paddingTop: Platform.OS === 'ios' ? 18 : 8,
       }}
     >
       <ScreenHeader
-        title="Stress Management"
-        subtitle="Quick tools for calming your body and clearing your mind."
+        title="Your Stress Plan"
+        subtitle="Build a personal ‘Stress Kit’ you can use any time."
+        showBack
       />
       <ScrollView style={{ flex: 1, marginTop: 14 }} contentContainerStyle={{ paddingBottom: 24 }}>
         <View style={{ backgroundColor: colors.card, borderRadius: UI.radius.lg, padding: 16 }}>
           <Text style={{ fontSize: 18, fontWeight: '900', color: colors.text }}>
-            Your Stress Kit
+            Personal Stress Kit
           </Text>
           <Text style={{ color: colors.mutedText, marginTop: 6 }}>
             Personalize a quick plan for what helps you when stress spikes.

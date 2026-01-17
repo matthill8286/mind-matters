@@ -1,10 +1,12 @@
 import React from 'react';
-import { View, Text, Pressable, FlatList } from 'react-native';
+import { View, Text, Pressable, FlatList, Platform } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 import { STRESS_VIDEOS, StressVideo } from '@/data/stressVideos';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+
+import ScreenHeader from '@/components/ScreenHeader';
 
 export default function StressVideosScreen() {
   const { category } = useLocalSearchParams<{ category: 'body' | 'mind' }>();
@@ -24,37 +26,13 @@ export default function StressVideosScreen() {
         flex: 1,
         backgroundColor: colors.background,
         padding: UI.spacing.xl,
-        paddingTop: 18,
+        paddingTop: Platform.OS === 'ios' ? 18 : 8,
       }}
     >
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 12,
-          marginTop: 10,
-          marginBottom: 10,
-        }}
-      >
-        <Pressable
-          onPress={() => router.back()}
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 20,
-            backgroundColor: colors.card,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Text style={{ color: colors.text, fontSize: 20 }}>←</Text>
-        </Pressable>
-        <Text style={{ fontSize: 24, fontWeight: '900', color: colors.text }}>{title}</Text>
-      </View>
-
-      <Text style={{ color: colors.mutedText, marginTop: 8, marginBottom: 16 }}>{subtitle}</Text>
+      <ScreenHeader title={title} subtitle={subtitle} showBack />
 
       <FlatList
+        style={{ marginTop: 14 }}
         data={filteredVideos}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ gap: 16, paddingBottom: 24 }}

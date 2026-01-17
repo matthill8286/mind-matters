@@ -1,28 +1,20 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import { View, Text, Pressable, ScrollView, Platform } from 'react-native';
 import Calendar from '@/components/Calendar';
-import { useSelector, useDispatch } from 'react-redux';
-import {
-  RootState,
-  AppDispatch,
-  fetchJournalEntries,
-  deleteJournalEntry,
-  showAlert,
-} from '@/store';
+import { useQuery } from '@apollo/client/react';
+import { GET_JOURNAL_ENTRIES, showAlert } from '@/lib/apollo';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 import { router } from 'expo-router';
 
+import ScreenHeader from '@/components/ScreenHeader';
+
 export default function JournalHistory() {
-  const dispatch = useDispatch<AppDispatch>();
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
-  const entries = useSelector((s: RootState) => s.journal.journalEntries);
+  const { data, loading, error } = useQuery(GET_JOURNAL_ENTRIES);
+  const entries = data?.journalEntries || [];
   const [selectedDate, setSelectedDate] = useState(new Date());
-
-  useEffect(() => {
-    dispatch(fetchJournalEntries());
-  }, []);
 
   const markedDates = useMemo(() => {
     return Array.from(new Set(entries.map((i) => i.createdAt.split('T')[0])));
@@ -47,32 +39,14 @@ export default function JournalHistory() {
         flex: 1,
         backgroundColor: colors.background,
         padding: UI.spacing.xl,
-        paddingTop: 18,
+        paddingTop: Platform.OS === 'ios' ? 18 : 8,
       }}
     >
+      <ScreenHeader title="Journal History" showBack />
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 24 }}
+        contentContainerStyle={{ paddingBottom: 24, marginTop: 14 }}
         showsVerticalScrollIndicator={false}
       >
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 10 }}>
-          <Pressable
-            onPress={() => router.back()}
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 20,
-              backgroundColor: colors.card,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Text style={{ color: colors.text, fontSize: 20 }}>←</Text>
-          </Pressable>
-          <Text style={{ fontSize: 24, fontWeight: '900', color: colors.text }}>
-            Journal History
-          </Text>
-        </View>
-
         <View style={{ marginTop: 20, gap: 12 }}>
           <Calendar
             selectedDate={selectedDate}
@@ -169,7 +143,7 @@ export default function JournalHistory() {
                       {formatDate(item.createdAt)}
                     </Text>
                     <Text style={{ color: colors.mutedText, marginTop: 6 }} numberOfLines={2}>
-                      {item.body}
+                      {item.content}
                     </Text>
                   </Pressable>
                 ))}

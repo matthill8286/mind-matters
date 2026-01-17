@@ -1,61 +1,74 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Pressable, TextInput, ScrollView } from 'react-native';
+import { View, Text, Pressable, TextInput, ScrollView, Platform } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import ScreenHeader from '@/components/ScreenHeader';
 import Chips from '@/components/Chips';
 import { JournalEntry } from '@/lib/journal';
-import { useSelector, useDispatch } from 'react-redux';
+import { useQuery, useMutation } from '@apollo/client/react';
 import {
-  RootState,
-  AppDispatch,
-  fetchJournalEntries,
-  upsertJournalEntry,
-  deleteJournalEntry,
   showAlert,
-} from '@/store';
+  GET_JOURNAL_ENTRIES,
+  UPSERT_JOURNAL_ENTRY,
+  DELETE_JOURNAL_ENTRY,
+} from '@/lib/apollo';
+
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Colors, UI } from '@/constants/theme';
 
 const MOODS = ['Calm', 'Okay', 'Anxious', 'Sad', 'Angry', 'Overwhelmed'];
 
 export default function EditJournalEntry() {
-  const dispatch = useDispatch<AppDispatch>();
-  const journalEntries = useSelector((s: RootState) => s.journal.journalEntries);
+  const theme = useColorScheme() ?? 'light';
+  const colors = Colors[theme];
+  const { data } = useQuery(GET_JOURNAL_ENTRIES);
+  const [upsertMutation] = useMutation(UPSERT_JOURNAL_ENTRY, {
+    refetchQueries: [{ query: GET_JOURNAL_ENTRIES }],
+  });
+  const [deleteMutation] = useMutation(DELETE_JOURNAL_ENTRY, {
+    refetchQueries: [{ query: GET_JOURNAL_ENTRIES }],
+  });
+
+  const journalEntries = data?.journalEntries || [];
   const { id } = useLocalSearchParams<{ id: string }>();
   const [entry, setEntry] = useState<JournalEntry | null>(null);
   const [tagText, setTagText] = useState('');
+
+  const inputStyle = {
+    marginTop: 10,
+    padding: 12,
+    borderRadius: UI.radius.md,
+    backgroundColor: colors.inputBg,
+    color: colors.text,
+  };
 
   useEffect(() => {
     const found = journalEntries.find((e) => e.id === id);
     if (found) {
       setEntry(found);
-    } else {
-      dispatch(fetchJournalEntries());
     }
   }, [id, journalEntries]);
 
   async function save() {
     if (!entry) return;
-    await dispatch(upsertJournalEntry({ ...entry, updatedAt: new Date().toISOString() }));
+    const { __typename, ...input } = entry as any;
+    await upsertMutation({
+      variables: { input: { ...input, updatedAt: new Date().toISOString() } },
+    });
     router.replace('/(tabs)/journal');
   }
 
   async function remove() {
-    dispatch(
-      showAlert({
-        title: 'Delete entry?',
-        message: 'This can’t be undone.',
-        actions: [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Delete',
-            style: 'destructive',
-            onPress: async () => {
-              await dispatch(deleteJournalEntry(String(id)));
-              router.replace('/(tabs)/journal');
-            },
-          },
-        ],
-      }),
-    );
+    showAlert('Delete entry?', 'This can’t be undone.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          await deleteMutation({ variables: { id: String(id) } });
+          router.replace('/(tabs)/journal');
+        },
+      },
+    ]);
   }
 
   function addTag() {
@@ -70,28 +83,47 @@ export default function EditJournalEntry() {
 
   if (!entry) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#f6f4f2', padding: 24, paddingTop: 18 }}>
-        <ScreenHeader title="Edit Entry" subtitle="Loading…" />
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: colors.background,
+          padding: UI.spacing.xl,
+          paddingTop: Platform.OS === 'ios' ? 18 : 8,
+        }}
+      >
+        <ScreenHeader title="Edit Entry" subtitle="Loading…" showBack />
       </View>
     );
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f6f4f2', padding: 24, paddingTop: 18 }}>
-      <ScreenHeader title="Edit Entry" subtitle={new Date(entry.createdAt).toLocaleString()} />
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: colors.background,
+        padding: UI.spacing.xl,
+        paddingTop: Platform.OS === 'ios' ? 18 : 8,
+      }}
+    >
+      <ScreenHeader
+        title="Edit Entry"
+        subtitle={new Date(entry.createdAt).toLocaleString()}
+        showBack
+      />
 
-      <ScrollView contentContainerStyle={{ paddingBottom: 24, gap: 12, marginTop: 12 }}>
-        <View style={{ backgroundColor: 'white', padding: 14, borderRadius: 18 }}>
-          <Text style={{ fontWeight: '900' }}>Title</Text>
+      <ScrollView contentContainerStyle={{ paddingBottom: 24, gap: 12, marginTop: 14 }}>
+        <View style={{ backgroundColor: colors.card, padding: 14, borderRadius: UI.radius.lg }}>
+          <Text style={{ fontWeight: '900', color: colors.text }}>Title</Text>
           <TextInput
             value={entry.title}
             onChangeText={(t) => setEntry({ ...entry, title: t })}
-            style={input}
+            placeholderTextColor={colors.placeholder}
+            style={inputStyle}
           />
         </View>
 
-        <View style={{ backgroundColor: 'white', padding: 14, borderRadius: 18 }}>
-          <Text style={{ fontWeight: '900' }}>Mood</Text>
+        <View style={{ backgroundColor: colors.card, padding: 14, borderRadius: UI.radius.lg }}>
+          <Text style={{ fontWeight: '900', color: colors.text }}>Mood</Text>
           <Chips
             options={MOODS}
             value={entry.mood ?? undefined}
@@ -99,35 +131,37 @@ export default function EditJournalEntry() {
           />
         </View>
 
-        <View style={{ backgroundColor: 'white', padding: 14, borderRadius: 18 }}>
-          <Text style={{ fontWeight: '900' }}>Write</Text>
+        <View style={{ backgroundColor: colors.card, padding: 14, borderRadius: UI.radius.lg }}>
+          <Text style={{ fontWeight: '900', color: colors.text }}>Write</Text>
           <TextInput
-            value={entry.body}
-            onChangeText={(t) => setEntry({ ...entry, body: t })}
+            value={entry.content}
+            onChangeText={(t) => setEntry({ ...entry, content: t })}
+            placeholderTextColor={colors.placeholder}
             multiline
-            style={[input, { height: 240, textAlignVertical: 'top' }]}
+            style={[inputStyle, { height: 240, textAlignVertical: 'top' }]}
           />
         </View>
 
-        <View style={{ backgroundColor: 'white', padding: 14, borderRadius: 18 }}>
-          <Text style={{ fontWeight: '900' }}>Tags</Text>
+        <View style={{ backgroundColor: colors.card, padding: 14, borderRadius: UI.radius.lg }}>
+          <Text style={{ fontWeight: '900', color: colors.text }}>Tags</Text>
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
             <TextInput
               value={tagText}
               onChangeText={setTagText}
               placeholder="Add a tag…"
-              style={[input, { flex: 1, marginTop: 0 }]}
+              placeholderTextColor={colors.placeholder}
+              style={[inputStyle, { flex: 1, marginTop: 0 }]}
             />
             <Pressable
               onPress={addTag}
               style={{
-                backgroundColor: '#a07b55',
+                backgroundColor: colors.primary,
                 paddingHorizontal: 14,
-                borderRadius: 16,
+                borderRadius: UI.radius.md,
                 justifyContent: 'center',
               }}
             >
-              <Text style={{ color: 'white', fontWeight: '900' }}>Add</Text>
+              <Text style={{ color: colors.onPrimary, fontWeight: '900' }}>Add</Text>
             </Pressable>
           </View>
 
@@ -141,15 +175,15 @@ export default function EditJournalEntry() {
                 style={{
                   paddingHorizontal: 10,
                   paddingVertical: 6,
-                  borderRadius: 999,
-                  backgroundColor: '#f2f2f2',
+                  borderRadius: UI.radius.pill,
+                  backgroundColor: colors.inputBg,
                 }}
               >
-                <Text style={{ fontWeight: '800', opacity: 0.75 }}>#{t} ✕</Text>
+                <Text style={{ fontWeight: '800', color: colors.text, opacity: 0.75 }}>#{t} ✕</Text>
               </Pressable>
             ))}
             {(entry.tags ?? []).length === 0 ? (
-              <Text style={{ opacity: 0.6 }}>No tags yet.</Text>
+              <Text style={{ color: colors.mutedText, opacity: 0.6 }}>No tags yet.</Text>
             ) : null}
           </View>
         </View>
@@ -159,13 +193,13 @@ export default function EditJournalEntry() {
             onPress={save}
             style={{
               flex: 1,
-              backgroundColor: '#a07b55',
+              backgroundColor: colors.primary,
               padding: 16,
-              borderRadius: 18,
+              borderRadius: UI.radius.lg,
               alignItems: 'center',
             }}
           >
-            <Text style={{ color: 'white', fontWeight: '900' }}>Save</Text>
+            <Text style={{ color: colors.onPrimary, fontWeight: '900' }}>Save</Text>
           </Pressable>
           <Pressable
             onPress={remove}
@@ -173,23 +207,16 @@ export default function EditJournalEntry() {
               flex: 1,
               backgroundColor: '#ffe8e8',
               padding: 16,
-              borderRadius: 18,
+              borderRadius: UI.radius.lg,
               alignItems: 'center',
+              borderWidth: 1,
+              borderColor: '#ffc1c1',
             }}
           >
-            <Text style={{ fontWeight: '900' }}>Delete</Text>
+            <Text style={{ fontWeight: '900', color: '#cc0000' }}>Delete</Text>
           </Pressable>
         </View>
-
-        <Pressable
-          onPress={() => router.back()}
-          style={{ padding: 14, borderRadius: 18, backgroundColor: '#eee', alignItems: 'center' }}
-        >
-          <Text style={{ fontWeight: '900' }}>Back</Text>
-        </Pressable>
       </ScrollView>
     </View>
   );
 }
-
-const input: any = { marginTop: 10, padding: 12, borderRadius: 16, backgroundColor: '#f2f2f2' };

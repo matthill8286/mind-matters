@@ -100,34 +100,34 @@ export default function Mood() {
         flex: 1,
         backgroundColor: colors.background,
         padding: UI.spacing.xl,
-        paddingTop: 18,
+        paddingTop: Platform.OS === 'ios' ? 18 : 8,
       }}
     >
+      <ScreenHeader
+        title="Mood Tracker"
+        subtitle="Quick check-ins to spot patterns over time."
+        rightElement={
+          <Pressable
+            onPress={() => router.push('/(tabs)/(app)/mood/history')}
+            style={({ pressed }) => ({
+              width: 44,
+              height: 44,
+              borderRadius: 22,
+              backgroundColor: colors.card,
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: pressed ? 0.7 : 1,
+            })}
+          >
+            <MaterialIcons name="history" size={24} color={colors.primary} />
+          </Pressable>
+        }
+      />
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 24 }}
+        contentContainerStyle={{ paddingBottom: 24, marginTop: 14 }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <ScreenHeader
-          title="Mood Tracker"
-          subtitle="Quick check-ins to spot patterns over time."
-          rightElement={
-            <Pressable
-              onPress={() => router.push('/(tabs)/(app)/mood/history')}
-              style={{
-                width: 44,
-                height: 44,
-                borderRadius: 22,
-                backgroundColor: colors.card,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <IconSymbol name="calendar" size={24} color={colors.primary} />
-            </Pressable>
-          }
-        />
-
         <View style={{ marginTop: 12, gap: 12 }}>
           <MoodChart items={items} />
 
