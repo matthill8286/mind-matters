@@ -18,9 +18,7 @@ export function calculateWellnessScore(data: any) {
 
   const total = Math.min(
     100,
-    Math.round(
-      (moodScore + sleepScore + stressScore + mindfulnessScore + consistencyScore) / 5,
-    ),
+    Math.round((moodScore + sleepScore + stressScore + mindfulnessScore + consistencyScore) / 5),
   );
 
   return {

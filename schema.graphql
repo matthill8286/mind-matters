@@ -1,0 +1,156 @@
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+type ChatMessage {
+  content: String
+  createdAt: DateTime!
+  id: ID!
+  role: String!
+  text: String
+}
+
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+"""
+scalar DateTime
+
+type Exercise {
+  completed: Boolean!
+  id: ID!
+  title: String!
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+type JournalEntry {
+  content: String!
+  createdAt: DateTime!
+  id: ID!
+  mood: String
+  tags: [String!]
+  title: String!
+  updatedAt: DateTime!
+}
+
+input JournalEntryInput {
+  content: String!
+  id: ID
+  mood: String
+  tags: [String!]
+  title: String!
+}
+
+type Mindfulness {
+  totalMinutesToday: Int!
+}
+
+type MindfulnessEntry {
+  date: DateTime!
+  minutes: Int!
+}
+
+type MoodCheckIn {
+  createdAt: DateTime!
+  energy: Int!
+  id: ID!
+  mood: String!
+  note: String
+  stress: Int!
+  tags: [String!]!
+}
+
+input MoodCheckInInput {
+  energy: Int!
+  mood: String!
+  note: String
+  stress: Int!
+  tags: [String!]
+}
+
+type Mutation {
+  addMindfulMinutes(minutes: Int!): Mindfulness!
+  addMoodCheckIn(input: MoodCheckInInput!): MoodCheckIn!
+  addSleepEntry(input: SleepEntryInput!): SleepEntry!
+  addStressCompletion(exerciseId: ID!, title: String!): StressHistory!
+  clearChat(issueKey: String!): Boolean!
+  deleteJournalEntry(id: ID!): Boolean!
+  deleteMoodCheckIn(id: ID!): Boolean!
+  deleteSleepEntry(id: ID!): Boolean!
+  sendMessage(content: String, issueKey: String!, text: String): ChatMessage!
+  setAssessment(input: JSON!): JSON
+  setProfile(input: JSON!): JSON
+  setSubscription(input: SubscriptionInput!): Subscription!
+  updateStressKit(input: StressKitInput!): StressKit!
+  upsertJournalEntry(input: JournalEntryInput!): JournalEntry!
+}
+
+type Query {
+  assessment: JSON
+  chatMessages(issueKey: String!): [ChatMessage!]!
+  journalEntries: [JournalEntry!]!
+  mindfulness: Mindfulness!
+  mindfulnessHistory: [MindfulnessEntry!]!
+  moodCheckIns: [MoodCheckIn!]!
+  profile: JSON
+  sleepEntries: [SleepEntry!]!
+  stressHistory: [StressHistory!]!
+  stressKit: StressKit!
+  subscription: Subscription
+}
+
+type SleepEntry {
+  date: DateTime!
+  duration: Float!
+  id: ID!
+  note: String
+  quality: Int!
+}
+
+input SleepEntryInput {
+  date: DateTime
+  duration: Float!
+  note: String
+  quality: Int!
+}
+
+type StressHistory {
+  date: DateTime!
+  exerciseId: ID!
+  title: String!
+}
+
+type StressKit {
+  exercises: [Exercise!]!
+  helpfulActions: [String!]
+  lastCheckIn: DateTime
+  level: Int!
+  notes: String
+  people: [String!]
+  quickPhrase: String
+  triggers: [String!]
+}
+
+input StressKitInput {
+  helpfulActions: [String!]
+  level: Int
+  notes: String
+  people: [String!]
+  quickPhrase: String
+  triggers: [String!]
+}
+
+type Subscription {
+  expiryDate: DateTime
+  type: String!
+}
+
+input SubscriptionInput {
+  expiryDate: DateTime
+  type: String!
+}

@@ -1,4 +1,4 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export type SleepEntry = {
   id: string;
@@ -10,7 +10,7 @@ export type SleepEntry = {
   createdAtISO: string;
 };
 
-const KEY = "sleep:entries:v1";
+const KEY = 'sleep:entries:v1';
 
 export async function listSleepEntries(): Promise<SleepEntry[]> {
   const raw = await AsyncStorage.getItem(KEY);

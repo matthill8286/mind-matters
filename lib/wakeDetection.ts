@@ -1,4 +1,4 @@
-import { AppState, AppStateStatus } from "react-native";
+import { AppState, AppStateStatus } from 'react-native';
 
 /**
  * Heuristic wake detection (Option A).
@@ -9,21 +9,17 @@ import { AppState, AppStateStatus } from "react-native";
  */
 export function setupWakeDetection(params: {
   getSleepStartISO: () => string | null | undefined;
+  c;
   setSuggestedWake: (wakeISO: string) => void;
   minHours?: number;
   maxHours?: number;
 }) {
-  const {
-    getSleepStartISO,
-    setSuggestedWake,
-    minHours = 3,
-    maxHours = 14,
-  } = params;
+  const { getSleepStartISO, setSuggestedWake, minHours = 3, maxHours = 14 } = params;
 
   let current: AppStateStatus = AppState.currentState;
 
-  const sub = AppState.addEventListener("change", (next) => {
-    const becameActive = current.match(/inactive|background/) && next === "active";
+  const sub = AppState.addEventListener('change', (next) => {
+    const becameActive = current.match(/inactive|background/) && next === 'active';
     current = next;
 
     if (!becameActive) return;
