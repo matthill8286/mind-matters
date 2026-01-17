@@ -4,16 +4,13 @@ import ScreenHeader from '@/components/ScreenHeader';
 import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
-import { useReactiveVar } from '@apollo/client';
-import { useGetSleepEntriesQuery } from '@/gql/hooks';
-import { sleepModeVar, showAlert } from '@/lib/state';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useSleepMode, sleepModeVar, showAlert } from '@/lib/state';
 
 export default function SleepScreen() {
   const router = useRouter();
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
-  const { sleepModeStartISO } = useReactiveVar(sleepModeVar);
+  const { sleepModeStartISO } = useSleepMode();
 
   const { data } = useGetSleepEntriesQuery();
   const entries = data?.sleepEntries || [];

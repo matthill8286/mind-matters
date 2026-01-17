@@ -1,10 +1,9 @@
 import React from 'react';
 import { View, ActivityIndicator, StyleSheet, Modal } from 'react-native';
-import { useReactiveVar } from '@apollo/client';
-import { isLoadingVar } from '@/lib/state';
+import { useIsLoading } from '@/lib/state';
 
 export const LoadingOverlay = () => {
-  const isLoading = useReactiveVar(isLoadingVar);
+  const isLoading = useIsLoading();
 
   if (!isLoading) return null;
 

@@ -16,7 +16,7 @@ import {
   useSendMessageMutation,
   useClearChatMutation,
   GetChatMessagesDocument,
-} from '@/gql/hooks';
+} from '@/gql/generated';
 import { ISSUES } from '@/data/issues';
 import { showAlert } from '@/lib/state';
 import { useColorScheme } from '@/hooks/use-color-scheme';

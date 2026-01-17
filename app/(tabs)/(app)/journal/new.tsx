@@ -5,7 +5,7 @@ import ScreenHeader from '@/components/ScreenHeader';
 import Chips from '@/components/Chips';
 import { JOURNAL_PROMPTS } from '@/data/journalPrompts';
 import { JournalEntry } from '@/lib/journal';
-import { useUpsertJournalEntryMutation, GetJournalEntriesDocument } from '@/gql/hooks';
+import { useUpsertJournalEntryMutation, GetJournalEntriesDocument } from '@/gql/generated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';

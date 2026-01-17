@@ -25,21 +25,21 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/27</span>
+                <span class='fraction'>0/26</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/34</span>
+                <span class='fraction'>0/36</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>0/8</span>
             </div>
         
             
@@ -260,9 +260,7 @@
 <a name='L195'></a><a href='#L195'>195</a>
 <a name='L196'></a><a href='#L196'>196</a>
 <a name='L197'></a><a href='#L197'>197</a>
-<a name='L198'></a><a href='#L198'>198</a>
-<a name='L199'></a><a href='#L199'>199</a>
-<a name='L200'></a><a href='#L200'>200</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L198'></a><a href='#L198'>198</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -344,6 +342,9 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -372,14 +373,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -418,11 +411,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -462,10 +458,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { useState, useEffect } from 'react';
-import { View, Text, Pressable, TextInput, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, Pressable, TextInput, ScrollView, StyleSheet, Platform } from 'react-native';
 import { router } from 'expo-router';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState, setProfile, showAlert } from '@/store';
+import { useGetUserDataQuery, useSetProfileMutation, GetUserDataDocument } from '@/hooks/generated';
+import { showAlert } from '@/lib/state';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 import ScreenHeader from '@/components/ScreenHeader';
@@ -539,10 +535,13 @@ function <span class="fstat-no" title="function not covered" >RadioOption(</span
 }
 &nbsp;
 export default function <span class="fstat-no" title="function not covered" >ProfileEdit(</span>) {
-  const dispatch = <span class="cstat-no" title="statement not covered" >useDispatch&lt;AppDispatch&gt;();</span>
   const theme = <span class="cstat-no" title="statement not covered" >useColorScheme() ?? 'light';</span>
   const colors = <span class="cstat-no" title="statement not covered" >Colors[theme];</span>
-  const profile = <span class="cstat-no" title="statement not covered" >useSelector(<span class="fstat-no" title="function not covered" >(s</span>: RootState) =&gt; <span class="cstat-no" title="statement not covered" >s.user.profile)</span>;</span>
+  const { data } = <span class="cstat-no" title="statement not covered" >useGetUserDataQuery();</span>
+  const profile = <span class="cstat-no" title="statement not covered" >data?.profile;</span>
+  const [updateProfile] = <span class="cstat-no" title="statement not covered" >useSetProfileMutation({</span>
+    refetchQueries: [{ query: GetUserDataDocument }],
+  });
 &nbsp;
   const [name, setName] = <span class="cstat-no" title="statement not covered" >useState(profile?.name || '');</span>
   const [intention, setIntention] = <span class="cstat-no" title="statement not covered" >useState(profile?.intention || '');</span>
@@ -565,81 +564,76 @@ export default function <span class="fstat-no" title="function not covered" >Pro
       updatedAt: new Date().toISOString(),
     };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    await dispatch(setProfile(updatedProfile));</span>
-<span class="cstat-no" title="statement not covered" >    dispatch(showAlert({ title: 'Success', message: 'Profile updated successfully.' }));</span>
+<span class="cstat-no" title="statement not covered" >    await updateProfile({ variables: { input: updatedProfile } });</span>
+<span class="cstat-no" title="statement not covered" >    showAlert('Success', 'Profile updated successfully.');</span>
 <span class="cstat-no" title="statement not covered" >    router.back();</span>
   }
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  return (</span>
-    &lt;View style={{ flex: 1, backgroundColor: colors.background }}&gt;
-      &lt;View style={{ paddingHorizontal: 24, paddingTop: 60, flex: 1 }}&gt;
-        &lt;View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20, gap: 12 }}&gt;
-          &lt;Pressable
-            onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >router.back()}</span>
-            style={{
-              width: 44,
-              height: 44,
-              borderRadius: 22,
-              borderWidth: 1,
-              borderColor: colors.border,
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: colors.card,
-            }}
-          &gt;
-            &lt;Text style={{ color: colors.text, fontSize: 24 }}&gt;←&lt;/Text&gt;
-          &lt;/Pressable&gt;
-          &lt;Text style={{ color: colors.text, fontSize: 18, fontWeight: '700' }}&gt;Edit Profile&lt;/Text&gt;
+    &lt;View
+      style={{
+        flex: 1,
+        backgroundColor: colors.background,
+        padding: UI.spacing.xl,
+        paddingTop: Platform.OS === 'ios' ? 18 : 8,
+      }}
+    &gt;
+      &lt;ScreenHeader title="Edit Profile" showBack /&gt;
+&nbsp;
+      &lt;ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 40, marginTop: 14 }}
+      &gt;
+        &lt;Text style={[styles.label, { color: colors.mutedText }]}&gt;Your Name&lt;/Text&gt;
+        &lt;TextInput
+          value={name}
+          onChangeText={setName}
+          placeholder="Your name or nickname"
+          placeholderTextColor={colors.placeholder}
+          style={[styles.input, { backgroundColor: colors.inputBg, color: colors.text }]}
+        /&gt;
+&nbsp;
+        &lt;Text style={[styles.label, { marginTop: 24, color: colors.mutedText }]}&gt;Primary Goal&lt;/Text&gt;
+        &lt;View style={{ marginTop: 12 }}&gt;
+          {['Calm', 'Focus', 'Sleep', 'Stress', 'Confidence', 'Balance'].map(<span class="fstat-no" title="function not covered" >(o</span>pt) =&gt; (
+<span class="cstat-no" title="statement not covered" >            &lt;RadioOption</span>
+              key={opt}
+              label={opt}
+              selected={intention === opt}
+              onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >setIntention(opt)}</span>
+            /&gt;
+          ))}
         &lt;/View&gt;
 &nbsp;
-        &lt;ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}&gt;
-          &lt;Text style={styles.label}&gt;Your Name&lt;/Text&gt;
-          &lt;TextInput
-            value={name}
-            onChangeText={setName}
-            placeholder="Your name or nickname"
-            placeholderTextColor={colors.placeholder}
-            style={[styles.input, { backgroundColor: colors.inputBg, color: colors.text }]}
-          /&gt;
+        &lt;Text style={[styles.label, { marginTop: 24, color: colors.mutedText }]}&gt;
+          Preferred Check-in Time
+        &lt;/Text&gt;
+        &lt;View style={{ marginTop: 12 }}&gt;
+          {['Morning', 'Evening', 'Anytime'].map(<span class="fstat-no" title="function not covered" >(o</span>pt) =&gt; (
+<span class="cstat-no" title="statement not covered" >            &lt;RadioOption</span>
+              key={opt}
+              label={opt}
+              selected={routine === opt}
+              onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >setRoutine(opt)}</span>
+            /&gt;
+          ))}
+        &lt;/View&gt;
 &nbsp;
-          &lt;Text style={[styles.label, { marginTop: 24 }]}&gt;Primary Goal&lt;/Text&gt;
-          &lt;View style={{ marginTop: 12 }}&gt;
-            {['Calm', 'Focus', 'Sleep', 'Stress', 'Confidence', 'Balance'].map(<span class="fstat-no" title="function not covered" >(o</span>pt) =&gt; (
-<span class="cstat-no" title="statement not covered" >              &lt;RadioOption</span>
-                key={opt}
-                label={opt}
-                selected={intention === opt}
-                onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >setIntention(opt)}</span>
-              /&gt;
-            ))}
-          &lt;/View&gt;
-&nbsp;
-          &lt;Text style={[styles.label, { marginTop: 24 }]}&gt;Preferred Check-in Time&lt;/Text&gt;
-          &lt;View style={{ marginTop: 12 }}&gt;
-            {['Morning', 'Evening', 'Anytime'].map(<span class="fstat-no" title="function not covered" >(o</span>pt) =&gt; (
-<span class="cstat-no" title="statement not covered" >              &lt;RadioOption</span>
-                key={opt}
-                label={opt}
-                selected={routine === opt}
-                onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >setRoutine(opt)}</span>
-              /&gt;
-            ))}
-          &lt;/View&gt;
-&nbsp;
-          &lt;Pressable
-            onPress={handleSave}
-            style={{
-              marginTop: 32,
-              paddingVertical: 18,
-              borderRadius: 30,
-              backgroundColor: '#828a6a',
-              alignItems: 'center',
-            }}
-          &gt;
-            &lt;Text style={{ color: 'white', fontWeight: '800', fontSize: 16 }}&gt;Save Changes&lt;/Text&gt;
-          &lt;/Pressable&gt;
-        &lt;/ScrollView&gt;
-      &lt;/View&gt;
+        &lt;Pressable
+          onPress={handleSave}
+          style={{
+            marginTop: 32,
+            paddingVertical: 18,
+            borderRadius: 30,
+            backgroundColor: colors.primary,
+            alignItems: 'center',
+          }}
+        &gt;
+          &lt;Text style={{ color: colors.onPrimary, fontWeight: '800', fontSize: 16 }}&gt;
+            Save Changes
+          &lt;/Text&gt;
+        &lt;/Pressable&gt;
+      &lt;/ScrollView&gt;
     &lt;/View&gt;
   );
 }
@@ -667,7 +661,7 @@ const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-15T12:52:51.097Z
+                at 2026-01-17T11:13:57.054Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

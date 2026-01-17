@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/24</span>
+                <span class='fraction'>0/22</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/31</span>
+                <span class='fraction'>0/33</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>0/9</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/22</span>
+                <span class='fraction'>0/21</span>
             </div>
         
             
@@ -266,10 +266,7 @@
 <a name='L201'></a><a href='#L201'>201</a>
 <a name='L202'></a><a href='#L202'>202</a>
 <a name='L203'></a><a href='#L203'>203</a>
-<a name='L204'></a><a href='#L204'>204</a>
-<a name='L205'></a><a href='#L205'>205</a>
-<a name='L206'></a><a href='#L206'>206</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L204'></a><a href='#L204'>204</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -293,7 +290,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -474,15 +470,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { useEffect, useState } from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import { View, Text, Pressable, ScrollView, Platform } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Colors, UI } from '@/constants/theme';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch, fetchProfile } from '@/store';
+import { useGetUserDataQuery } from '@/hooks/generated';
 import { IconSymbol } from '@/components/icon-symbol';
 &nbsp;
 async function <span class="fstat-no" title="function not covered" >signOut(</span>) {
@@ -491,15 +486,14 @@ async function <span class="fstat-no" title="function not covered" >signOut(</sp
 }
 &nbsp;
 export default function <span class="fstat-no" title="function not covered" >Profile(</span>) {
-  const dispatch = <span class="cstat-no" title="statement not covered" >useDispatch&lt;AppDispatch&gt;();</span>
   const [email, setEmail] = <span class="cstat-no" title="statement not covered" >useState&lt;string | null&gt;(null);</span>
   const theme = <span class="cstat-no" title="statement not covered" >useColorScheme() ?? 'light';</span>
   const colors = <span class="cstat-no" title="statement not covered" >Colors[theme];</span>
-  const profile = <span class="cstat-no" title="statement not covered" >useSelector(<span class="fstat-no" title="function not covered" >(s</span>: RootState) =&gt; <span class="cstat-no" title="statement not covered" >s.user.profile)</span>;</span>
+  const { data } = <span class="cstat-no" title="statement not covered" >useGetUserDataQuery();</span>
+  const profile = <span class="cstat-no" title="statement not covered" >data?.profile;</span>
   const { subscription, isExpired, isLifetime } = <span class="cstat-no" title="statement not covered" >useSubscription();</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    dispatch(fetchProfile());</span>
 <span class="cstat-no" title="statement not covered" >    (<span class="fstat-no" title="function not covered" >as</span>ync () =&gt; {</span>
       const raw = <span class="cstat-no" title="statement not covered" >await AsyncStorage.getItem('auth:session:v1');</span>
 <span class="cstat-no" title="statement not covered" >      if (raw) <span class="cstat-no" title="statement not covered" >setEmail(JSON.parse(raw)?.email ?? null);</span></span>
@@ -542,7 +536,7 @@ export default function <span class="fstat-no" title="function not covered" >Pro
         flex: 1,
         backgroundColor: colors.background,
         padding: UI.spacing.xl,
-        paddingTop: 18,
+        paddingTop: Platform.OS === 'ios' ? 18 : 8,
       }}
     &gt;
       &lt;ScrollView showsVerticalScrollIndicator={false}&gt;
@@ -685,7 +679,7 @@ export default function <span class="fstat-no" title="function not covered" >Pro
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-15T12:52:51.097Z
+                at 2026-01-17T11:13:57.054Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

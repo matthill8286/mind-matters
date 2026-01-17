@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable, ScrollView, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useSetSubscriptionMutation } from '@/gql/hooks';
+import { useSetSubscriptionMutation } from '@/gql/generated';
 import { showAlert } from '@/lib/state';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';

@@ -8,7 +8,7 @@ import {
   useGetStressKitQuery,
   useUpdateStressKitMutation,
   GetStressKitDocument,
-} from '@/gql/hooks';
+} from '@/gql/generated';
 import { showAlert } from '@/lib/state';
 import { StressKit } from '@/lib/stress';
 import { IconSymbol } from '@/components/icon-symbol';

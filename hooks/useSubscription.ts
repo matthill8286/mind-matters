@@ -1,4 +1,4 @@
-import { useGetUserDataQuery } from '@/gql/hooks';
+import { useGetUserDataQuery } from '@/gql/generated';
 
 export function useSubscription() {
   const { data } = useGetUserDataQuery();

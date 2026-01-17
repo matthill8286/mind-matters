@@ -1067,22 +1067,7 @@
 <a name='L1002'></a><a href='#L1002'>1002</a>
 <a name='L1003'></a><a href='#L1003'>1003</a>
 <a name='L1004'></a><a href='#L1004'>1004</a>
-<a name='L1005'></a><a href='#L1005'>1005</a>
-<a name='L1006'></a><a href='#L1006'>1006</a>
-<a name='L1007'></a><a href='#L1007'>1007</a>
-<a name='L1008'></a><a href='#L1008'>1008</a>
-<a name='L1009'></a><a href='#L1009'>1009</a>
-<a name='L1010'></a><a href='#L1010'>1010</a>
-<a name='L1011'></a><a href='#L1011'>1011</a>
-<a name='L1012'></a><a href='#L1012'>1012</a>
-<a name='L1013'></a><a href='#L1013'>1013</a>
-<a name='L1014'></a><a href='#L1014'>1014</a>
-<a name='L1015'></a><a href='#L1015'>1015</a>
-<a name='L1016'></a><a href='#L1016'>1016</a>
-<a name='L1017'></a><a href='#L1017'>1017</a>
-<a name='L1018'></a><a href='#L1018'>1018</a>
-<a name='L1019'></a><a href='#L1019'>1019</a>
-<a name='L1020'></a><a href='#L1020'>1020</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L1005'></a><a href='#L1005'>1005</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1550,11 +1535,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -1580,11 +1560,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1618,11 +1593,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2114,8 +2084,8 @@ import {
   NativeScrollEvent,
 } from 'react-native';
 import { router } from 'expo-router';
-import { useDispatch } from 'react-redux';
-import { AppDispatch, setAssessment, showAlert } from '@/store';
+import { useSetAssessmentMutation } from '@/hooks/generated';
+import { showAlert } from '@/lib/state';
 &nbsp;
 import Chips from '@/components/Chips';
 import SoundPulse from '@/components/SoundPulse';
@@ -2514,7 +2484,7 @@ function <span class="fstat-no" title="function not covered" >PlaybackButton(</s
 }
 &nbsp;
 export default function <span class="fstat-no" title="function not covered" >AssessmentScreen(</span>) {
-  const dispatch = <span class="cstat-no" title="statement not covered" >useDispatch&lt;AppDispatch&gt;();</span>
+  const [saveAssessment] = <span class="cstat-no" title="statement not covered" >useSetAssessmentMutation();</span>
   const [step, setStep] = <span class="cstat-no" title="statement not covered" >useState(0);</span>
   const [a, setA] = <span class="cstat-no" title="statement not covered" >useState&lt;Assessment&gt;({</span>
     createdAt: new Date().toISOString(),
@@ -2568,16 +2538,11 @@ export default function <span class="fstat-no" title="function not covered" >Ass
 &nbsp;
   async function <span class="fstat-no" title="function not covered" >next(</span>) {
 <span class="cstat-no" title="statement not covered" >    if (!canContinue) {</span>
-<span class="cstat-no" title="statement not covered" >      dispatch(</span>
-        showAlert({
-          title: 'Just one more thing',
-          message: 'Please fill in this step to continue.',
-        }),
-      );
+<span class="cstat-no" title="statement not covered" >      showAlert('Just one more thing', 'Please fill in this step to continue.');</span>
 <span class="cstat-no" title="statement not covered" >      return;</span>
     }
 <span class="cstat-no" title="statement not covered" >    if (step === STEPS.length - 1) {</span>
-<span class="cstat-no" title="statement not covered" >      await dispatch(setAssessment(a));</span>
+<span class="cstat-no" title="statement not covered" >      await saveAssessment({ variables: { input: a } });</span>
 <span class="cstat-no" title="statement not covered" >      router.replace('/(onboarding)/assessment-summary');</span>
 <span class="cstat-no" title="statement not covered" >      return;</span>
     }
@@ -2598,12 +2563,7 @@ export default function <span class="fstat-no" title="function not covered" >Ass
       // Actually expo-audio should be updating the state.
     } catch (e) {
 <span class="cstat-no" title="statement not covered" >      setRecordingFor(null);</span>
-<span class="cstat-no" title="statement not covered" >      dispatch(</span>
-        showAlert({
-          title: 'Microphone needed',
-          message: 'Please allow microphone access to record.',
-        }),
-      );
+<span class="cstat-no" title="statement not covered" >      showAlert('Microphone needed', 'Please allow microphone access to record.');</span>
 <span class="cstat-no" title="statement not covered" >      console.error('Recording start error:', e);</span>
     }
   }
@@ -2636,12 +2596,7 @@ export default function <span class="fstat-no" title="function not covered" >Ass
 <span class="cstat-no" title="statement not covered" >      setDraftTranscript(''); </span>// Clear transcript after saving
     } catch (e) {
 <span class="cstat-no" title="statement not covered" >      setRecordingFor(null);</span>
-<span class="cstat-no" title="statement not covered" >      dispatch(</span>
-        showAlert({
-          title: 'Recording error',
-          message: 'Could not save the recording. Please try again.',
-        }),
-      );
+<span class="cstat-no" title="statement not covered" >      showAlert('Recording error', 'Could not save the recording. Please try again.');</span>
 <span class="cstat-no" title="statement not covered" >      console.error('Recording stop error:', e);</span>
     }
   }
@@ -3127,7 +3082,7 @@ const styles: any = <span class="cstat-no" title="statement not covered" >{</spa
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-15T12:52:51.097Z
+                at 2026-01-17T11:13:57.054Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

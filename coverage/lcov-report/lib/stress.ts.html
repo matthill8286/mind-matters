@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">80% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>4/5</span>
+                <span class='fraction'>0/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">50% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>1/2</span>
+                <span class='fraction'>0/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">50% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/2</span>
+                <span class='fraction'>0/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">80% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>4/5</span>
+                <span class='fraction'>0/5</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -93,7 +93,7 @@
 <a name='L28'></a><a href='#L28'>28</a>
 <a name='L29'></a><a href='#L29'>29</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -103,7 +103,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -112,8 +112,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -121,7 +121,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import AsyncStorage from '@react-native-async-storage/async-storage';
 &nbsp;
-export const STORAGE_KEY = 'stress:kit:v1';
+export const STORAGE_KEY = <span class="cstat-no" title="statement not covered" >'stress:kit:v1';</span>
 &nbsp;
 export type StressKit = {
   quickPhrase?: string;
@@ -131,7 +131,7 @@ export type StressKit = {
   notes?: string;
 };
 &nbsp;
-export const DEFAULT_KIT: StressKit = {
+export const DEFAULT_KIT: StressKit = <span class="cstat-no" title="statement not covered" >{</span>
   quickPhrase: 'This feeling will pass. I can take one small step.',
   triggers: ['Work pressure', 'Conflict', 'Uncertainty'],
   helpfulActions: ['4-7-8 breathing', 'Short walk', 'Cold water on wrists'],
@@ -139,9 +139,9 @@ export const DEFAULT_KIT: StressKit = {
   notes: '',
 };
 &nbsp;
-export async function getStressKit(): Promise&lt;StressKit&gt; {
-  const raw = await AsyncStorage.getItem(STORAGE_KEY);
-  return raw ? <span class="branch-0 cbranch-no" title="branch not covered" >JSON.parse(raw) </span>: DEFAULT_KIT;
+export async function <span class="fstat-no" title="function not covered" >getStressKit(</span>): Promise&lt;StressKit&gt; {
+  const raw = <span class="cstat-no" title="statement not covered" >await AsyncStorage.getItem(STORAGE_KEY);</span>
+<span class="cstat-no" title="statement not covered" >  return raw ? JSON.parse(raw) : DEFAULT_KIT;</span>
 }
 &nbsp;
 export async function <span class="fstat-no" title="function not covered" >saveStressKit(</span>kit: StressKit): Promise&lt;void&gt; {
@@ -154,7 +154,7 @@ export async function <span class="fstat-no" title="function not covered" >saveS
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-15T12:52:51.097Z
+                at 2026-01-17T11:13:57.054Z
             </div>
         <script src="../prettify.js"></script>
         <script>

@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/12</span>
+                <span class='fraction'>0/13</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>0/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/7</span>
+                <span class='fraction'>0/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/11</span>
+                <span class='fraction'>0/12</span>
             </div>
         
             
@@ -127,13 +127,24 @@
 <a name='L62'></a><a href='#L62'>62</a>
 <a name='L63'></a><a href='#L63'>63</a>
 <a name='L64'></a><a href='#L64'>64</a>
-<a name='L65'></a><a href='#L65'>65</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -158,12 +169,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -178,6 +184,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -192,12 +204,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { useMemo, useState } from 'react';
-import { View, Text, Pressable, TextInput, FlatList } from 'react-native';
+import { View, Text, Pressable, TextInput, FlatList, Platform } from 'react-native';
 import { router } from 'expo-router';
 import ScreenHeader from '@/components/ScreenHeader';
 import { JOURNAL_PROMPTS } from '@/data/journalPrompts';
 &nbsp;
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Colors, UI } from '@/constants/theme';
+&nbsp;
 export default function <span class="fstat-no" title="function not covered" >JournalPrompts(</span>) {
+  const theme = <span class="cstat-no" title="statement not covered" >useColorScheme() ?? 'light';</span>
+  const colors = <span class="cstat-no" title="statement not covered" >Colors[theme];</span>
   const [q, setQ] = <span class="cstat-no" title="statement not covered" >useState('');</span>
 &nbsp;
   const data = <span class="cstat-no" title="statement not covered" >useMemo(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
@@ -209,18 +226,32 @@ export default function <span class="fstat-no" title="function not covered" >Jou
   }, [q]);
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  return (</span>
-    &lt;View style={{ flex: 1, backgroundColor: '#f6f4f2', padding: 24, paddingTop: 18 }}&gt;
-      &lt;ScreenHeader title="Journal Prompts" subtitle="Pick one to start writing." /&gt;
+    &lt;View
+      style={{
+        flex: 1,
+        backgroundColor: colors.background,
+        padding: UI.spacing.xl,
+        paddingTop: Platform.OS === 'ios' ? 18 : 8,
+      }}
+    &gt;
+      &lt;ScreenHeader title="Journal Prompts" subtitle="Pick one to start writing." showBack /&gt;
 &nbsp;
       &lt;TextInput
         value={q}
         onChangeText={setQ}
         placeholder="Search prompts…"
-        style={{ marginTop: 12, backgroundColor: 'white', padding: 12, borderRadius: 16 }}
+        placeholderTextColor={colors.placeholder}
+        style={{
+          marginTop: 14,
+          backgroundColor: colors.card,
+          padding: 12,
+          borderRadius: UI.radius.md,
+          color: colors.text,
+        }}
       /&gt;
 &nbsp;
       &lt;FlatList
-        style={{ marginTop: 12 }}
+        style={{ marginTop: 14 }}
         data={data}
         keyExtractor={<span class="fstat-no" title="function not covered" >(i</span>) =&gt; <span class="cstat-no" title="statement not covered" >i.id}</span>
         contentContainerStyle={{ gap: 10, paddingBottom: 18 }}
@@ -229,29 +260,16 @@ export default function <span class="fstat-no" title="function not covered" >Jou
             onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt;
 <span class="cstat-no" title="statement not covered" >              router.push({ pathname: '/(tabs)/(app)/journal/new', params: { promptId: item.id } })</span>
             }
-            style={{ padding: 14, borderRadius: 18, backgroundColor: 'white' }}
+            style={{ padding: 14, borderRadius: UI.radius.lg, backgroundColor: colors.card }}
           &gt;
-            &lt;Text style={{ fontSize: 16, fontWeight: '900' }}&gt;{item.title}&lt;/Text&gt;
-            &lt;Text style={{ opacity: 0.7, marginTop: 4 }}&gt;{item.prompt}&lt;/Text&gt;
-            &lt;Text style={{ opacity: 0.6, marginTop: 8, fontWeight: '800' }}&gt;
+            &lt;Text style={{ fontSize: 16, fontWeight: '900', color: colors.text }}&gt;{item.title}&lt;/Text&gt;
+            &lt;Text style={{ color: colors.mutedText, marginTop: 4 }}&gt;{item.prompt}&lt;/Text&gt;
+            &lt;Text style={{ color: colors.primary, marginTop: 8, fontWeight: '800' }}&gt;
               {item.category.toUpperCase()}
             &lt;/Text&gt;
           &lt;/Pressable&gt;
         )}
       /&gt;
-&nbsp;
-      &lt;Pressable
-        onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >router.back()}</span>
-        style={{
-          marginTop: 10,
-          padding: 14,
-          borderRadius: 18,
-          backgroundColor: '#eee',
-          alignItems: 'center',
-        }}
-      &gt;
-        &lt;Text style={{ fontWeight: '900' }}&gt;Back&lt;/Text&gt;
-      &lt;/Pressable&gt;
     &lt;/View&gt;
   );
 }
@@ -262,7 +280,7 @@ export default function <span class="fstat-no" title="function not covered" >Jou
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-15T12:52:51.097Z
+                at 2026-01-17T11:13:57.054Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

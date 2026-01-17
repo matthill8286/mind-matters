@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/21</span>
+                <span class='fraction'>0/20</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/18</span>
+                <span class='fraction'>0/17</span>
             </div>
         
             
@@ -236,16 +236,7 @@
 <a name='L171'></a><a href='#L171'>171</a>
 <a name='L172'></a><a href='#L172'>172</a>
 <a name='L173'></a><a href='#L173'>173</a>
-<a name='L174'></a><a href='#L174'>174</a>
-<a name='L175'></a><a href='#L175'>175</a>
-<a name='L176'></a><a href='#L176'>176</a>
-<a name='L177'></a><a href='#L177'>177</a>
-<a name='L178'></a><a href='#L178'>178</a>
-<a name='L179'></a><a href='#L179'>179</a>
-<a name='L180'></a><a href='#L180'>180</a>
-<a name='L181'></a><a href='#L181'>181</a>
-<a name='L182'></a><a href='#L182'>182</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L174'></a><a href='#L174'>174</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -347,7 +338,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -385,13 +375,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -429,8 +413,7 @@
 import { View, Text, Pressable, TextInput, FlatList } from 'react-native';
 import { router } from 'expo-router';
 import { useSubscription } from '@/hooks/useSubscription';
-import { useDispatch } from 'react-redux';
-import { showAlert, AppDispatch } from '@/store';
+import { showAlert } from '@/lib/state';
 import { IconSymbol } from '@/components/icon-symbol';
 &nbsp;
 type MenuItem = { key: string; title: string; subtitle: string; path: string; isPremium?: boolean };
@@ -526,7 +509,6 @@ const ITEMS: MenuItem[] = <span class="cstat-no" title="statement not covered" >
 ];
 &nbsp;
 export default function <span class="fstat-no" title="function not covered" >MenuModal(</span>) {
-  const dispatch = <span class="cstat-no" title="statement not covered" >useDispatch&lt;AppDispatch&gt;();</span>
   const [q, setQ] = <span class="cstat-no" title="statement not covered" >useState('');</span>
   const { hasFullAccess } = <span class="cstat-no" title="statement not covered" >useSubscription();</span>
 &nbsp;
@@ -564,16 +546,10 @@ export default function <span class="fstat-no" title="function not covered" >Men
 <span class="cstat-no" title="statement not covered" >          &lt;Pressable</span>
             onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; {
 <span class="cstat-no" title="statement not covered" >              if (item.isPremium &amp;&amp; !hasFullAccess) {</span>
-<span class="cstat-no" title="statement not covered" >                dispatch(</span>
-                  showAlert({
-                    title: 'Premium Feature',
-                    message: 'Upgrade to lifetime access to use this feature.',
-                    actions: [
-                      { text: 'Cancel', style: 'cancel' },
-                      { text: 'Upgrade', onPress: <span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >router.push('/(auth)/trial-upgrade') </span>},
-                    ],
-                  }),
-                );
+<span class="cstat-no" title="statement not covered" >                showAlert('Premium Feature', 'Upgrade to lifetime access to use this feature.', [</span>
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Upgrade', onPress: <span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >router.push('/(auth)/trial-upgrade') </span>},
+                ]);
 <span class="cstat-no" title="statement not covered" >                return;</span>
               }
 <span class="cstat-no" title="statement not covered" >              router.back();</span>
@@ -613,7 +589,7 @@ export default function <span class="fstat-no" title="function not covered" >Men
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-15T12:52:51.097Z
+                at 2026-01-17T11:13:57.054Z
             </div>
         <script src="../prettify.js"></script>
         <script>

@@ -5,7 +5,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Colors, UI } from '@/constants/theme';
-import { useAddSleepEntryMutation, GetSleepEntriesDocument } from '@/gql/hooks';
+import { useAddSleepEntryMutation, GetSleepEntriesDocument } from '@/gql/generated';
 import { showAlert } from '@/lib/state';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 

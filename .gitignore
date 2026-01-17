@@ -5,6 +5,8 @@ node_modules/
 
 .idea/
 
+coverage/
+
 # Expo
 .expo/
 dist/

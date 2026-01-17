@@ -6,7 +6,7 @@ import { router } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Colors, UI } from '@/constants/theme';
-import { useGetUserDataQuery } from '@/gql/hooks';
+import { useGetUserDataQuery } from '@/gql/generated';
 import { IconSymbol } from '@/components/icon-symbol';
 
 async function signOut() {

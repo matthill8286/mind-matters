@@ -8,7 +8,7 @@ import {
   useGetMoodCheckInsQuery,
   useAddMoodCheckInMutation,
   GetMoodCheckInsDocument,
-} from '@/gql/hooks';
+} from '@/gql/generated';
 import { showAlert } from '@/lib/state';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';

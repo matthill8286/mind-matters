@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">90.9% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>10/11</span>
+                <span class='fraction'>0/11</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>0/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">66.66% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/3</span>
+                <span class='fraction'>0/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">90% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>9/10</span>
+                <span class='fraction'>0/10</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -133,19 +133,19 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -183,33 +183,33 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { useState } from 'react';
 import { View, Text, Pressable, TextInput } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 &nbsp;
-export default function SignIn() {
-  const [email, setEmail] = useState('');
-  const [pass, setPass] = useState('');
+export default function <span class="fstat-no" title="function not covered" >SignIn(</span>) {
+  const [email, setEmail] = <span class="cstat-no" title="statement not covered" >useState('');</span>
+  const [pass, setPass] = <span class="cstat-no" title="statement not covered" >useState('');</span>
 &nbsp;
-  async function onSignIn() {
-    if (!email || !pass) return;
-    await AsyncStorage.setItem(
+  async function <span class="fstat-no" title="function not covered" >onSignIn(</span>) {
+<span class="cstat-no" title="statement not covered" >    if (!email || !pass) <span class="cstat-no" title="statement not covered" >return;</span></span>
+<span class="cstat-no" title="statement not covered" >    await AsyncStorage.setItem(</span>
       'auth:session:v1',
       JSON.stringify({ email, createdAt: new Date().toISOString() }),
     );
-    router.replace('/index' as any);
+<span class="cstat-no" title="statement not covered" >    router.replace('/index' as any);</span>
   }
 &nbsp;
-  return (
+<span class="cstat-no" title="statement not covered" >  return (</span>
     &lt;View style={{ flex: 1, backgroundColor: '#6f6660', padding: 24, justifyContent: 'center' }}&gt;
       &lt;View style={{ backgroundColor: 'white', borderRadius: 28, padding: 26 }}&gt;
         &lt;Text style={{ fontSize: 26, fontWeight: '900' }}&gt;Sign in&lt;/Text&gt;
@@ -247,14 +247,14 @@ export default function SignIn() {
   );
 }
 &nbsp;
-const input = { marginTop: 8, padding: 12, borderRadius: 16, backgroundColor: '#f2f2f2' };
-const primaryBtn = {
+const input = <span class="cstat-no" title="statement not covered" >{ marginTop: 8, padding: 12, borderRadius: 16, backgroundColor: '#f2f2f2' };</span>
+const primaryBtn = <span class="cstat-no" title="statement not covered" >{</span>
   marginTop: 18,
   backgroundColor: '#a07b55',
   padding: 16,
   borderRadius: 18,
 };
-const primaryBtnText = { color: 'white' };
+const primaryBtnText = <span class="cstat-no" title="statement not covered" >{ color: 'white' };</span>
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -262,7 +262,7 @@ const primaryBtnText = { color: 'white' };
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-15T12:52:51.097Z
+                at 2026-01-17T11:13:57.054Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

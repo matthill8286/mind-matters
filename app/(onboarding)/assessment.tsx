@@ -11,7 +11,7 @@ import {
   NativeScrollEvent,
 } from 'react-native';
 import { router } from 'expo-router';
-import { useSetAssessmentMutation } from '@/gql/hooks';
+import { useSetAssessmentMutation } from '@/gql/generated';
 import { showAlert } from '@/lib/state';
 
 import Chips from '@/components/Chips';

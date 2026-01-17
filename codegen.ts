@@ -2,20 +2,15 @@ import type { CodegenConfig } from '@graphql-codegen/cli';
 
 const config: CodegenConfig = {
   overwrite: true,
-  schema: 'http://localhost:4000/graphql',
-  documents: ['lib/**/*.ts', 'app/**/*.tsx', 'components/**/*.tsx'],
+  schema: 'schema.graphql',
+  documents: ['gql/**/*.ts', '!gql/gql.ts', '!gql/graphql.ts', '!gql/hooks.ts'],
   generates: {
-    './gql/': {
-      preset: 'client',
-      plugins: [],
+    './gql/generated.ts': {
+      plugins: ['typescript', 'typescript-operations', 'typescript-react-query'],
       config: {
-        useTypeImports: true,
-      },
-    },
-    './gql/hooks.ts': {
-      plugins: ['typescript', 'typescript-operations', 'typescript-react-apollo'],
-      config: {
-        withHooks: true,
+        fetcher: {
+          endpoint: 'process.env.EXPO_PUBLIC_GRAPHQL_ENDPOINT',
+        },
       },
     },
   },

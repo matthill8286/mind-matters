@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, TextInput, ScrollView, StyleSheet, Platform } from 'react-native';
 import { router } from 'expo-router';
-import { useGetUserDataQuery, useSetProfileMutation, GetUserDataDocument } from '@/gql/hooks';
+import { useGetUserDataQuery, useSetProfileMutation, GetUserDataDocument } from '@/gql/generated';
 import { showAlert } from '@/lib/state';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';

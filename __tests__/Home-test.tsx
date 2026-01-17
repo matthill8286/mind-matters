@@ -1,31 +1,23 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import Home from '../app/(tabs)/home';
-import { MockedProvider } from '@apollo/client/testing';
-import { GetAllDataDocument } from '../gql/graphql';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useGetAllDataQuery } from '../gql/generated';
 import { router } from 'expo-router';
 
 import { useSubscription } from '../hooks/useSubscription';
 
-// Mock data
-const mockData = {
-  moodCheckIns: [],
-  journalEntries: [],
-  assessment: {},
-  mindfulnessHistory: [],
-  stressHistory: [],
-};
-
-const mocks = [
-  {
-    request: {
-      query: GetAllDataDocument,
-    },
-    result: {
-      data: mockData,
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
     },
   },
-];
+});
+
+jest.mock('../gql/generated', () => ({
+  useGetAllDataQuery: jest.fn(),
+}));
 
 jest.mock('../hooks/useSubscription');
 
@@ -42,14 +34,24 @@ jest.mock('../components/ScreenHeader', () => {
 describe('Home Screen', () => {
   beforeEach(() => {
     (useSubscription as jest.Mock).mockReturnValue({ isExpired: false, hasFullAccess: true });
+    (useGetAllDataQuery as jest.Mock).mockReturnValue({
+      data: {
+        moodCheckIns: [],
+        journalEntries: [],
+        assessment: {},
+        mindfulnessHistory: [],
+        stressHistory: [],
+      },
+      isLoading: false,
+    });
     jest.clearAllMocks();
   });
 
   it('renders wellness scores and quick actions', async () => {
     const { getByText } = render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <QueryClientProvider client={queryClient}>
         <Home />
-      </MockedProvider>,
+      </QueryClientProvider>,
     );
 
     expect(getByText('Home')).toBeTruthy();
@@ -69,9 +71,9 @@ describe('Home Screen', () => {
 
   it('navigates to stress toolkit when pressed', () => {
     const { getByText } = render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <QueryClientProvider client={queryClient}>
         <Home />
-      </MockedProvider>,
+      </QueryClientProvider>,
     );
 
     fireEvent.press(getByText('Stress toolkit'));
@@ -82,9 +84,9 @@ describe('Home Screen', () => {
     (useSubscription as jest.Mock).mockReturnValue({ isExpired: true, hasFullAccess: false });
 
     const { getByText } = render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <QueryClientProvider client={queryClient}>
         <Home />
-      </MockedProvider>,
+      </QueryClientProvider>,
     );
 
     expect(getByText('Trial Expired')).toBeTruthy();

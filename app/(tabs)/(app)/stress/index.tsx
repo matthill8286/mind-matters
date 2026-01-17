@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Colors, UI } from '@/constants/theme';
-import { useGetStressKitQuery } from '@/gql/hooks';
+import { useGetStressKitQuery } from '@/gql/generated';
 import { showAlert } from '@/lib/state';
 import { IconSymbol } from '@/components/icon-symbol';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';

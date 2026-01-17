@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView, Platform } from 'react-native';
 import Calendar from '@/components/Calendar';
-import { useGetJournalEntriesQuery } from '@/gql/hooks';
+import { useGetJournalEntriesQuery } from '@/gql/generated';
 import { showAlert } from '@/lib/state';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';

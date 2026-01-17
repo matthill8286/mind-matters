@@ -4,7 +4,7 @@ import ScreenHeader from '@/components/ScreenHeader';
 import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
-import { useGetSleepEntriesQuery } from '@/gql/hooks';
+import { useGetSleepEntriesQuery } from '@/gql/generated';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function SleepHistoryScreen() {

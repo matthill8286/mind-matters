@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useGetAllDataQuery } from '@/gql/hooks';
+import { useGetAllDataQuery } from '@/gql/generated';
 import { calculateWellnessScore } from '@/lib/wellness';
 import ScoreCard from '@/components/ScoreCard';
 

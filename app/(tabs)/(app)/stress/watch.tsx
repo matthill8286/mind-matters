@@ -6,7 +6,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 import { STRESS_VIDEOS } from '@/data/stressVideos';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { useAddStressCompletionMutation, GetStressKitDocument } from '@/gql/hooks';
+import { useAddStressCompletionMutation, GetStressKitDocument } from '@/gql/generated';
 
 const QUOTES = [
   'Take a deep breath and let go of what you cannot control.',

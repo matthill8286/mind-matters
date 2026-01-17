@@ -25,21 +25,21 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/22</span>
+                <span class='fraction'>0/21</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/13</span>
+                <span class='fraction'>0/17</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>0/9</span>
             </div>
         
             
@@ -251,13 +251,7 @@
 <a name='L186'></a><a href='#L186'>186</a>
 <a name='L187'></a><a href='#L187'>187</a>
 <a name='L188'></a><a href='#L188'>188</a>
-<a name='L189'></a><a href='#L189'>189</a>
-<a name='L190'></a><a href='#L190'>190</a>
-<a name='L191'></a><a href='#L191'>191</a>
-<a name='L192'></a><a href='#L192'>192</a>
-<a name='L193'></a><a href='#L193'>193</a>
-<a name='L194'></a><a href='#L194'>194</a>
-<a name='L195'></a><a href='#L195'>195</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L189'></a><a href='#L189'>189</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -405,13 +399,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -451,24 +439,24 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { View, Text, Pressable, ScrollView } from 'react-native';
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { View, Text, Pressable, ScrollView, Platform } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
-import { router, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Colors, UI } from '@/constants/theme';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState, showAlert } from '@/store';
+import { useGetStressKitQuery } from '@/hooks/generated';
+import { showAlert } from '@/lib/state';
 import { IconSymbol } from '@/components/icon-symbol';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 &nbsp;
 export default function <span class="fstat-no" title="function not covered" >StressHub(</span>) {
   const router = <span class="cstat-no" title="statement not covered" >useRouter();</span>
-  const dispatch = <span class="cstat-no" title="statement not covered" >useDispatch();</span>
   const theme = <span class="cstat-no" title="statement not covered" >useColorScheme() ?? 'light';</span>
   const { hasFullAccess } = <span class="cstat-no" title="statement not covered" >useSubscription();</span>
   const colors = <span class="cstat-no" title="statement not covered" >Colors[theme];</span>
-  const kit = <span class="cstat-no" title="statement not covered" >useSelector(<span class="fstat-no" title="function not covered" >(s</span>tate: RootState) =&gt; <span class="cstat-no" title="statement not covered" >state.stress.stressKit)</span>;</span>
+  const { data } = <span class="cstat-no" title="statement not covered" >useGetStressKitQuery();</span>
+  const kit = <span class="cstat-no" title="statement not covered" >data?.stressKit || { quickPhrase: '' };</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  return (</span>
     &lt;View
@@ -476,7 +464,7 @@ export default function <span class="fstat-no" title="function not covered" >Str
         flex: 1,
         backgroundColor: colors.background,
         padding: UI.spacing.xl,
-        paddingTop: 18,
+        paddingTop: Platform.OS === 'ios' ? 18 : 8,
       }}
     &gt;
       &lt;ScreenHeader
@@ -589,7 +577,7 @@ function <span class="fstat-no" title="function not covered" >Card(</span>{
   icon: string;
   color: string;
 }) {
-  const dispatch = <span class="cstat-no" title="statement not covered" >useDispatch();</span>
+  const router = <span class="cstat-no" title="statement not covered" >useRouter();</span>
   const theme = <span class="cstat-no" title="statement not covered" >useColorScheme() ?? 'light';</span>
   const colors = <span class="cstat-no" title="statement not covered" >Colors[theme];</span>
 &nbsp;
@@ -597,16 +585,10 @@ function <span class="fstat-no" title="function not covered" >Card(</span>{
     &lt;Pressable
       onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; {
 <span class="cstat-no" title="statement not covered" >        if (isLocked) {</span>
-<span class="cstat-no" title="statement not covered" >          dispatch(</span>
-            showAlert({
-              title: 'Premium Feature',
-              message: 'Upgrade to lifetime access to unlock this tool.',
-              actions: [
-                { text: 'Cancel', style: 'cancel' },
-                { text: 'Upgrade', onPress: <span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >router.push('/(auth)/trial-upgrade') </span>},
-              ],
-            }),
-          );
+<span class="cstat-no" title="statement not covered" >          showAlert('Premium Feature', 'Upgrade to lifetime access to unlock this tool.', [</span>
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Upgrade', onPress: <span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >router.push('/(auth)/trial-upgrade') </span>},
+          ]);
 <span class="cstat-no" title="statement not covered" >          return;</span>
         }
 <span class="cstat-no" title="statement not covered" >        onPress();</span>
@@ -652,7 +634,7 @@ function <span class="fstat-no" title="function not covered" >Card(</span>{
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-15T12:52:51.097Z
+                at 2026-01-17T11:13:57.054Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

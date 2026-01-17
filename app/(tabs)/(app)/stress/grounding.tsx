@@ -4,7 +4,7 @@ import ScreenHeader from '@/components/ScreenHeader';
 import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
-import { useAddStressCompletionMutation, GetStressKitDocument } from '@/gql/hooks';
+import { useAddStressCompletionMutation, GetStressKitDocument } from '@/gql/generated';
 
 export default function Grounding() {
   const router = useRouter();

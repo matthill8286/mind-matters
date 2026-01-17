@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { View, Text, Pressable, ScrollView, Platform } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
 import { router } from 'expo-router';
-import { useGetAllDataQuery } from '@/gql';
+import { useGetAllDataQuery } from '@/gql/generated';
 import { calculateWellnessScore } from '@/lib/wellness';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSubscription } from '@/hooks/useSubscription';

@@ -1,41 +1,46 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import TrialUpgrade from '../app/(auth)/trial-upgrade';
-import { MockedProvider } from '@apollo/client/testing';
-import { SetSubscriptionDocument } from '../gql/graphql';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useSetSubscriptionMutation } from '../gql/generated';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const mocks = [
-  {
-    request: {
-      query: SetSubscriptionDocument,
-      variables: {
-        input: expect.anything(),
-      },
-    },
-    result: {
-      data: {
-        setSubscription: {
-          type: 'trial',
-          expiryDate: '2026-01-23T16:48:00.000Z',
-          __typename: 'Subscription',
-        },
-      },
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
     },
   },
-];
+});
+
+jest.mock('../gql/generated', () => ({
+  useSetSubscriptionMutation: jest.fn(),
+}));
 
 describe('TrialUpgrade Screen', () => {
+  const mockMutateAsync = jest.fn();
+
   beforeEach(() => {
+    (useSetSubscriptionMutation as jest.Mock).mockReturnValue({
+      mutateAsync: mockMutateAsync,
+      isLoading: false,
+    });
+    mockMutateAsync.mockResolvedValue({
+      setSubscription: {
+        type: 'trial',
+        expiryDate: '2026-01-23T16:48:00.000Z',
+        __typename: 'Subscription',
+      },
+    });
     jest.clearAllMocks();
   });
 
   it('renders correctly with all plans', () => {
     const { getByText } = render(
-      <MockedProvider mocks={[]} addTypename={false}>
+      <QueryClientProvider client={queryClient}>
         <TrialUpgrade />
-      </MockedProvider>,
+      </QueryClientProvider>,
     );
 
     expect(getByText('MindMate Premium')).toBeTruthy();
@@ -47,9 +52,9 @@ describe('TrialUpgrade Screen', () => {
 
   it('selects 7-day trial and navigates to assessment', async () => {
     const { getByText } = render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <QueryClientProvider client={queryClient}>
         <TrialUpgrade />
-      </MockedProvider>,
+      </QueryClientProvider>,
     );
 
     fireEvent.press(getByText('Start Free Trial'));
@@ -65,9 +70,9 @@ describe('TrialUpgrade Screen', () => {
 
   it('selects monthly plan and navigates to assessment', async () => {
     const { getByText } = render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <QueryClientProvider client={queryClient}>
         <TrialUpgrade />
-      </MockedProvider>,
+      </QueryClientProvider>,
     );
 
     fireEvent.press(getByText('Pay with Card or Mobile'));
@@ -86,9 +91,9 @@ describe('TrialUpgrade Screen', () => {
 
   it('selects lifetime plan and navigates to assessment', async () => {
     const { getByText } = render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <QueryClientProvider client={queryClient}>
         <TrialUpgrade />
-      </MockedProvider>,
+      </QueryClientProvider>,
     );
 
     fireEvent.press(getByText('Lifetime Access'));
