@@ -1,11 +1,12 @@
-import React, { useEffect } from 'react';
-import { View, Text, Pressable, FlatList } from 'react-native';
+import React from 'react';
+import { View, Text, Pressable, FlatList, Platform } from 'react-native';
 import { router } from 'expo-router';
 import ScreenHeader from '@/components/ScreenHeader';
 import { IconSymbol } from '@/components/icon-symbol';
-import { useSelector, useDispatch } from 'react-redux';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useQuery } from '@apollo/client/react';
 import { useSubscription } from '@/hooks/useSubscription';
-import { RootState, AppDispatch, fetchJournalEntries, showAlert } from '@/store';
+import { showAlert, GET_JOURNAL_ENTRIES } from '@/lib/apollo';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 
@@ -18,15 +19,11 @@ function formatDate(iso: string) {
 }
 
 export default function Journal() {
-  const dispatch = useDispatch<AppDispatch>();
   const theme = useColorScheme() ?? 'light';
   const { hasFullAccess } = useSubscription();
   const colors = Colors[theme];
-  const entries = useSelector((s: RootState) => s.journal.journalEntries);
-
-  useEffect(() => {
-    dispatch(fetchJournalEntries());
-  }, []);
+  const { data } = useQuery(GET_JOURNAL_ENTRIES);
+  const entries = data?.journalEntries || [];
 
   return (
     <View
@@ -34,7 +31,7 @@ export default function Journal() {
         flex: 1,
         backgroundColor: colors.background,
         padding: UI.spacing.xl,
-        paddingTop: 18,
+        paddingTop: Platform.OS === 'ios' ? 18 : 8,
       }}
     >
       <ScreenHeader
@@ -43,16 +40,17 @@ export default function Journal() {
         rightElement={
           <Pressable
             onPress={() => router.push('/(tabs)/(app)/journal/history')}
-            style={{
+            style={({ pressed }) => ({
               width: 44,
               height: 44,
               borderRadius: 22,
               backgroundColor: colors.card,
               alignItems: 'center',
               justifyContent: 'center',
-            }}
+              opacity: pressed ? 0.7 : 1,
+            })}
           >
-            <IconSymbol name="calendar" size={24} color={colors.primary} />
+            <MaterialIcons name="history" size={24} color={colors.primary} />
           </Pressable>
         }
       />
@@ -61,15 +59,13 @@ export default function Journal() {
         <Pressable
           onPress={() => {
             if (!hasFullAccess) {
-              dispatch(
-                showAlert({
-                  title: 'Premium Feature',
-                  message: 'Upgrade to lifetime access to create new journal entries.',
-                  actions: [
-                    { text: 'Cancel', style: 'cancel' },
-                    { text: 'Upgrade', onPress: () => router.push('/(auth)/trial-upgrade') },
-                  ],
-                }),
+              showAlert(
+                'Premium Feature',
+                'Upgrade to lifetime access to create new journal entries.',
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Upgrade', onPress: () => router.push('/(auth)/trial-upgrade') },
+                ],
               );
               return;
             }
@@ -93,16 +89,10 @@ export default function Journal() {
         <Pressable
           onPress={() => {
             if (!hasFullAccess) {
-              dispatch(
-                showAlert({
-                  title: 'Premium Feature',
-                  message: 'Upgrade to lifetime access to use journal prompts.',
-                  actions: [
-                    { text: 'Cancel', style: 'cancel' },
-                    { text: 'Upgrade', onPress: () => router.push('/(auth)/trial-upgrade') },
-                  ],
-                }),
-              );
+              showAlert('Premium Feature', 'Upgrade to lifetime access to use journal prompts.', [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Upgrade', onPress: () => router.push('/(auth)/trial-upgrade') },
+              ]);
               return;
             }
             router.push('/(tabs)/(app)/journal/prompts');
@@ -177,7 +167,7 @@ export default function Journal() {
               {formatDate(item.createdAt)}
             </Text>
             <Text style={{ color: colors.mutedText, marginTop: 6 }} numberOfLines={2}>
-              {item.body}
+              {item.content}
             </Text>
             {(item.tags ?? []).length ? (
               <Text style={{ color: colors.subtleText, marginTop: 8, fontWeight: '800' }}>
