@@ -80,9 +80,7 @@ export default function ProfileEdit() {
   const colors = Colors[theme];
   const { data } = useGetUserDataQuery();
   const profile = data?.profile;
-  const [updateProfile] = useSetProfileMutation({
-    refetchQueries: [{ query: GetUserDataDocument }],
-  });
+  const { mutateAsync: updateProfile } = useSetProfileMutation();
 
   const [name, setName] = useState(profile?.name || '');
   const [intention, setIntention] = useState(profile?.intention || '');
@@ -105,7 +103,7 @@ export default function ProfileEdit() {
       updatedAt: new Date().toISOString(),
     };
 
-    await updateProfile({ variables: { input: updatedProfile } });
+    await updateProfile({ input: updatedProfile });
     showAlert('Success', 'Profile updated successfully.');
     router.back();
   }

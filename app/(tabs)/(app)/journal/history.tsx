@@ -12,7 +12,7 @@ import ScreenHeader from '@/components/ScreenHeader';
 export default function JournalHistory() {
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
-  const { data, loading, error } = useGetJournalEntriesQuery();
+  const { data, isPending: loading, error } = useGetJournalEntriesQuery();
   const entries = data?.journalEntries || [];
   const [selectedDate, setSelectedDate] = useState(new Date());
 

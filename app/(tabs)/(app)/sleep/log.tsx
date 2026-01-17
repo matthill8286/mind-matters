@@ -20,9 +20,8 @@ export default function LogSleepScreen() {
   const [duration, setDuration] = useState((params.duration as string) || '8');
   const [note, setNote] = useState('');
 
-  const [addSleepEntry, { loading }] = useAddSleepEntryMutation({
-    refetchQueries: [{ query: GetSleepEntriesDocument }],
-    onCompleted: () => {
+  const { mutateAsync: addSleepEntry, isPending: loading } = useAddSleepEntryMutation({
+    onSuccess: () => {
       showAlert('Saved', 'Your sleep entry was saved.');
       router.back();
     },
@@ -37,13 +36,11 @@ export default function LogSleepScreen() {
       return;
     }
     addSleepEntry({
-      variables: {
-        input: {
-          date: new Date().toISOString().split('T')[0],
-          quality,
-          duration: parseFloat(duration) || 0,
-          note,
-        },
+      input: {
+        date: new Date().toISOString().split('T')[0],
+        quality,
+        duration: parseFloat(duration) || 0,
+        note,
       },
     });
   };

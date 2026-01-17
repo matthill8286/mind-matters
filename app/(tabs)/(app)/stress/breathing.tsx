@@ -8,9 +8,7 @@ import { useAddStressCompletionMutation, GetStressKitDocument } from '@/gql/gene
 
 export default function Breathing() {
   const router = useRouter();
-  const [addCompletion] = useAddStressCompletionMutation({
-    refetchQueries: [{ query: GetStressKitDocument }],
-  });
+  const { mutateAsync: addCompletion } = useAddStressCompletionMutation();
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
   const [phase, setPhase] = useState<'inhale' | 'hold' | 'exhale'>('inhale');
@@ -66,7 +64,8 @@ export default function Breathing() {
           const newCycles = c + 1;
           if (newCycles === 4) {
             addCompletion({
-              variables: { exerciseId: 'breathing-478', title: 'Breathing Coach' },
+              exerciseId: 'breathing-478',
+              title: 'Breathing Coach',
             });
           }
           return newCycles;

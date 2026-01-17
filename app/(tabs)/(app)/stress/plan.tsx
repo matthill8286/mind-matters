@@ -10,7 +10,7 @@ import {
   GetStressKitDocument,
 } from '@/gql/generated';
 import { showAlert } from '@/lib/state';
-import { StressKit } from '@/lib/stress';
+import { StressKit, DEFAULT_KIT } from '@/lib/stress';
 import { IconSymbol } from '@/components/icon-symbol';
 
 export default function StressPlan() {
@@ -18,10 +18,16 @@ export default function StressPlan() {
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
   const { data } = useGetStressKitQuery();
-  const kit = data?.stressKit || {};
-  const [updateKit] = useUpdateStressKitMutation({
-    refetchQueries: [{ query: GetStressKitDocument }],
-  });
+  const kit = data?.stressKit
+    ? {
+        quickPhrase: data.stressKit.quickPhrase ?? '',
+        triggers: data.stressKit.triggers || [],
+        helpfulActions: data.stressKit.helpfulActions || [],
+        people: data.stressKit.people || [],
+        notes: data.stressKit.notes ?? '',
+      }
+    : DEFAULT_KIT;
+  const { mutateAsync: updateKit } = useUpdateStressKitMutation();
   const [draft, setDraft] = useState<StressKit>(kit);
 
   const inputStyle = {
@@ -33,7 +39,13 @@ export default function StressPlan() {
 
   useEffect(() => {
     if (data?.stressKit) {
-      setDraft(data.stressKit);
+      setDraft({
+        quickPhrase: data.stressKit.quickPhrase ?? '',
+        triggers: data.stressKit.triggers || [],
+        helpfulActions: data.stressKit.helpfulActions || [],
+        people: data.stressKit.people || [],
+        notes: data.stressKit.notes ?? '',
+      });
     }
   }, [data]);
 
@@ -66,7 +78,7 @@ export default function StressPlan() {
       people: (draft.people || []).filter(Boolean),
       notes: draft.notes || '',
     };
-    await updateKit({ variables: { input: next } });
+    await updateKit({ input: next });
     showAlert('Saved', 'Your Stress Kit was updated.');
     router.back();
   }

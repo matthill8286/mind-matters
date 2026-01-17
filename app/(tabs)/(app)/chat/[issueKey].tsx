@@ -15,7 +15,6 @@ import {
   useGetChatMessagesQuery,
   useSendMessageMutation,
   useClearChatMutation,
-  GetChatMessagesDocument,
 } from '@/gql/generated';
 import { ISSUES } from '@/data/issues';
 import { showAlert } from '@/lib/state';
@@ -29,21 +28,15 @@ export default function Chat() {
 
   const {
     data,
-    loading: queryLoading,
+    isPending: queryLoading,
     error,
-  } = useGetChatMessagesQuery({
-    variables: { issueKey: issueKey ?? 'general' },
+  } = useGetChatMessagesQuery({ issueKey: issueKey ?? 'general' });
+  const { mutateAsync: sendMessageMutation, isPending: sendLoading } = useSendMessageMutation({
+    onSuccess: () => {
+      // Handle refetch if needed, but TanStack Query usually handles this via cache keys or explicit invalidation
+    },
   });
-  const [sendMessageMutation, { loading: sendLoading }] = useSendMessageMutation({
-    refetchQueries: [
-      { query: GetChatMessagesDocument, variables: { issueKey: issueKey ?? 'general' } },
-    ],
-  });
-  const [clearChatMutation] = useClearChatMutation({
-    refetchQueries: [
-      { query: GetChatMessagesDocument, variables: { issueKey: issueKey ?? 'general' } },
-    ],
-  });
+  const { mutateAsync: clearChatMutation } = useClearChatMutation();
 
   const messages = data?.chatMessages || [];
   const loading = queryLoading || sendLoading;
@@ -55,7 +48,8 @@ export default function Chat() {
 
   useEffect(() => {
     if (error) {
-      console.error('Chat error:', error);
+      const msg = (error as any)?.message || 'Something went wrong';
+      console.error('Chat error:', msg);
     }
   }, [error]);
 
@@ -66,10 +60,8 @@ export default function Chat() {
     setInputText('');
 
     await sendMessageMutation({
-      variables: {
-        issueKey: issue?.key ?? 'general',
-        text,
-      },
+      issueKey: issue?.key ?? 'general',
+      text,
     });
   }
 
@@ -95,8 +87,9 @@ export default function Chat() {
                       {
                         text: 'Clear',
                         style: 'destructive',
-                        onPress: () =>
-                          clearChatMutation({ variables: { issueKey: issueKey ?? 'general' } }),
+                        onPress: async () => {
+                          await clearChatMutation({ issueKey: issueKey ?? 'general' });
+                        },
                       },
                     ],
                   );
@@ -192,7 +185,7 @@ export default function Chat() {
           }}
         />
 
-        {error && (
+        {!!error && (
           <View
             style={{
               padding: 10,
@@ -208,7 +201,7 @@ export default function Chat() {
                 textAlign: 'center',
               }}
             >
-              {error.message}
+              {(error as any)?.message || 'Something went wrong'}
             </Text>
           </View>
         )}

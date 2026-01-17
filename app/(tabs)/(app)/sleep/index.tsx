@@ -5,6 +5,8 @@ import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 import { useSleepMode, sleepModeVar, showAlert } from '@/lib/state';
+import { useGetSleepEntriesQuery } from '@/gql/generated';
+import { MaterialIcons } from '@expo/vector-icons';
 
 export default function SleepScreen() {
   const router = useRouter();
@@ -12,7 +14,7 @@ export default function SleepScreen() {
   const colors = Colors[theme];
   const { sleepModeStartISO } = useSleepMode();
 
-  const { data } = useGetSleepEntriesQuery();
+  const { data, isPending } = useGetSleepEntriesQuery();
   const entries = data?.sleepEntries || [];
   const lastEntry = entries[0];
 
@@ -129,20 +131,20 @@ export default function SleepScreen() {
   );
 }
 
-function getQualityLabel(val: number) {
-  switch (val) {
-    case 1:
-      return 'Poor';
-    case 2:
-      return 'Fair';
-    case 3:
-      return 'Good';
-    case 4:
-      return 'Great';
+function getQualityLabel(quality?: number) {
+  switch (quality) {
     case 5:
       return 'Excellent';
+    case 4:
+      return 'Good';
+    case 3:
+      return 'Fair';
+    case 2:
+      return 'Poor';
+    case 1:
+      return 'Very Poor';
     default:
-      return '';
+      return 'N/A';
   }
 }
 

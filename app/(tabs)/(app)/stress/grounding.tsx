@@ -8,9 +8,7 @@ import { useAddStressCompletionMutation, GetStressKitDocument } from '@/gql/gene
 
 export default function Grounding() {
   const router = useRouter();
-  const [addCompletion] = useAddStressCompletionMutation({
-    refetchQueries: [{ query: GetStressKitDocument }],
-  });
+  const { mutateAsync: addCompletion } = useAddStressCompletionMutation();
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
 
@@ -22,7 +20,8 @@ export default function Grounding() {
 
   function done() {
     addCompletion({
-      variables: { exerciseId: 'grounding-54321', title: 'Grounding 5–4–3–2–1' },
+      exerciseId: 'grounding-54321',
+      title: 'Grounding 5–4–3–2–1',
     });
     Alert.alert('Nice work', 'You brought your attention back to the present.');
     router.back();

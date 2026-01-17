@@ -411,7 +411,7 @@ function PlaybackButton({ uri }: { uri: string }) {
 }
 
 export default function AssessmentScreen() {
-  const [saveAssessment] = useSetAssessmentMutation();
+  const { mutateAsync: saveAssessment } = useSetAssessmentMutation();
   const [step, setStep] = useState(0);
   const [a, setA] = useState<Assessment>({
     createdAt: new Date().toISOString(),
@@ -469,7 +469,7 @@ export default function AssessmentScreen() {
       return;
     }
     if (step === STEPS.length - 1) {
-      await saveAssessment({ variables: { input: a } });
+      await saveAssessment({ input: a });
       router.replace('/(onboarding)/assessment-summary');
       return;
     }

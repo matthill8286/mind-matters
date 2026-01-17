@@ -33,7 +33,7 @@ export default function MindfulHours() {
   const colors = Colors[theme];
   const [activeTab, setActiveTab] = useState<'timer' | 'history'>('timer');
 
-  const { data } = useGetMindfulnessHistoryQuery();
+  const { data, isPending: loading } = useGetMindfulnessHistoryQuery();
   const history = data?.mindfulnessHistory || [];
 
   return (
@@ -110,9 +110,7 @@ export default function MindfulHours() {
 }
 
 function TimerView({ colors }: { colors: any }) {
-  const [addMinutes] = useAddMindfulMinutesMutation({
-    refetchQueries: [{ query: GetMindfulnessHistoryDocument }],
-  });
+  const { mutateAsync: addMinutes } = useAddMindfulMinutesMutation();
   const [secondsRemaining, setSecondsRemaining] = useState(300);
   const [initialSeconds, setInitialSeconds] = useState(300);
   const [isActive, setIsActive] = useState(false);
@@ -149,7 +147,7 @@ function TimerView({ colors }: { colors: any }) {
       if (secondsRemaining === 0 && isActive) {
         setIsActive(false);
         const mins = Math.max(1, Math.floor(initialSeconds / 60));
-        addMinutes({ variables: { minutes: mins } });
+        addMinutes({ minutes: mins });
         showAlert(
           'Session Complete',
           `Great job! You've completed ${mins} mindful minute${mins > 1 ? 's' : ''}.`,

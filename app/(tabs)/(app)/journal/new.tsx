@@ -15,9 +15,7 @@ const MOODS = ['Calm', 'Okay', 'Anxious', 'Sad', 'Angry', 'Overwhelmed'];
 export default function NewJournalEntry() {
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
-  const [upsertEntry] = useUpsertJournalEntryMutation({
-    refetchQueries: [{ query: GetJournalEntriesDocument }],
-  });
+  const { mutateAsync: upsertEntry } = useUpsertJournalEntryMutation();
   const { promptId, date } = useLocalSearchParams<{ promptId?: string; date?: string }>();
   const prompt = useMemo(() => JOURNAL_PROMPTS.find((p) => p.id === promptId), [promptId]);
 
@@ -47,7 +45,7 @@ export default function NewJournalEntry() {
       mood,
       tags,
     };
-    await upsertEntry({ variables: { input: entryInput } });
+    await upsertEntry({ input: entryInput });
     router.replace('/(tabs)/journal');
   }
 

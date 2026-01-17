@@ -238,3 +238,31 @@ export const SEND_MESSAGE = gql`
     }
   }
 `;
+
+export const CLEAR_CHAT = gql`
+  mutation ClearChat($issueKey: String!) {
+    clearChat(issueKey: $issueKey)
+  }
+`;
+
+export const UPDATE_STRESS_KIT = gql`
+  mutation UpdateStressKit($input: StressKitInput!) {
+    updateStressKit(input: $input) {
+      level
+      triggers
+      people
+      helpfulActions
+      quickPhrase
+      notes
+    }
+  }
+`;
+
+export const GET_MINDFULNESS_HISTORY = gql`
+  query GetMindfulnessHistory {
+    mindfulnessHistory {
+      date
+      minutes
+    }
+  }
+`;

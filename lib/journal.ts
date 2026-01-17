@@ -5,7 +5,7 @@ export type JournalEntry = {
   createdAt: string;
   updatedAt: string;
   title: string;
-  body: string;
+  content: string;
   mood?: string | null;
   tags?: string[];
   promptId?: string | null;

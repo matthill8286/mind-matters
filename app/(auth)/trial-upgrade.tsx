@@ -8,7 +8,7 @@ import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 
 export default function TrialUpgrade() {
-  const [updateSubscription] = useSetSubscriptionMutation();
+  const { mutateAsync: updateSubscription } = useSetSubscriptionMutation();
   const [isNewUser, setIsNewUser] = useState(true);
   const [loading, setLoading] = useState(false);
 
@@ -37,11 +37,9 @@ export default function TrialUpgrade() {
       const expiryDate = new Date();
       expiryDate.setDate(expiryDate.getDate() + 7);
       await updateSubscription({
-        variables: {
-          input: {
-            type: 'trial',
-            expiryDate: expiryDate.toISOString(),
-          },
+        input: {
+          type: 'trial',
+          expiryDate: expiryDate.toISOString(),
         },
       });
       router.push('/(auth)/payment-success');

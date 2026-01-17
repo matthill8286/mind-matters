@@ -21,12 +21,13 @@ export default function EditJournalEntry() {
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
   const { data } = useGetJournalEntriesQuery();
-  const [upsertMutation] = useUpsertJournalEntryMutation({
-    refetchQueries: [{ query: GetJournalEntriesDocument }],
+  const { mutateAsync: upsertMutation } = useUpsertJournalEntryMutation({
+    onSuccess: () => {
+      // refetch is handled if mutation triggers invalidation,
+      // but if we rely on refetchQueries, we need to pass it differently or use queryClient.invalidateQueries
+    },
   });
-  const [deleteMutation] = useDeleteJournalEntryMutation({
-    refetchQueries: [{ query: GetJournalEntriesDocument }],
-  });
+  const { mutateAsync: deleteMutation } = useDeleteJournalEntryMutation();
 
   const journalEntries = data?.journalEntries || [];
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -44,7 +45,15 @@ export default function EditJournalEntry() {
   useEffect(() => {
     const found = journalEntries.find((e) => e.id === id);
     if (found) {
-      setEntry(found);
+      setEntry({
+        id: found.id,
+        title: found.title,
+        content: found.content,
+        mood: found.mood,
+        tags: found.tags || [],
+        createdAt: found.createdAt,
+        updatedAt: found.updatedAt,
+      });
     }
   }, [id, journalEntries]);
 
@@ -52,7 +61,7 @@ export default function EditJournalEntry() {
     if (!entry) return;
     const { __typename, ...input } = entry as any;
     await upsertMutation({
-      variables: { input: { ...input, updatedAt: new Date().toISOString() } },
+      input: { ...input, updatedAt: new Date().toISOString() },
     });
     router.replace('/(tabs)/journal');
   }
@@ -64,7 +73,7 @@ export default function EditJournalEntry() {
         text: 'Delete',
         style: 'destructive',
         onPress: async () => {
-          await deleteMutation({ variables: { id: String(id) } });
+          await deleteMutation({ id: String(id) });
           router.replace('/(tabs)/journal');
         },
       },

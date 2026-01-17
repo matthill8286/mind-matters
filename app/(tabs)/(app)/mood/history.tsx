@@ -17,20 +17,18 @@ export default function MoodHistory() {
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
   const { data } = useGetMoodCheckInsQuery();
-  const [deleteMoodMutation] = useDeleteMoodCheckInMutation({
-    refetchQueries: [{ query: GetMoodCheckInsDocument }],
-  });
+  const { mutateAsync: deleteMoodMutation } = useDeleteMoodCheckInMutation();
 
   const items = data?.moodCheckIns || [];
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   const markedDates = useMemo(() => {
-    return Array.from(new Set(items.map((i: MoodCheckIn) => i.createdAt.split('T')[0])));
+    return Array.from(new Set(items.map((i: any) => i.createdAt.split('T')[0])));
   }, [items]);
 
   const filteredItems = useMemo(() => {
     const iso = selectedDate.toISOString().split('T')[0];
-    return items.filter((i: MoodCheckIn) => i.createdAt.split('T')[0] === iso);
+    return items.filter((i: any) => i.createdAt.split('T')[0] === iso);
   }, [items, selectedDate]);
 
   async function remove(id: string) {
@@ -40,7 +38,7 @@ export default function MoodHistory() {
         text: 'Delete',
         style: 'destructive',
         onPress: async () => {
-          await deleteMoodMutation({ variables: { id } });
+          await deleteMoodMutation({ id });
         },
       },
     ]);

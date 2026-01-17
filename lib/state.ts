@@ -27,7 +27,10 @@ const defaultAlertState: AlertState = {
 
 export const alertVar = (val?: AlertState) => {
   if (val !== undefined) {
-    queryClient.setQueryData(ALERT_KEY, val);
+    const current = queryClient.getQueryData<AlertState>(ALERT_KEY);
+    if (JSON.stringify(current) !== JSON.stringify(val)) {
+      queryClient.setQueryData(ALERT_KEY, val);
+    }
   }
   return queryClient.getQueryData<AlertState>(ALERT_KEY) || defaultAlertState;
 };
@@ -35,6 +38,7 @@ export const alertVar = (val?: AlertState) => {
 export const useAlert = () => {
   const { data } = useQuery({
     queryKey: ALERT_KEY,
+    queryFn: () => alertVar(),
     initialData: defaultAlertState,
     staleTime: Infinity,
   });
@@ -43,7 +47,10 @@ export const useAlert = () => {
 
 export const isLoadingVar = (val?: boolean) => {
   if (val !== undefined) {
-    queryClient.setQueryData(LOADING_KEY, val);
+    const current = queryClient.getQueryData<boolean>(LOADING_KEY);
+    if (current !== val) {
+      queryClient.setQueryData(LOADING_KEY, val);
+    }
   }
   return !!queryClient.getQueryData<boolean>(LOADING_KEY);
 };
@@ -51,6 +58,7 @@ export const isLoadingVar = (val?: boolean) => {
 export const useIsLoading = () => {
   const { data } = useQuery({
     queryKey: LOADING_KEY,
+    queryFn: () => isLoadingVar(),
     initialData: false,
     staleTime: Infinity,
   });
@@ -85,7 +93,10 @@ const defaultSleepModeState: SleepModeState = {
 
 export const sleepModeVar = (val?: SleepModeState) => {
   if (val !== undefined) {
-    queryClient.setQueryData(SLEEP_MODE_KEY, val);
+    const current = queryClient.getQueryData<SleepModeState>(SLEEP_MODE_KEY);
+    if (JSON.stringify(current) !== JSON.stringify(val)) {
+      queryClient.setQueryData(SLEEP_MODE_KEY, val);
+    }
   }
   return queryClient.getQueryData<SleepModeState>(SLEEP_MODE_KEY) || defaultSleepModeState;
 };
@@ -93,6 +104,7 @@ export const sleepModeVar = (val?: SleepModeState) => {
 export const useSleepMode = () => {
   const { data } = useQuery({
     queryKey: SLEEP_MODE_KEY,
+    queryFn: () => sleepModeVar(),
     initialData: defaultSleepModeState,
     staleTime: Infinity,
   });

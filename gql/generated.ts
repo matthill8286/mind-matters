@@ -386,6 +386,25 @@ export type SendMessageMutationVariables = Exact<{
 
 export type SendMessageMutation = { __typename?: 'Mutation', sendMessage: { __typename?: 'ChatMessage', id: string, role: string, content?: string | null, text?: string | null, createdAt: any } };
 
+export type ClearChatMutationVariables = Exact<{
+  issueKey: Scalars['String']['input'];
+}>;
+
+
+export type ClearChatMutation = { __typename?: 'Mutation', clearChat: boolean };
+
+export type UpdateStressKitMutationVariables = Exact<{
+  input: StressKitInput;
+}>;
+
+
+export type UpdateStressKitMutation = { __typename?: 'Mutation', updateStressKit: { __typename?: 'StressKit', level: number, triggers?: Array<string> | null, people?: Array<string> | null, helpfulActions?: Array<string> | null, quickPhrase?: string | null, notes?: string | null } };
+
+export type GetMindfulnessHistoryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetMindfulnessHistoryQuery = { __typename?: 'Query', mindfulnessHistory: Array<{ __typename?: 'MindfulnessEntry', date: any, minutes: number }> };
+
 
 
 export const GetAllDataDocument = `
@@ -843,5 +862,69 @@ export const useSendMessageMutation = <
     return useMutation<SendMessageMutation, TError, SendMessageMutationVariables, TContext>(
       ['SendMessage'],
       (variables?: SendMessageMutationVariables) => fetcher<SendMessageMutation, SendMessageMutationVariables>(SendMessageDocument, variables)(),
+      options
+    )};
+
+export const ClearChatDocument = `
+    mutation ClearChat($issueKey: String!) {
+  clearChat(issueKey: $issueKey)
+}
+    `;
+
+export const useClearChatMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<ClearChatMutation, TError, ClearChatMutationVariables, TContext>) => {
+    
+    return useMutation<ClearChatMutation, TError, ClearChatMutationVariables, TContext>(
+      ['ClearChat'],
+      (variables?: ClearChatMutationVariables) => fetcher<ClearChatMutation, ClearChatMutationVariables>(ClearChatDocument, variables)(),
+      options
+    )};
+
+export const UpdateStressKitDocument = `
+    mutation UpdateStressKit($input: StressKitInput!) {
+  updateStressKit(input: $input) {
+    level
+    triggers
+    people
+    helpfulActions
+    quickPhrase
+    notes
+  }
+}
+    `;
+
+export const useUpdateStressKitMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<UpdateStressKitMutation, TError, UpdateStressKitMutationVariables, TContext>) => {
+    
+    return useMutation<UpdateStressKitMutation, TError, UpdateStressKitMutationVariables, TContext>(
+      ['UpdateStressKit'],
+      (variables?: UpdateStressKitMutationVariables) => fetcher<UpdateStressKitMutation, UpdateStressKitMutationVariables>(UpdateStressKitDocument, variables)(),
+      options
+    )};
+
+export const GetMindfulnessHistoryDocument = `
+    query GetMindfulnessHistory {
+  mindfulnessHistory {
+    date
+    minutes
+  }
+}
+    `;
+
+export const useGetMindfulnessHistoryQuery = <
+      TData = GetMindfulnessHistoryQuery,
+      TError = unknown
+    >(
+      variables?: GetMindfulnessHistoryQueryVariables,
+      options?: UseQueryOptions<GetMindfulnessHistoryQuery, TError, TData>
+    ) => {
+    
+    return useQuery<GetMindfulnessHistoryQuery, TError, TData>(
+      variables === undefined ? ['GetMindfulnessHistory'] : ['GetMindfulnessHistory', variables],
+      fetcher<GetMindfulnessHistoryQuery, GetMindfulnessHistoryQueryVariables>(GetMindfulnessHistoryDocument, variables),
       options
     )};

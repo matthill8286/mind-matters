@@ -23,9 +23,7 @@ import ScreenHeader from '@/components/ScreenHeader';
 
 export default function WatchVideoScreen() {
   const { videoId } = useLocalSearchParams<{ videoId: string }>();
-  const [addCompletion] = useAddStressCompletionMutation({
-    refetchQueries: [{ query: GetStressKitDocument }],
-  });
+  const { mutateAsync: addCompletion } = useAddStressCompletionMutation();
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
 
@@ -33,11 +31,11 @@ export default function WatchVideoScreen() {
 
   useEffect(() => {
     if (video) {
-      addCompletion({ variables: { exerciseId: video.id, title: video.title } });
+      addCompletion({ exerciseId: video.id, title: video.title });
     }
   }, [addCompletion, video]);
 
-  const player = useVideoPlayer(video?.url, (p) => {
+  const player = useVideoPlayer(video?.url ?? '', (p) => {
     p.loop = true;
     p.play();
   });

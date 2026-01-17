@@ -21,7 +21,7 @@ const MOODS: MoodCheckIn['mood'][] = ['Great', 'Good', 'Okay', 'Low', 'Bad'];
 const ENERGY = ['1', '2', '3', '4', '5'];
 const STRESS = Array.from({ length: 11 }, (_, i) => String(i));
 
-function moodToScore(m: MoodCheckIn['mood']) {
+function moodToScore(m: string) {
   if (m === 'Great') return 5;
   if (m === 'Good') return 4;
   if (m === 'Okay') return 3;
@@ -34,10 +34,8 @@ export default function Mood() {
   const { hasFullAccess } = useSubscription();
   const colors = Colors[theme];
 
-  const { data, loading } = useGetMoodCheckInsQuery();
-  const [addMoodMutation] = useAddMoodCheckInMutation({
-    refetchQueries: [{ query: GetMoodCheckInsDocument }],
-  });
+  const { data, isPending: loading } = useGetMoodCheckInsQuery();
+  const { mutateAsync: addMoodMutation } = useAddMoodCheckInMutation();
 
   const items = data?.moodCheckIns || [];
 
@@ -82,7 +80,7 @@ export default function Mood() {
     }
     const entryDate = new Date();
 
-    const entry: MoodCheckIn = {
+    const entry: any = {
       id: String(Date.now()),
       createdAt: entryDate.toISOString(),
       mood,
@@ -91,7 +89,7 @@ export default function Mood() {
       note: note.trim() || undefined,
       tags: tags.length ? tags : undefined,
     };
-    await addMoodMutation({ variables: { input: entry } });
+    await addMoodMutation({ input: entry });
     setNote('');
     setTags([]);
     setTagText('');
@@ -133,7 +131,7 @@ export default function Mood() {
         showsVerticalScrollIndicator={false}
       >
         <View style={{ marginTop: 12, gap: 12 }}>
-          <MoodChart items={items} />
+          <MoodChart items={items as any} />
 
           {insights ? (
             <View style={{ backgroundColor: colors.card, borderRadius: UI.radius.lg, padding: 14 }}>

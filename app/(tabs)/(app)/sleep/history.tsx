@@ -12,7 +12,7 @@ export default function SleepHistoryScreen() {
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
 
-  const { data, loading } = useGetSleepEntriesQuery();
+  const { data, isPending: loading } = useGetSleepEntriesQuery();
   const entries = data?.sleepEntries || [];
 
   return (

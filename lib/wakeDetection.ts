@@ -9,7 +9,6 @@ import { AppState, AppStateStatus } from 'react-native';
  */
 export function setupWakeDetection(params: {
   getSleepStartISO: () => string | null | undefined;
-  c;
   setSuggestedWake: (wakeISO: string) => void;
   minHours?: number;
   maxHours?: number;
