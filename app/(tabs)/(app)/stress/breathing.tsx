@@ -1,12 +1,17 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, Pressable, Animated, Easing } from 'react-native';
+import { View, Text, Pressable, Animated, Easing, Platform } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
 import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
+import { useMutation } from '@apollo/client/react';
+import { ADD_STRESS_COMPLETION, GET_STRESS_KIT } from '@/lib/apollo';
 
 export default function Breathing() {
   const router = useRouter();
+  const [addCompletion] = useMutation(ADD_STRESS_COMPLETION, {
+    refetchQueries: [{ query: GET_STRESS_KIT }],
+  });
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
   const [phase, setPhase] = useState<'inhale' | 'hold' | 'exhale'>('inhale');
@@ -57,7 +62,17 @@ export default function Breathing() {
     const t = setTimeout(() => {
       clearInterval(tick);
       setPhase((p) => (p === 'inhale' ? 'hold' : p === 'hold' ? 'exhale' : 'inhale'));
-      if (phase === 'exhale') setCycles((c) => c + 1);
+      if (phase === 'exhale') {
+        setCycles((c) => {
+          const newCycles = c + 1;
+          if (newCycles === 4) {
+            addCompletion({
+              variables: { exerciseId: 'breathing-478', title: 'Breathing Coach' },
+            });
+          }
+          return newCycles;
+        });
+      }
     }, plan.secs * 1000);
 
     return () => {
@@ -79,20 +94,20 @@ export default function Breathing() {
         flex: 1,
         backgroundColor: colors.background,
         padding: UI.spacing.xl,
-        paddingTop: 18,
+        paddingTop: Platform.OS === 'ios' ? 18 : 8,
       }}
     >
       <ScreenHeader
-        title="Stress Management"
-        subtitle="Quick tools for calming your body and clearing your mind."
+        title="Breathing Coach"
+        subtitle="Guided 4-7-8 breathing with animation."
+        showBack
       />
       <View style={{ flex: 1, marginTop: 14 }}>
         <View style={{ backgroundColor: colors.card, borderRadius: UI.radius.lg, padding: 16 }}>
-          <Text style={{ fontSize: 18, fontWeight: '900', color: colors.text }}>
-            Breathing Coach (4–7–8)
-          </Text>
+          <Text style={{ fontSize: 18, fontWeight: '900', color: colors.text }}>How it works</Text>
           <Text style={{ color: colors.mutedText, marginTop: 6 }}>
-            Try 3–5 cycles. If you feel lightheaded, stop and breathe normally.
+            Inhale for 4s, Hold for 7s, Exhale for 8s. Try 3–5 cycles. If you feel lightheaded, stop
+            and breathe normally.
           </Text>
         </View>
 
@@ -160,7 +175,7 @@ export default function Breathing() {
           <Pressable
             onPress={() => {
               stop();
-              router.back();
+              setCycles(0);
             }}
             style={{
               flex: 1,
@@ -170,7 +185,7 @@ export default function Breathing() {
               alignItems: 'center',
             }}
           >
-            <Text style={{ fontWeight: '900', color: colors.text }}>Back</Text>
+            <Text style={{ fontWeight: '900', color: colors.text }}>Reset</Text>
           </Pressable>
         </View>
       </View>

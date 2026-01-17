@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, ScrollView, TextInput, Alert } from 'react-native';
+import { View, Text, Pressable, ScrollView, TextInput, Alert, Platform } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
 import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
+import { useMutation } from '@apollo/client/react';
+import { ADD_STRESS_COMPLETION, GET_STRESS_KIT } from '@/lib/apollo';
 
 export default function Grounding() {
   const router = useRouter();
+  const [addCompletion] = useMutation(ADD_STRESS_COMPLETION, {
+    refetchQueries: [{ query: GET_STRESS_KIT }],
+  });
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
 
@@ -17,6 +22,9 @@ export default function Grounding() {
   const [taste, setTaste] = useState<string>('');
 
   function done() {
+    addCompletion({
+      variables: { exerciseId: 'grounding-54321', title: 'Grounding 5–4–3–2–1' },
+    });
     Alert.alert('Nice work', 'You brought your attention back to the present.');
     router.back();
   }
@@ -34,18 +42,17 @@ export default function Grounding() {
         flex: 1,
         backgroundColor: colors.background,
         padding: UI.spacing.xl,
-        paddingTop: 18,
+        paddingTop: Platform.OS === 'ios' ? 18 : 8,
       }}
     >
       <ScreenHeader
-        title="Stress Management"
-        subtitle="Quick tools for calming your body and clearing your mind."
+        title="Grounding 5-4-3-2-1"
+        subtitle="Bring attention back to the present (guided checklist)."
+        showBack
       />
       <ScrollView style={{ flex: 1, marginTop: 14 }} contentContainerStyle={{ paddingBottom: 24 }}>
         <View style={{ backgroundColor: colors.card, borderRadius: UI.radius.lg, padding: 16 }}>
-          <Text style={{ fontSize: 18, fontWeight: '900', color: colors.text }}>
-            Grounding 5–4–3–2–1
-          </Text>
+          <Text style={{ fontSize: 18, fontWeight: '900', color: colors.text }}>How it works</Text>
           <Text style={{ color: colors.mutedText, marginTop: 6 }}>
             Fill what you can. No pressure — a few words each is enough.
           </Text>
@@ -125,18 +132,6 @@ export default function Grounding() {
             }}
           >
             <Text style={{ color: colors.onPrimary, fontWeight: '900' }}>Finish</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => router.back()}
-            style={{
-              flex: 1,
-              backgroundColor: colors.divider,
-              padding: 16,
-              borderRadius: UI.radius.lg,
-              alignItems: 'center',
-            }}
-          >
-            <Text style={{ fontWeight: '900', color: colors.text }}>Back</Text>
           </Pressable>
         </View>
       </ScrollView>
