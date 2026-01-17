@@ -6,8 +6,7 @@ import { router } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Colors, UI } from '@/constants/theme';
-import { useQuery } from '@apollo/client/react';
-import { GET_USER_DATA } from '@/lib/apollo';
+import { useGetUserDataQuery } from '@/gql/hooks';
 import { IconSymbol } from '@/components/icon-symbol';
 
 async function signOut() {
@@ -19,7 +18,7 @@ export default function Profile() {
   const [email, setEmail] = useState<string | null>(null);
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
-  const { data } = useQuery(GET_USER_DATA);
+  const { data } = useGetUserDataQuery();
   const profile = data?.profile;
   const { subscription, isExpired, isLifetime } = useSubscription();
 

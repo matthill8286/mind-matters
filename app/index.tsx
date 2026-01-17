@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, ActivityIndicator } from 'react-native';
 import { setupWakeDetection } from '@/lib/wakeDetection';
-import { setSuggestedWake, sleepModeVar } from '@/lib/apollo';
+import { setSuggestedWake, sleepModeVar } from '@/lib/state';
 
 export default function Index() {
   useEffect(() => {

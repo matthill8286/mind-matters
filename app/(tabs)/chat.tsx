@@ -5,7 +5,7 @@ import { router } from 'expo-router';
 import { ISSUES } from '@/data/issues';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSubscription } from '@/hooks/useSubscription';
-import { showAlert } from '@/lib/apollo';
+import { showAlert } from '@/lib/state';
 import { Colors, UI } from '@/constants/theme';
 
 export default function Chatbot() {

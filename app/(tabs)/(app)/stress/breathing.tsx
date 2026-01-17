@@ -4,13 +4,12 @@ import ScreenHeader from '@/components/ScreenHeader';
 import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
-import { useMutation } from '@apollo/client/react';
-import { ADD_STRESS_COMPLETION, GET_STRESS_KIT } from '@/lib/apollo';
+import { useAddStressCompletionMutation, GetStressKitDocument } from '@/gql/hooks';
 
 export default function Breathing() {
   const router = useRouter();
-  const [addCompletion] = useMutation(ADD_STRESS_COMPLETION, {
-    refetchQueries: [{ query: GET_STRESS_KIT }],
+  const [addCompletion] = useAddStressCompletionMutation({
+    refetchQueries: [{ query: GetStressKitDocument }],
   });
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];

@@ -4,8 +4,12 @@ import ScreenHeader from '@/components/ScreenHeader';
 import Chips from '@/components/Chips';
 import MoodChart from '@/components/MoodChart';
 import { MoodCheckIn } from '@/lib/mood';
-import { useQuery, useMutation } from '@apollo/client/react';
-import { showAlert, GET_MOOD_CHECKINS, ADD_MOOD_CHECKIN } from '@/lib/apollo';
+import {
+  useGetMoodCheckInsQuery,
+  useAddMoodCheckInMutation,
+  GetMoodCheckInsDocument,
+} from '@/gql/hooks';
+import { showAlert } from '@/lib/state';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 import { router } from 'expo-router';
@@ -30,9 +34,9 @@ export default function Mood() {
   const { hasFullAccess } = useSubscription();
   const colors = Colors[theme];
 
-  const { data, loading } = useQuery(GET_MOOD_CHECKINS);
-  const [addMoodMutation] = useMutation(ADD_MOOD_CHECKIN, {
-    refetchQueries: [{ query: GET_MOOD_CHECKINS }],
+  const { data, loading } = useGetMoodCheckInsQuery();
+  const [addMoodMutation] = useAddMoodCheckInMutation({
+    refetchQueries: [{ query: GetMoodCheckInsDocument }],
   });
 
   const items = data?.moodCheckIns || [];

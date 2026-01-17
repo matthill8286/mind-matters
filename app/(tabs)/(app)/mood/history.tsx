@@ -3,8 +3,12 @@ import { View, Text, Pressable, ScrollView, Platform } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
 import Calendar from '@/components/Calendar';
 import { MoodCheckIn } from '@/lib/mood';
-import { useQuery, useMutation } from '@apollo/client/react';
-import { showAlert, GET_MOOD_CHECKINS, DELETE_MOOD_CHECKIN } from '@/lib/apollo';
+import {
+  useGetMoodCheckInsQuery,
+  useDeleteMoodCheckInMutation,
+  GetMoodCheckInsDocument,
+} from '@/gql/hooks';
+import { showAlert } from '@/lib/state';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 import { router } from 'expo-router';
@@ -12,9 +16,9 @@ import { router } from 'expo-router';
 export default function MoodHistory() {
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
-  const { data } = useQuery(GET_MOOD_CHECKINS);
-  const [deleteMoodMutation] = useMutation(DELETE_MOOD_CHECKIN, {
-    refetchQueries: [{ query: GET_MOOD_CHECKINS }],
+  const { data } = useGetMoodCheckInsQuery();
+  const [deleteMoodMutation] = useDeleteMoodCheckInMutation({
+    refetchQueries: [{ query: GetMoodCheckInsDocument }],
   });
 
   const items = data?.moodCheckIns || [];

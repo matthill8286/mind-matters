@@ -1,7 +1,7 @@
 import React from 'react';
 import { Modal, View, Text, Pressable, StyleSheet } from 'react-native';
 import { useReactiveVar } from '@apollo/client/react';
-import { alertVar, hideAlert } from '@/lib/apollo';
+import { alertVar, hideAlert } from '@/lib/state';
 
 export const AlertModal = () => {
   const alert = useReactiveVar(alertVar);

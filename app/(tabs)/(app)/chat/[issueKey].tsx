@@ -11,9 +11,14 @@ import {
 } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
 import { useLocalSearchParams } from 'expo-router';
-import { useQuery, useMutation } from '@apollo/client/react';
+import {
+  useGetChatMessagesQuery,
+  useSendMessageMutation,
+  useClearChatMutation,
+  GetChatMessagesDocument,
+} from '@/gql/hooks';
 import { ISSUES } from '@/data/issues';
-import { showAlert, GET_CHAT_MESSAGES, SEND_MESSAGE, CLEAR_CHAT } from '@/lib/apollo';
+import { showAlert } from '@/lib/state';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 import { IconSymbol } from '@/components/icon-symbol';
@@ -26,14 +31,18 @@ export default function Chat() {
     data,
     loading: queryLoading,
     error,
-  } = useQuery(GET_CHAT_MESSAGES, {
+  } = useGetChatMessagesQuery({
     variables: { issueKey: issueKey ?? 'general' },
   });
-  const [sendMessageMutation, { loading: sendLoading }] = useMutation(SEND_MESSAGE, {
-    refetchQueries: [{ query: GET_CHAT_MESSAGES, variables: { issueKey: issueKey ?? 'general' } }],
+  const [sendMessageMutation, { loading: sendLoading }] = useSendMessageMutation({
+    refetchQueries: [
+      { query: GetChatMessagesDocument, variables: { issueKey: issueKey ?? 'general' } },
+    ],
   });
-  const [clearChatMutation] = useMutation(CLEAR_CHAT, {
-    refetchQueries: [{ query: GET_CHAT_MESSAGES, variables: { issueKey: issueKey ?? 'general' } }],
+  const [clearChatMutation] = useClearChatMutation({
+    refetchQueries: [
+      { query: GetChatMessagesDocument, variables: { issueKey: issueKey ?? 'general' } },
+    ],
   });
 
   const messages = data?.chatMessages || [];

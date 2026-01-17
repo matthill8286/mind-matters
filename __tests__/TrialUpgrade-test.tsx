@@ -2,14 +2,14 @@ import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import TrialUpgrade from '../app/(auth)/trial-upgrade';
 import { MockedProvider } from '@apollo/client/testing';
-import { SET_SUBSCRIPTION } from '../lib/apollo';
+import { SetSubscriptionDocument } from '../gql/graphql';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const mocks = [
   {
     request: {
-      query: SET_SUBSCRIPTION,
+      query: SetSubscriptionDocument,
       variables: {
         input: expect.anything(),
       },

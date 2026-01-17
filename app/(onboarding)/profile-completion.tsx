@@ -2,13 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useQuery } from '@apollo/client/react';
-import { GET_ALL_DATA } from '@/lib/apollo';
+import { useGetAllDataQuery } from '@/gql/hooks';
 import { calculateWellnessScore } from '@/lib/wellness';
 import ScoreCard from '@/components/ScoreCard';
 
 export default function ProfileCompletion() {
-  const { data } = useQuery(GET_ALL_DATA);
+  const { data } = useGetAllDataQuery();
   const [name, setName] = useState<string | null>(null);
   const wellness = calculateWellnessScore(data);
 

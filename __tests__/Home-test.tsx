@@ -2,7 +2,7 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import Home from '../app/(tabs)/home';
 import { MockedProvider } from '@apollo/client/testing';
-import { GET_ALL_DATA } from '../lib/apollo';
+import { GetAllDataDocument } from '../gql/graphql';
 import { router } from 'expo-router';
 
 import { useSubscription } from '../hooks/useSubscription';
@@ -19,7 +19,7 @@ const mockData = {
 const mocks = [
   {
     request: {
-      query: GET_ALL_DATA,
+      query: GetAllDataDocument,
     },
     result: {
       data: mockData,

@@ -4,13 +4,13 @@ import { router, useLocalSearchParams } from 'expo-router';
 import ScreenHeader from '@/components/ScreenHeader';
 import Chips from '@/components/Chips';
 import { JournalEntry } from '@/lib/journal';
-import { useQuery, useMutation } from '@apollo/client/react';
 import {
-  showAlert,
-  GET_JOURNAL_ENTRIES,
-  UPSERT_JOURNAL_ENTRY,
-  DELETE_JOURNAL_ENTRY,
-} from '@/lib/apollo';
+  useGetJournalEntriesQuery,
+  useUpsertJournalEntryMutation,
+  useDeleteJournalEntryMutation,
+  GetJournalEntriesDocument,
+} from '@/gql/hooks';
+import { showAlert } from '@/lib/state';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
@@ -20,12 +20,12 @@ const MOODS = ['Calm', 'Okay', 'Anxious', 'Sad', 'Angry', 'Overwhelmed'];
 export default function EditJournalEntry() {
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
-  const { data } = useQuery(GET_JOURNAL_ENTRIES);
-  const [upsertMutation] = useMutation(UPSERT_JOURNAL_ENTRY, {
-    refetchQueries: [{ query: GET_JOURNAL_ENTRIES }],
+  const { data } = useGetJournalEntriesQuery();
+  const [upsertMutation] = useUpsertJournalEntryMutation({
+    refetchQueries: [{ query: GetJournalEntriesDocument }],
   });
-  const [deleteMutation] = useMutation(DELETE_JOURNAL_ENTRY, {
-    refetchQueries: [{ query: GET_JOURNAL_ENTRIES }],
+  const [deleteMutation] = useDeleteJournalEntryMutation({
+    refetchQueries: [{ query: GetJournalEntriesDocument }],
   });
 
   const journalEntries = data?.journalEntries || [];

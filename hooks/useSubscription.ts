@@ -1,8 +1,7 @@
-import { useQuery } from '@apollo/client/react';
-import { GET_USER_DATA } from '@/lib/apollo';
+import { useGetUserDataQuery } from '@/gql/hooks';
 
 export function useSubscription() {
-  const { data } = useQuery(GET_USER_DATA);
+  const { data } = useGetUserDataQuery();
   const subscription = data?.subscription;
 
   const isExpired =

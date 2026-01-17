@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, TextInput, ScrollView, StyleSheet, Platform } from 'react-native';
 import { router } from 'expo-router';
-import { useQuery, useMutation } from '@apollo/client/react';
-import { GET_USER_DATA, SET_PROFILE, showAlert } from '@/lib/apollo';
+import { useGetUserDataQuery, useSetProfileMutation, GetUserDataDocument } from '@/gql/hooks';
+import { showAlert } from '@/lib/state';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 import ScreenHeader from '@/components/ScreenHeader';
@@ -78,10 +78,10 @@ function RadioOption({
 export default function ProfileEdit() {
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
-  const { data } = useQuery(GET_USER_DATA);
+  const { data } = useGetUserDataQuery();
   const profile = data?.profile;
-  const [updateProfile] = useMutation(SET_PROFILE, {
-    refetchQueries: [{ query: GET_USER_DATA }],
+  const [updateProfile] = useSetProfileMutation({
+    refetchQueries: [{ query: GetUserDataDocument }],
   });
 
   const [name, setName] = useState(profile?.name || '');

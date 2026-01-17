@@ -5,8 +5,7 @@ import ScreenHeader from '@/components/ScreenHeader';
 import Chips from '@/components/Chips';
 import { JOURNAL_PROMPTS } from '@/data/journalPrompts';
 import { JournalEntry } from '@/lib/journal';
-import { useMutation } from '@apollo/client/react';
-import { UPSERT_JOURNAL_ENTRY, GET_JOURNAL_ENTRIES } from '@/lib/apollo';
+import { useUpsertJournalEntryMutation, GetJournalEntriesDocument } from '@/gql/hooks';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
@@ -16,8 +15,8 @@ const MOODS = ['Calm', 'Okay', 'Anxious', 'Sad', 'Angry', 'Overwhelmed'];
 export default function NewJournalEntry() {
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
-  const [upsertEntry] = useMutation(UPSERT_JOURNAL_ENTRY, {
-    refetchQueries: [{ query: GET_JOURNAL_ENTRIES }],
+  const [upsertEntry] = useUpsertJournalEntryMutation({
+    refetchQueries: [{ query: GetJournalEntriesDocument }],
   });
   const { promptId, date } = useLocalSearchParams<{ promptId?: string; date?: string }>();
   const prompt = useMemo(() => JOURNAL_PROMPTS.find((p) => p.id === promptId), [promptId]);

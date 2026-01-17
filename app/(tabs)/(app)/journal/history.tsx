@@ -1,8 +1,8 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView, Platform } from 'react-native';
 import Calendar from '@/components/Calendar';
-import { useQuery } from '@apollo/client/react';
-import { GET_JOURNAL_ENTRIES, showAlert } from '@/lib/apollo';
+import { useGetJournalEntriesQuery } from '@/gql/hooks';
+import { showAlert } from '@/lib/state';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 import { router } from 'expo-router';
@@ -12,7 +12,7 @@ import ScreenHeader from '@/components/ScreenHeader';
 export default function JournalHistory() {
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
-  const { data, loading, error } = useQuery(GET_JOURNAL_ENTRIES);
+  const { data, loading, error } = useGetJournalEntriesQuery();
   const entries = data?.journalEntries || [];
   const [selectedDate, setSelectedDate] = useState(new Date());
 

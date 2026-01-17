@@ -4,7 +4,7 @@ import ScreenHeader from '@/components/ScreenHeader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { ISSUES, IssueKey } from '@/data/issues';
-import { showAlert } from '@/lib/apollo';
+import { showAlert } from '@/lib/state';
 
 import { Colors, UI } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';

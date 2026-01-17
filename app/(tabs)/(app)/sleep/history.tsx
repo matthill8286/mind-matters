@@ -4,8 +4,7 @@ import ScreenHeader from '@/components/ScreenHeader';
 import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
-import { useQuery } from '@apollo/client/react';
-import { GET_SLEEP_ENTRIES } from '@/lib/apollo';
+import { useGetSleepEntriesQuery } from '@/gql/hooks';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function SleepHistoryScreen() {
@@ -13,7 +12,7 @@ export default function SleepHistoryScreen() {
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
 
-  const { data, loading } = useQuery(GET_SLEEP_ENTRIES);
+  const { data, loading } = useGetSleepEntriesQuery();
   const entries = data?.sleepEntries || [];
 
   return (

@@ -11,8 +11,8 @@ import {
   NativeScrollEvent,
 } from 'react-native';
 import { router } from 'expo-router';
-import { useMutation } from '@apollo/client/react';
-import { SET_ASSESSMENT, showAlert } from '@/lib/apollo';
+import { useSetAssessmentMutation } from '@/gql/hooks';
+import { showAlert } from '@/lib/state';
 
 import Chips from '@/components/Chips';
 import SoundPulse from '@/components/SoundPulse';
@@ -411,7 +411,7 @@ function PlaybackButton({ uri }: { uri: string }) {
 }
 
 export default function AssessmentScreen() {
-  const [saveAssessment] = useMutation(SET_ASSESSMENT);
+  const [saveAssessment] = useSetAssessmentMutation();
   const [step, setStep] = useState(0);
   const [a, setA] = useState<Assessment>({
     createdAt: new Date().toISOString(),

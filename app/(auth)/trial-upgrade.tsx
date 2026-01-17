@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable, ScrollView, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useMutation } from '@apollo/client/react';
-import { SET_SUBSCRIPTION, showAlert } from '@/lib/apollo';
+import { useSetSubscriptionMutation } from '@/gql/hooks';
+import { showAlert } from '@/lib/state';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 
 export default function TrialUpgrade() {
-  const [updateSubscription] = useMutation(SET_SUBSCRIPTION);
+  const [updateSubscription] = useSetSubscriptionMutation();
   const [isNewUser, setIsNewUser] = useState(true);
   const [loading, setLoading] = useState(false);
 

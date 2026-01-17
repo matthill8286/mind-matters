@@ -6,8 +6,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 import { STRESS_VIDEOS } from '@/data/stressVideos';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { useMutation } from '@apollo/client/react';
-import { ADD_STRESS_COMPLETION, GET_STRESS_KIT } from '@/lib/apollo';
+import { useAddStressCompletionMutation, GetStressKitDocument } from '@/gql/hooks';
 
 const QUOTES = [
   'Take a deep breath and let go of what you cannot control.',
@@ -24,8 +23,8 @@ import ScreenHeader from '@/components/ScreenHeader';
 
 export default function WatchVideoScreen() {
   const { videoId } = useLocalSearchParams<{ videoId: string }>();
-  const [addCompletion] = useMutation(ADD_STRESS_COMPLETION, {
-    refetchQueries: [{ query: GET_STRESS_KIT }],
+  const [addCompletion] = useAddStressCompletionMutation({
+    refetchQueries: [{ query: GetStressKitDocument }],
   });
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];

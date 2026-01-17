@@ -1,7 +1,8 @@
 import { Stack } from 'expo-router';
 import { AlertModal } from '@/components/AlertModal';
+import { LoadingOverlay } from '@/components/LoadingOverlay';
 import { ApolloProvider } from '@apollo/client/react';
-import { client } from '@/lib/apollo';
+import { client } from '@/lib/apollo-client';
 
 export default function RootLayout() {
   return (
@@ -17,6 +18,7 @@ export default function RootLayout() {
         <Stack.Screen name="(utils)" />
       </Stack>
       <AlertModal />
+      <LoadingOverlay />
     </ApolloProvider>
   );
 }

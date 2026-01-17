@@ -5,8 +5,8 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Colors, UI } from '@/constants/theme';
-import { useMutation } from '@apollo/client/react';
-import { ADD_SLEEP_ENTRY, GET_SLEEP_ENTRIES, showAlert } from '@/lib/apollo';
+import { useAddSleepEntryMutation, GetSleepEntriesDocument } from '@/gql/hooks';
+import { showAlert } from '@/lib/state';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function LogSleepScreen() {
@@ -20,8 +20,8 @@ export default function LogSleepScreen() {
   const [duration, setDuration] = useState((params.duration as string) || '8');
   const [note, setNote] = useState('');
 
-  const [addSleepEntry, { loading }] = useMutation(ADD_SLEEP_ENTRY, {
-    refetchQueries: [{ query: GET_SLEEP_ENTRIES }],
+  const [addSleepEntry, { loading }] = useAddSleepEntryMutation({
+    refetchQueries: [{ query: GetSleepEntriesDocument }],
     onCompleted: () => {
       showAlert('Saved', 'Your sleep entry was saved.');
       router.back();

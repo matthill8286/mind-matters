@@ -20,7 +20,7 @@ export default function PaymentFailure() {
         </View>
         <Text style={styles.title}>Payment Failed</Text>
         <Text style={styles.message}>
-          We couldn't process your payment. Please check your card details and try again.
+          We couldn&#39;t process your payment. Please check your card details and try again.
         </Text>
 
         <View style={styles.buttonContainer}>

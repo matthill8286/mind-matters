@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { View, Text, Pressable, TextInput, FlatList } from 'react-native';
 import { router } from 'expo-router';
 import { useSubscription } from '@/hooks/useSubscription';
-import { showAlert } from '@/lib/apollo';
+import { showAlert } from '@/lib/state';
 import { IconSymbol } from '@/components/icon-symbol';
 
 type MenuItem = { key: string; title: string; subtitle: string; path: string; isPremium?: boolean };
@@ -135,14 +135,10 @@ export default function MenuModal() {
           <Pressable
             onPress={() => {
               if (item.isPremium && !hasFullAccess) {
-                showAlert(
-                  'Premium Feature',
-                  'Upgrade to lifetime access to use this feature.',
-                  [
-                    { text: 'Cancel', style: 'cancel' },
-                    { text: 'Upgrade', onPress: () => router.push('/(auth)/trial-upgrade') },
-                  ],
-                );
+                showAlert('Premium Feature', 'Upgrade to lifetime access to use this feature.', [
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Upgrade', onPress: () => router.push('/(auth)/trial-upgrade') },
+                ]);
                 return;
               }
               router.back();

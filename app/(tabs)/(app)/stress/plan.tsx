@@ -4,8 +4,12 @@ import ScreenHeader from '@/components/ScreenHeader';
 import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
-import { useQuery, useMutation } from '@apollo/client/react';
-import { GET_STRESS_KIT, UPDATE_STRESS_KIT, showAlert } from '@/lib/apollo';
+import {
+  useGetStressKitQuery,
+  useUpdateStressKitMutation,
+  GetStressKitDocument,
+} from '@/gql/hooks';
+import { showAlert } from '@/lib/state';
 import { StressKit } from '@/lib/stress';
 import { IconSymbol } from '@/components/icon-symbol';
 
@@ -13,10 +17,10 @@ export default function StressPlan() {
   const router = useRouter();
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
-  const { data } = useQuery(GET_STRESS_KIT);
+  const { data } = useGetStressKitQuery();
   const kit = data?.stressKit || {};
-  const [updateKit] = useMutation(UPDATE_STRESS_KIT, {
-    refetchQueries: [{ query: GET_STRESS_KIT }],
+  const [updateKit] = useUpdateStressKitMutation({
+    refetchQueries: [{ query: GetStressKitDocument }],
   });
   const [draft, setDraft] = useState<StressKit>(kit);
 

@@ -11,8 +11,12 @@ import {
 } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
 import { router } from 'expo-router';
-import { useQuery, useMutation } from '@apollo/client/react';
-import { GET_MINDFULNESS_HISTORY, ADD_MINDFUL_MINUTES, showAlert } from '@/lib/apollo';
+import {
+  useGetMindfulnessHistoryQuery,
+  useAddMindfulMinutesMutation,
+  GetMindfulnessHistoryDocument,
+} from '@/gql/hooks';
+import { showAlert } from '@/lib/state';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -29,7 +33,7 @@ export default function MindfulHours() {
   const colors = Colors[theme];
   const [activeTab, setActiveTab] = useState<'timer' | 'history'>('timer');
 
-  const { data } = useQuery(GET_MINDFULNESS_HISTORY);
+  const { data } = useGetMindfulnessHistoryQuery();
   const history = data?.mindfulnessHistory || [];
 
   return (
@@ -106,8 +110,8 @@ export default function MindfulHours() {
 }
 
 function TimerView({ colors }: { colors: any }) {
-  const [addMinutes] = useMutation(ADD_MINDFUL_MINUTES, {
-    refetchQueries: [{ query: GET_MINDFULNESS_HISTORY }],
+  const [addMinutes] = useAddMindfulMinutesMutation({
+    refetchQueries: [{ query: GetMindfulnessHistoryDocument }],
   });
   const [secondsRemaining, setSecondsRemaining] = useState(300);
   const [initialSeconds, setInitialSeconds] = useState(300);
