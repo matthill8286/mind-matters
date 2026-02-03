@@ -4,8 +4,9 @@ import { router, useLocalSearchParams } from 'expo-router';
 import ScreenHeader from '@/components/ScreenHeader';
 import Chips from '@/components/Chips';
 import { JOURNAL_PROMPTS } from '@/data/journalPrompts';
-import { JournalEntry } from '@/lib/journal';
-import { useUpsertJournalEntryMutation, GetJournalEntriesDocument } from '@/gql/generated';
+import { useGraphQLMutation } from '@/lib/graphql';
+import { CREATE_JOURNAL_ENTRY } from '@/gql/operations';
+import { CreateJournalEntryMutation, CreateJournalEntryMutationVariables } from '@/gql/generated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
@@ -15,7 +16,10 @@ const MOODS = ['Calm', 'Okay', 'Anxious', 'Sad', 'Angry', 'Overwhelmed'];
 export default function NewJournalEntry() {
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
-  const { mutateAsync: upsertEntry } = useUpsertJournalEntryMutation();
+  const { mutateAsync: upsertEntry } = useGraphQLMutation<
+    CreateJournalEntryMutation,
+    CreateJournalEntryMutationVariables
+  >(['CreateJournalEntry'], CREATE_JOURNAL_ENTRY);
   const { promptId, date } = useLocalSearchParams<{ promptId?: string; date?: string }>();
   const prompt = useMemo(() => JOURNAL_PROMPTS.find((p) => p.id === promptId), [promptId]);
 

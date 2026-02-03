@@ -1,7 +1,9 @@
-import { useGetUserDataQuery } from '@/gql/generated';
+import { GET_USER_DATA } from '@/gql/operations';
+import { useGraphQLQuery } from '@/lib/graphql';
+import { GetUserDataQuery } from '@/gql/generated';
 
 export function useSubscription() {
-  const { data } = useGetUserDataQuery();
+  const { data } = useGraphQLQuery<GetUserDataQuery, never>(['userData'], GET_USER_DATA);
   const subscription = data?.subscription;
 
   const isExpired =

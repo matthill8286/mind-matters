@@ -2,6 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { View, Text, Pressable, Switch, FlatList, Platform } from 'react-native';
 import { router } from 'expo-router';
 import ScreenHeader from '@/components/ScreenHeader';
+import { Colors, UI } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 type NotifSetting = {
   key: string;
@@ -9,9 +11,6 @@ type NotifSetting = {
   subtitle: string;
   enabled: boolean;
 };
-
-import { Colors, UI } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function Notifications() {
   const theme = useColorScheme() ?? 'light';

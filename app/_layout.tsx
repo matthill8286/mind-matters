@@ -2,7 +2,7 @@ import { Stack } from 'expo-router';
 import { AlertModal } from '@/components/AlertModal';
 import { LoadingOverlay } from '@/components/LoadingOverlay';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { queryClient } from '@/lib/query-client';
+import { queryClient } from '@/lib/state';
 
 export default function RootLayout() {
   return (

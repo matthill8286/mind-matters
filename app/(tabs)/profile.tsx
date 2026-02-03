@@ -5,12 +5,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSubscription } from '@/hooks/useSubscription';
+import { GET_USER_DATA } from '@/gql/operations';
+import { useGraphQLQuery } from '@/lib/graphql';
+import { GetUserDataQuery } from '@/gql/generated';
 import { Colors, UI } from '@/constants/theme';
-import { useGetUserDataQuery } from '@/gql/generated';
 import { IconSymbol } from '@/components/icon-symbol';
+import { authTokenVar } from '@/lib/state';
 
 async function signOut() {
   await AsyncStorage.removeItem('auth:session:v1');
+  authTokenVar(null);
   router.replace('/(auth)/sign-in');
 }
 
@@ -18,7 +22,7 @@ export default function Profile() {
   const [email, setEmail] = useState<string | null>(null);
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
-  const { data } = useGetUserDataQuery();
+  const { data } = useGraphQLQuery<GetUserDataQuery, never>(['userData'], GET_USER_DATA);
   const profile = data?.profile;
   const { subscription, isExpired, isLifetime } = useSubscription();
 

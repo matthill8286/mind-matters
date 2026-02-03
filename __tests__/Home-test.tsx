@@ -2,7 +2,7 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import Home from '../app/(tabs)/home';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useGetAllDataQuery } from '../gql/generated';
+import { useGraphQLQuery } from '../lib/graphql';
 import { router } from 'expo-router';
 
 import { useSubscription } from '../hooks/useSubscription';
@@ -15,8 +15,8 @@ const queryClient = new QueryClient({
   },
 });
 
-jest.mock('../gql/generated', () => ({
-  useGetAllDataQuery: jest.fn(),
+jest.mock('../lib/graphql', () => ({
+  useGraphQLQuery: jest.fn(),
 }));
 
 jest.mock('../hooks/useSubscription');
@@ -34,7 +34,7 @@ jest.mock('../components/ScreenHeader', () => {
 describe('Home Screen', () => {
   beforeEach(() => {
     (useSubscription as jest.Mock).mockReturnValue({ isExpired: false, hasFullAccess: true });
-    (useGetAllDataQuery as jest.Mock).mockReturnValue({
+    (useGraphQLQuery as jest.Mock).mockReturnValue({
       data: {
         moodCheckIns: [],
         journalEntries: [],

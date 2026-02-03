@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Pressable, TextInput } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
+import { authTokenVar } from '@/lib/state';
 
 export default function SignUp() {
   const [email, setEmail] = useState('');
@@ -9,10 +10,12 @@ export default function SignUp() {
 
   async function onCreate() {
     if (!email || !pass) return;
+    const token = 'mock-token-' + Math.random().toString(36).substring(7);
     await AsyncStorage.setItem(
       'auth:session:v1',
-      JSON.stringify({ email, createdAt: new Date().toISOString() }),
+      JSON.stringify({ email, token, createdAt: new Date().toISOString() }),
     );
+    authTokenVar(token);
     router.replace('/(auth)/trial-upgrade');
   }
 

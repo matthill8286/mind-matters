@@ -2,10 +2,12 @@ import React from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { authTokenVar } from '@/lib/state';
 
 export default function UpgradeRequired() {
   async function signOut() {
     await AsyncStorage.removeItem('auth:session:v1');
+    authTokenVar(null);
     router.replace('/(auth)/sign-in');
   }
 

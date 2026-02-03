@@ -1,5 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 export type MoodCheckIn = {
   id: string;
   createdAt: string; // ISO
@@ -9,28 +7,3 @@ export type MoodCheckIn = {
   note?: string;
   tags?: string[];
 };
-
-const KEY = 'mood:checkins:v1';
-
-export async function listMoodCheckIns(): Promise<MoodCheckIn[]> {
-  const raw = await AsyncStorage.getItem(KEY);
-  const items = raw ? (JSON.parse(raw) as MoodCheckIn[]) : [];
-  return items.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
-}
-
-export async function addMoodCheckIn(item: MoodCheckIn): Promise<void> {
-  const raw = await AsyncStorage.getItem(KEY);
-  const items = raw ? (JSON.parse(raw) as MoodCheckIn[]) : [];
-  items.push(item);
-  await AsyncStorage.setItem(KEY, JSON.stringify(items));
-}
-
-export async function deleteMoodCheckIn(id: string): Promise<void> {
-  const raw = await AsyncStorage.getItem(KEY);
-  const items = raw ? (JSON.parse(raw) as MoodCheckIn[]) : [];
-  await AsyncStorage.setItem(KEY, JSON.stringify(items.filter((x) => x.id !== id)));
-}
-
-export async function clearMoodCheckIns(): Promise<void> {
-  await AsyncStorage.removeItem(KEY);
-}

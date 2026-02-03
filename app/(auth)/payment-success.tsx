@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
-import { Colors, UI } from '@/constants/theme';
+import { UI } from '@/constants/theme';
 
 export default function PaymentSuccess() {
   const handleContinue = () => {

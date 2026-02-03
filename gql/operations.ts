@@ -227,6 +227,18 @@ export const UPSERT_JOURNAL_ENTRY = gql`
   }
 `;
 
+export const CREATE_JOURNAL_ENTRY = gql`
+mutation CreateJournalEntry($input: JournalEntryInput!) {
+  createJournalEntry(input: $input) {
+    id
+    title
+    content
+    mood
+    tags
+    createdAt
+  }
+}`
+
 export const SEND_MESSAGE = gql`
   mutation SendMessage($issueKey: String!, $content: String, $text: String) {
     sendMessage(issueKey: $issueKey, content: $content, text: $text) {

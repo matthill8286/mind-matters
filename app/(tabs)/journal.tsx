@@ -4,7 +4,9 @@ import { router } from 'expo-router';
 import ScreenHeader from '@/components/ScreenHeader';
 import { IconSymbol } from '@/components/icon-symbol';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { useGetJournalEntriesQuery } from '@/gql/generated';
+import { GET_JOURNAL_ENTRIES } from '@/gql/operations';
+import { useGraphQLQuery } from '@/lib/graphql';
+import { GetJournalEntriesQuery } from '@/gql/generated';
 import { useSubscription } from '@/hooks/useSubscription';
 import { showAlert } from '@/lib/state';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -22,7 +24,10 @@ export default function Journal() {
   const theme = useColorScheme() ?? 'light';
   const { hasFullAccess } = useSubscription();
   const colors = Colors[theme];
-  const { data } = useGetJournalEntriesQuery();
+  const { data } = useGraphQLQuery<GetJournalEntriesQuery, never>(
+    ['journalEntries'],
+    GET_JOURNAL_ENTRIES,
+  );
   const entries = data?.journalEntries || [];
 
   return (

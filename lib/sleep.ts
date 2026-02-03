@@ -1,5 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 export type SleepEntry = {
   id: string;
   startISO: string; // bedtime ISO
@@ -9,15 +7,3 @@ export type SleepEntry = {
   notes?: string;
   createdAtISO: string;
 };
-
-const KEY = 'sleep:entries:v1';
-
-export async function listSleepEntries(): Promise<SleepEntry[]> {
-  const raw = await AsyncStorage.getItem(KEY);
-  const entries = raw ? (JSON.parse(raw) as SleepEntry[]) : [];
-  return entries.sort((a, b) => (a.endISO < b.endISO ? 1 : -1));
-}
-
-export async function saveSleepEntries(entries: SleepEntry[]): Promise<void> {
-  await AsyncStorage.setItem(KEY, JSON.stringify(entries));
-}

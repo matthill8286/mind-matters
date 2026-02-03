@@ -1,14 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, TextInput, ScrollView, Platform } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import ScreenHeader from '@/components/ScreenHeader';
 import Chips from '@/components/Chips';
 import { JournalEntry } from '@/lib/journal';
+import { useGraphQLQuery, useGraphQLMutation } from '@/lib/graphql';
+import { GET_JOURNAL_ENTRIES, UPSERT_JOURNAL_ENTRY, DELETE_JOURNAL_ENTRY } from '@/gql/operations';
 import {
-  useGetJournalEntriesQuery,
-  useUpsertJournalEntryMutation,
-  useDeleteJournalEntryMutation,
-  GetJournalEntriesDocument,
+  GetJournalEntriesQuery,
+  UpsertJournalEntryMutation,
+  UpsertJournalEntryMutationVariables,
+  DeleteJournalEntryMutation,
+  DeleteJournalEntryMutationVariables,
 } from '@/gql/generated';
 import { showAlert } from '@/lib/state';
 
@@ -20,16 +23,31 @@ const MOODS = ['Calm', 'Okay', 'Anxious', 'Sad', 'Angry', 'Overwhelmed'];
 export default function EditJournalEntry() {
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
-  const { data } = useGetJournalEntriesQuery();
-  const { mutateAsync: upsertMutation } = useUpsertJournalEntryMutation({
+
+  const { data } = useGraphQLQuery<GetJournalEntriesQuery, null>(
+    ['GetJournalEntries'],
+    GET_JOURNAL_ENTRIES,
+  );
+
+  const { mutateAsync: upsertMutation } = useGraphQLMutation<
+    UpsertJournalEntryMutation,
+    UpsertJournalEntryMutationVariables
+  >(['UpsertJournalEntry'], UPSERT_JOURNAL_ENTRY, {
     onSuccess: () => {
       // refetch is handled if mutation triggers invalidation,
       // but if we rely on refetchQueries, we need to pass it differently or use queryClient.invalidateQueries
     },
   });
-  const { mutateAsync: deleteMutation } = useDeleteJournalEntryMutation();
 
-  const journalEntries = data?.journalEntries || [];
+  const { mutateAsync: deleteMutation } = useGraphQLMutation<
+    DeleteJournalEntryMutation,
+    DeleteJournalEntryMutationVariables
+  >(['DeleteJournalEntry'], DELETE_JOURNAL_ENTRY);
+
+  const journalEntries = useMemo(() => {
+    return data?.journalEntries || [];
+  }, [data?.journalEntries]);
+
   const { id } = useLocalSearchParams<{ id: string }>();
   const [entry, setEntry] = useState<JournalEntry | null>(null);
   const [tagText, setTagText] = useState('');

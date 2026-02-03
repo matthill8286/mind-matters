@@ -11,13 +11,18 @@ import {
 } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
 import { useLocalSearchParams } from 'expo-router';
+import { useGraphQLQuery, useGraphQLMutation } from '@/lib/graphql';
+import { GET_CHAT_MESSAGES, SEND_MESSAGE, CLEAR_CHAT } from '@/gql/operations';
 import {
-  useGetChatMessagesQuery,
-  useSendMessageMutation,
-  useClearChatMutation,
+  GetChatMessagesQuery,
+  GetChatMessagesQueryVariables,
+  SendMessageMutation,
+  SendMessageMutationVariables,
+  ClearChatMutation,
+  ClearChatMutationVariables,
 } from '@/gql/generated';
 import { ISSUES } from '@/data/issues';
-import { showAlert } from '@/lib/state';
+import { queryClient, showAlert } from '@/lib/state';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 import { IconSymbol } from '@/components/icon-symbol';
@@ -30,13 +35,34 @@ export default function Chat() {
     data,
     isPending: queryLoading,
     error,
-  } = useGetChatMessagesQuery({ issueKey: issueKey ?? 'general' });
-  const { mutateAsync: sendMessageMutation, isPending: sendLoading } = useSendMessageMutation({
+  } = useGraphQLQuery<GetChatMessagesQuery, GetChatMessagesQueryVariables>(
+    ['GetChatMessages'],
+    GET_CHAT_MESSAGES,
+    { issueKey: issueKey ?? 'general' },
+  );
+
+  console.log('Chat component loaded with issueKey:', issueKey);
+  console.log('Chat messages:', data?.chatMessages);
+
+  const { mutateAsync: sendMessageMutation, isPending: sendLoading } = useGraphQLMutation<
+    SendMessageMutation,
+    SendMessageMutationVariables
+  >(['SendMessage'], SEND_MESSAGE, {
     onSuccess: () => {
       // Handle refetch if needed, but TanStack Query usually handles this via cache keys or explicit invalidation
     },
   });
-  const { mutateAsync: clearChatMutation } = useClearChatMutation();
+
+  const { mutateAsync: clearChatMutation } = useGraphQLMutation<
+    ClearChatMutation,
+    ClearChatMutationVariables
+  >(['ClearChat'], CLEAR_CHAT, {
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['GetChatMessages'],
+      });
+    },
+  });
 
   const messages = data?.chatMessages || [];
   const loading = queryLoading || sendLoading;
@@ -57,6 +83,9 @@ export default function Chat() {
     if (!inputText.trim() || loading) return;
 
     const text = inputText.trim();
+
+    console.log('Chat messages:', text);
+
     setInputText('');
 
     await sendMessageMutation({
@@ -178,7 +207,7 @@ export default function Chat() {
                     lineHeight: 22,
                   }}
                 >
-                  {item.content}
+                  {item.text}
                 </Text>
               </View>
             );

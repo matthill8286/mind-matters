@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, TextInput, ScrollView, StyleSheet, Platform } from 'react-native';
 import { router } from 'expo-router';
-import { useGetUserDataQuery, useSetProfileMutation, GetUserDataDocument } from '@/gql/generated';
+import { useGraphQLQuery, useGraphQLMutation } from '@/lib/graphql';
+import { GET_USER_DATA, SET_PROFILE } from '@/gql/operations';
+import { GetUserDataQuery, SetProfileMutation, SetProfileMutationVariables } from '@/gql/generated';
 import { showAlert } from '@/lib/state';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
@@ -78,9 +80,12 @@ function RadioOption({
 export default function ProfileEdit() {
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
-  const { data } = useGetUserDataQuery();
+  const { data } = useGraphQLQuery<GetUserDataQuery>(['GetUserData'], GET_USER_DATA);
   const profile = data?.profile;
-  const { mutateAsync: updateProfile } = useSetProfileMutation();
+  const { mutateAsync: updateProfile } = useGraphQLMutation<
+    SetProfileMutation,
+    SetProfileMutationVariables
+  >(['SetProfile'], SET_PROFILE);
 
   const [name, setName] = useState(profile?.name || '');
   const [intention, setIntention] = useState(profile?.intention || '');

@@ -79,6 +79,8 @@ type Mutation {
   addSleepEntry(input: SleepEntryInput!): SleepEntry!
   addStressCompletion(exerciseId: ID!, title: String!): StressHistory!
   clearChat(issueKey: String!): Boolean!
+  createJournalEntry(input: JournalEntryInput): JournalEntry!
+  upsertJournalEntry(input: JournalEntryInput): JournalEntry!
   deleteJournalEntry(id: ID!): Boolean!
   deleteMoodCheckIn(id: ID!): Boolean!
   deleteSleepEntry(id: ID!): Boolean!
@@ -87,7 +89,6 @@ type Mutation {
   setProfile(input: JSON!): JSON
   setSubscription(input: SubscriptionInput!): Subscription!
   updateStressKit(input: StressKitInput!): StressKit!
-  upsertJournalEntry(input: JournalEntryInput!): JournalEntry!
 }
 
 type Query {

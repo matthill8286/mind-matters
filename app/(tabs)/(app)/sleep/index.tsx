@@ -5,7 +5,9 @@ import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 import { useSleepMode, sleepModeVar, showAlert } from '@/lib/state';
-import { useGetSleepEntriesQuery } from '@/gql/generated';
+import { useGraphQLQuery } from '@/lib/graphql';
+import { GET_SLEEP_ENTRIES } from '@/gql/operations';
+import { GetSleepEntriesQuery } from '@/gql/generated';
 import { MaterialIcons } from '@expo/vector-icons';
 
 export default function SleepScreen() {
@@ -14,7 +16,10 @@ export default function SleepScreen() {
   const colors = Colors[theme];
   const { sleepModeStartISO } = useSleepMode();
 
-  const { data, isPending } = useGetSleepEntriesQuery();
+  const { data } = useGraphQLQuery<GetSleepEntriesQuery, null>(
+    ['GetSleepEntries'],
+    GET_SLEEP_ENTRIES,
+  );
   const entries = data?.sleepEntries || [];
   const lastEntry = entries[0];
 

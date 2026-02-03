@@ -6,7 +6,10 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 import { STRESS_VIDEOS } from '@/data/stressVideos';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { useAddStressCompletionMutation, GetStressKitDocument } from '@/gql/generated';
+import { ADD_STRESS_COMPLETION } from '@/gql/operations';
+import { useGraphQLMutation } from '@/lib/graphql';
+import { AddStressCompletionMutation, AddStressCompletionMutationVariables } from '@/gql/generated';
+import ScreenHeader from '@/components/ScreenHeader';
 
 const QUOTES = [
   'Take a deep breath and let go of what you cannot control.',
@@ -19,11 +22,12 @@ const QUOTES = [
   'Peace comes from within. Do not seek it without.',
 ];
 
-import ScreenHeader from '@/components/ScreenHeader';
-
 export default function WatchVideoScreen() {
   const { videoId } = useLocalSearchParams<{ videoId: string }>();
-  const { mutateAsync: addCompletion } = useAddStressCompletionMutation();
+  const { mutateAsync: addCompletion } = useGraphQLMutation<
+    AddStressCompletionMutation,
+    AddStressCompletionMutationVariables
+  >(['stressKit'], ADD_STRESS_COMPLETION);
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
 

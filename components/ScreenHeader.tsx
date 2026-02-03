@@ -33,7 +33,7 @@ export default function ScreenHeader({
               })}
             >
               <MaterialIcons
-                name={Platform.OS === 'ios' ? "arrow-back-ios" : "arrow-back"}
+                name={Platform.OS === 'ios' ? 'arrow-back-ios' : 'arrow-back'}
                 size={24}
                 color={colors.text}
               />
@@ -46,7 +46,7 @@ export default function ScreenHeader({
               fontSize: Platform.OS === 'ios' ? 26 : 22,
               fontWeight: Platform.OS === 'ios' ? '900' : '700',
               color: colors.text,
-              flexShrink: 1
+              flexShrink: 1,
             }}
             numberOfLines={1}
           >

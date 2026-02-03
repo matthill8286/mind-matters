@@ -4,11 +4,16 @@ import ScreenHeader from '@/components/ScreenHeader';
 import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
-import { useAddStressCompletionMutation, GetStressKitDocument } from '@/gql/generated';
+import { useGraphQLMutation } from '@/lib/graphql';
+import { ADD_STRESS_COMPLETION } from '@/gql/operations';
+import { AddStressCompletionMutation, AddStressCompletionMutationVariables } from '@/gql/generated';
 
 export default function Grounding() {
   const router = useRouter();
-  const { mutateAsync: addCompletion } = useAddStressCompletionMutation();
+  const { mutateAsync: addCompletion } = useGraphQLMutation<
+    AddStressCompletionMutation,
+    AddStressCompletionMutationVariables
+  >(['AddStressCompletion'], ADD_STRESS_COMPLETION);
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
 

@@ -1,14 +1,21 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, Pressable, TextInput, ScrollView } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import ProfileProgressRing from '@/components/ProfileProgressRing';
 import Chips from '@/components/Chips';
+import { useGraphQLMutation } from '@/lib/graphql';
+import { SET_PROFILE } from '@/gql/operations';
+import { SetProfileMutation, SetProfileMutationVariables } from '@/gql/generated';
 
 type StepKey = 'intro' | 'name' | 'intention' | 'routine' | 'finish';
 const STEPS: StepKey[] = ['intro', 'name', 'intention', 'routine', 'finish'];
 
 export default function ProfileSetup() {
+  const { mutateAsync: saveProfile } = useGraphQLMutation<
+    SetProfileMutation,
+    SetProfileMutationVariables
+  >(['SetProfile'], SET_PROFILE);
+
   const [step, setStep] = useState(0);
   const [name, setName] = useState('');
   const [intention, setIntention] = useState<string | undefined>();
@@ -19,15 +26,14 @@ export default function ProfileSetup() {
 
   async function next() {
     if (stepKey === 'finish') {
-      await AsyncStorage.setItem(
-        'profile:v1',
-        JSON.stringify({
+      await saveProfile({
+        input: {
           name: name.trim() || null,
           intention: intention ?? null,
           routine: routine ?? null,
-          createdAt: new Date().toISOString(),
-        }),
-      );
+          updatedAt: new Date().toISOString(),
+        },
+      });
       router.replace('/(onboarding)/profile-completion');
       return;
     }

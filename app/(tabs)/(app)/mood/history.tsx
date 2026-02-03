@@ -2,24 +2,33 @@ import React, { useMemo, useState } from 'react';
 import { View, Text, Pressable, ScrollView, Platform } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
 import Calendar from '@/components/Calendar';
-import { MoodCheckIn } from '@/lib/mood';
+import { useGraphQLQuery, useGraphQLMutation } from '@/lib/graphql';
+import { GET_MOOD_CHECKINS, DELETE_MOOD_CHECKIN } from '@/gql/operations';
 import {
-  useGetMoodCheckInsQuery,
-  useDeleteMoodCheckInMutation,
-  GetMoodCheckInsDocument,
+  GetMoodCheckInsQuery,
+  DeleteMoodCheckInMutation,
+  DeleteMoodCheckInMutationVariables,
 } from '@/gql/generated';
 import { showAlert } from '@/lib/state';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
-import { router } from 'expo-router';
 
 export default function MoodHistory() {
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
-  const { data } = useGetMoodCheckInsQuery();
-  const { mutateAsync: deleteMoodMutation } = useDeleteMoodCheckInMutation();
 
-  const items = data?.moodCheckIns || [];
+  const { data } = useGraphQLQuery<GetMoodCheckInsQuery, null>(
+    ['GetMoodCheckIns'],
+    GET_MOOD_CHECKINS,
+  );
+
+  const { mutateAsync: deleteMoodMutation } = useGraphQLMutation<
+    DeleteMoodCheckInMutation,
+    DeleteMoodCheckInMutationVariables
+  >(['DeleteMoodCheckIn'], DELETE_MOOD_CHECKIN);
+
+  const items = useMemo(() => data?.moodCheckIns || [], [data?.moodCheckIns]);
+
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   const markedDates = useMemo(() => {

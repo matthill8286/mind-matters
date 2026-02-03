@@ -11,13 +11,20 @@ import {
   NativeScrollEvent,
 } from 'react-native';
 import { router } from 'expo-router';
-import { useSetAssessmentMutation } from '@/gql/generated';
 import { showAlert } from '@/lib/state';
 
 import Chips from '@/components/Chips';
 import SoundPulse from '@/components/SoundPulse';
 import { useRecorder, usePlayer, computeVoiceMetrics } from '@/lib/recorder';
 import { MoodCheckIn } from '@/lib/mood';
+import { useGraphQLMutation } from '@/lib/graphql';
+import {
+  SetAssessmentMutation,
+  SetAssessmentMutationVariables,
+  SetProfileMutation,
+  SetProfileMutationVariables,
+} from '@/gql/generated';
+import { SET_ASSESSMENT, SET_PROFILE } from '@/gql/operations';
 
 const TICK_SPACING = 20;
 
@@ -411,7 +418,10 @@ function PlaybackButton({ uri }: { uri: string }) {
 }
 
 export default function AssessmentScreen() {
-  const { mutateAsync: saveAssessment } = useSetAssessmentMutation();
+  const { mutateAsync: saveAssessment } = useGraphQLMutation<
+    SetAssessmentMutation,
+    SetAssessmentMutationVariables
+  >(['SetAssessment'], SET_ASSESSMENT);
   const [step, setStep] = useState(0);
   const [a, setA] = useState<Assessment>({
     createdAt: new Date().toISOString(),
@@ -589,7 +599,7 @@ export default function AssessmentScreen() {
           <>
             <Text style={styles.h1}>What’s your age?</Text>
             <View style={{ marginTop: 24 }}>
-              <AgePicker value={a.age ?? '13'} onChange={(v) => setA((p) => ({ ...p, age: v }))} />
+              <AgePicker value={a.age ?? '18'} onChange={(v) => setA((p) => ({ ...p, age: v }))} />
             </View>
           </>
         );

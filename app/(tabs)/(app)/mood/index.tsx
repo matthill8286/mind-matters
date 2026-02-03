@@ -4,10 +4,12 @@ import ScreenHeader from '@/components/ScreenHeader';
 import Chips from '@/components/Chips';
 import MoodChart from '@/components/MoodChart';
 import { MoodCheckIn } from '@/lib/mood';
+import { useGraphQLQuery, useGraphQLMutation } from '@/lib/graphql';
+import { GET_MOOD_CHECKINS, ADD_MOOD_CHECKIN } from '@/gql/operations';
 import {
-  useGetMoodCheckInsQuery,
-  useAddMoodCheckInMutation,
-  GetMoodCheckInsDocument,
+  GetMoodCheckInsQuery,
+  AddMoodCheckInMutation,
+  AddMoodCheckInMutationVariables,
 } from '@/gql/generated';
 import { showAlert } from '@/lib/state';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -34,8 +36,11 @@ export default function Mood() {
   const { hasFullAccess } = useSubscription();
   const colors = Colors[theme];
 
-  const { data, isPending: loading } = useGetMoodCheckInsQuery();
-  const { mutateAsync: addMoodMutation } = useAddMoodCheckInMutation();
+  const { data } = useGraphQLQuery<GetMoodCheckInsQuery>(['GetMoodCheckIns'], GET_MOOD_CHECKINS);
+  const { mutateAsync: addMoodMutation } = useGraphQLMutation<
+    AddMoodCheckInMutation,
+    AddMoodCheckInMutationVariables
+  >(['AddMoodCheckIn'], ADD_MOOD_CHECKIN);
 
   const items = data?.moodCheckIns || [];
 
@@ -154,7 +159,7 @@ export default function Mood() {
           )}
 
           <View style={{ backgroundColor: colors.card, borderRadius: UI.radius.lg, padding: 14 }}>
-            <Text style={{ fontWeight: '900', color: colors.text }}>Today's check-in</Text>
+            <Text style={{ fontWeight: '900', color: colors.text }}>Today&apos;s check-in</Text>
 
             <Text style={{ marginTop: 10, fontWeight: '900', color: colors.text }}>Mood</Text>
             <Chips

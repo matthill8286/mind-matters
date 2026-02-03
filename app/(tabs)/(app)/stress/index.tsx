@@ -4,7 +4,9 @@ import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Colors, UI } from '@/constants/theme';
-import { useGetStressKitQuery } from '@/gql/generated';
+import { useGraphQLQuery } from '@/lib/graphql';
+import { GET_STRESS_KIT } from '@/gql/operations';
+import { GetStressKitQuery } from '@/gql/generated';
 import { showAlert } from '@/lib/state';
 import { IconSymbol } from '@/components/icon-symbol';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -14,7 +16,7 @@ export default function StressHub() {
   const theme = useColorScheme() ?? 'light';
   const { hasFullAccess } = useSubscription();
   const colors = Colors[theme];
-  const { data } = useGetStressKitQuery();
+  const { data } = useGraphQLQuery<GetStressKitQuery, null>(['GetStressKit'], GET_STRESS_KIT);
   const kit = data?.stressKit || { quickPhrase: '' };
 
   return (

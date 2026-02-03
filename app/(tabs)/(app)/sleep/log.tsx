@@ -5,7 +5,9 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Colors, UI } from '@/constants/theme';
-import { useAddSleepEntryMutation, GetSleepEntriesDocument } from '@/gql/generated';
+import { useGraphQLMutation } from '@/lib/graphql';
+import { ADD_SLEEP_ENTRY } from '@/gql/operations';
+import { AddSleepEntryMutation, AddSleepEntryMutationVariables } from '@/gql/generated';
 import { showAlert } from '@/lib/state';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
@@ -20,7 +22,10 @@ export default function LogSleepScreen() {
   const [duration, setDuration] = useState((params.duration as string) || '8');
   const [note, setNote] = useState('');
 
-  const { mutateAsync: addSleepEntry, isPending: loading } = useAddSleepEntryMutation({
+  const { mutateAsync: addSleepEntry, isPending: loading } = useGraphQLMutation<
+    AddSleepEntryMutation,
+    AddSleepEntryMutationVariables
+  >(['AddSleepEntry'], ADD_SLEEP_ENTRY, {
     onSuccess: () => {
       showAlert('Saved', 'Your sleep entry was saved.');
       router.back();

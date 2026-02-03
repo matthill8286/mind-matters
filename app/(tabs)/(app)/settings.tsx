@@ -1,25 +1,33 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, FlatList, Platform } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { ISSUES, IssueKey } from '@/data/issues';
 import { showAlert } from '@/lib/state';
 
 import { Colors, UI } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useGraphQLMutation, useGraphQLQuery } from '@/lib/graphql';
+import { GET_USER_DATA, SET_PROFILE } from '@/gql/operations';
+import { GetUserDataQuery, SetProfileMutation, SetProfileMutationVariables } from '@/gql/generated';
 
 export default function Settings() {
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
+  const { data } = useGraphQLQuery<GetUserDataQuery>(['GetUserData'], GET_USER_DATA);
+  const profile = data?.profile;
+  const { mutateAsync: updateProfile } = useGraphQLMutation<
+    SetProfileMutation,
+    SetProfileMutationVariables
+  >(['SetProfile'], SET_PROFILE);
+
   const [selected, setSelected] = useState<Set<IssueKey>>(new Set());
 
   useEffect(() => {
-    (async () => {
-      const raw = await AsyncStorage.getItem('selectedIssues:v1');
-      setSelected(new Set(raw ? JSON.parse(raw) : []));
-    })();
-  }, []);
+    if (profile?.selectedIssues) {
+      setSelected(new Set(profile.selectedIssues as IssueKey[]));
+    }
+  }, [profile]);
 
   const selectedArray = useMemo(() => Array.from(selected), [selected]);
 
@@ -28,7 +36,13 @@ export default function Settings() {
       showAlert('Select at least one section', 'Choose one or more sections to continue.');
       return;
     }
-    await AsyncStorage.setItem('selectedIssues:v1', JSON.stringify(selectedArray));
+    await updateProfile({
+      input: {
+        ...profile,
+        selectedIssues: selectedArray,
+        updatedAt: new Date().toISOString(),
+      },
+    });
     showAlert('Saved', 'Your preferences were updated.');
     router.back();
   }

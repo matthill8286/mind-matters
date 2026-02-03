@@ -2,13 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable, ScrollView, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useSetSubscriptionMutation } from '@/gql/generated';
+import { useGraphQLMutation } from '@/lib/graphql';
+import { SET_SUBSCRIPTION } from '@/gql/operations';
+import { SetSubscriptionMutation, SetSubscriptionMutationVariables } from '@/gql/generated';
 import { showAlert } from '@/lib/state';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 
 export default function TrialUpgrade() {
-  const { mutateAsync: updateSubscription } = useSetSubscriptionMutation();
+  const { mutateAsync: updateSubscription } = useGraphQLMutation<
+    SetSubscriptionMutation,
+    SetSubscriptionMutationVariables
+  >(['SetSubscription'], SET_SUBSCRIPTION);
   const [isNewUser, setIsNewUser] = useState(true);
   const [loading, setLoading] = useState(false);
 
@@ -21,19 +26,9 @@ export default function TrialUpgrade() {
     })();
   }, []);
 
-  const handleFinish = () => {
-    if (isNewUser) {
-      router.replace('/(onboarding)/assessment');
-    } else {
-      router.replace('/(tabs)/home');
-    }
-  };
-
   async function selectTrial() {
-    // Mocking success for trial
     setLoading(true);
-    setTimeout(async () => {
-      setLoading(false);
+    try {
       const expiryDate = new Date();
       expiryDate.setDate(expiryDate.getDate() + 7);
       await updateSubscription({
@@ -43,8 +38,21 @@ export default function TrialUpgrade() {
         },
       });
       router.push('/(auth)/payment-success');
-    }, 1000);
+    } catch (error) {
+      console.error('Error starting trial:', error);
+      showAlert('Error', 'Failed to start free trial. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   }
+
+  // Helper to get formatted expiry date
+  const getExpiryDate = (type: 'monthly' | 'lifetime') => {
+    if (type === 'lifetime') return null;
+    const date = new Date();
+    date.setMonth(date.getMonth() + 1);
+    return date.toISOString();
+  };
 
   // Function to call the backend API to create a Checkout Session
   const createCheckoutSession = async (
@@ -99,11 +107,26 @@ export default function TrialUpgrade() {
 
     const checkoutUrl = await createCheckoutSession(mode, amount, name, currency);
 
-    setLoading(false);
-
     if (checkoutUrl) {
+      // After initiating payment, we can tentatively update the subscription if the backend handles it,
+      // but usually the backend should handle it via webhooks.
+      // However, for the purpose of "using gql", if we want to record the intent:
+      try {
+        await updateSubscription({
+          input: {
+            type: type,
+            expiryDate: getExpiryDate(type),
+          },
+        });
+      } catch (e) {
+        console.error('Failed to update subscription intent:', e);
+      }
+
+      setLoading(false);
       // Open the Stripe Checkout URL in the system browser
       await WebBrowser.openBrowserAsync(checkoutUrl);
+    } else {
+      setLoading(false);
     }
   }
 

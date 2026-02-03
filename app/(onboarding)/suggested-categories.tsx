@@ -1,30 +1,43 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, Pressable, FlatList, ScrollView } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { View, Text, Pressable, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import { ISSUES, IssueKey } from '@/data/issues';
 import { suggestWithReasons } from '@/lib/suggestCategories';
+import { useGraphQLMutation, useGraphQLQuery } from '@/lib/graphql';
+import { GET_ALL_DATA, SET_PROFILE } from '@/gql/operations';
+import { GetAllDataQuery, SetProfileMutation, SetProfileMutationVariables } from '@/gql/generated';
 
 export default function SuggestedCategories() {
+  const { data } = useGraphQLQuery<GetAllDataQuery>(['GetAllData'], GET_ALL_DATA);
+  const { mutateAsync: saveProfile } = useGraphQLMutation<
+    SetProfileMutation,
+    SetProfileMutationVariables
+  >(['SetProfile'], SET_PROFILE);
+
   const [suggested, setSuggested] = useState<{ key: IssueKey; score: number; reasons: string[] }[]>(
     [],
   );
   const [selected, setSelected] = useState<Set<IssueKey>>(new Set());
 
   useEffect(() => {
-    (async () => {
-      const raw = await AsyncStorage.getItem('assessment:v1');
-      const assessment = raw ? JSON.parse(raw) : null;
+    if (data?.assessment) {
+      const assessment = data.assessment;
       const s = suggestWithReasons(assessment);
       setSuggested(s);
       setSelected(new Set(s.slice(0, 3).map((x) => x.key)));
-    })();
-  }, []);
+    }
+  }, [data?.assessment]);
 
   const selectedArray = useMemo(() => Array.from(selected), [selected]);
 
   async function onContinue() {
-    await AsyncStorage.setItem('selectedIssues:v1', JSON.stringify(selectedArray));
+    // We update the profile with selected issues
+    await saveProfile({
+      input: {
+        selectedIssues: selectedArray,
+        updatedAt: new Date().toISOString(),
+      },
+    });
     router.replace('/(tabs)/home');
   }
 

@@ -4,10 +4,12 @@ import ScreenHeader from '@/components/ScreenHeader';
 import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
+import { GET_STRESS_KIT, UPDATE_STRESS_KIT } from '@/gql/operations';
+import { useGraphQLQuery, useGraphQLMutation } from '@/lib/graphql';
 import {
-  useGetStressKitQuery,
-  useUpdateStressKitMutation,
-  GetStressKitDocument,
+  GetStressKitQuery,
+  UpdateStressKitMutation,
+  UpdateStressKitMutationVariables,
 } from '@/gql/generated';
 import { showAlert } from '@/lib/state';
 import { StressKit, DEFAULT_KIT } from '@/lib/stress';
@@ -17,7 +19,7 @@ export default function StressPlan() {
   const router = useRouter();
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
-  const { data } = useGetStressKitQuery();
+  const { data } = useGraphQLQuery<GetStressKitQuery, never>(['stressKit'], GET_STRESS_KIT);
   const kit = data?.stressKit
     ? {
         quickPhrase: data.stressKit.quickPhrase ?? '',
@@ -27,7 +29,10 @@ export default function StressPlan() {
         notes: data.stressKit.notes ?? '',
       }
     : DEFAULT_KIT;
-  const { mutateAsync: updateKit } = useUpdateStressKitMutation();
+  const { mutateAsync: updateKit } = useGraphQLMutation<
+    UpdateStressKitMutation,
+    UpdateStressKitMutationVariables
+  >(['stressKit'], UPDATE_STRESS_KIT);
   const [draft, setDraft] = useState<StressKit>(kit);
 
   const inputStyle = {

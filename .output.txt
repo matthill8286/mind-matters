@@ -1,210 +1,313 @@
-app/(tabs)/(app)/chat/[issueKey].tsx:191:9 - error TS2769: No overload matches this call.
-  Overload 1 of 2, '(props: ViewProps): View', gave the following error.
-    Type 'unknown' is not assignable to type 'ReactNode'.
-  Overload 2 of 2, '(props: ViewProps, context: any): View', gave the following error.
-    Type 'unknown' is not assignable to type 'ReactNode'.
-191         {error && (
-            ~~~~~~~~~~~
-192           <View
-    ~~~~~~~~~~~~~~~
-...
-209           </View>
-    ~~~~~~~~~~~~~~~~~
-210         )}
-    ~~~~~~~~~~
-app/(tabs)/(app)/chat/[issueKey].tsx:207:22 - error TS2339: Property 'message' does not exist on type '{}'.
-207               {error.message}
-                         ~~~~~~~
-app/(tabs)/(app)/journal/[id].tsx:24:9 - error TS2488: Type 'UseMutationResult<UpsertJournalEntryMutation, unknown, Exact<{ input: JournalEntryInput; }>, unknown>' must have a '[Symbol.iterator]()' method that returns an iterator.
-24   const [upsertMutation] = useUpsertJournalEntryMutation({
-           ~~~~~~~~~~~~~~~~
-app/(tabs)/(app)/journal/[id].tsx:25:5 - error TS2353: Object literal may only specify known properties, and 'refetchQueries' does not exist in type 'UseMutationOptions<UpsertJournalEntryMutation, unknown, Exact<{ input: JournalEntryInput; }>, unknown>'.
-25     refetchQueries: [{ query: GetJournalEntriesDocument }],
-       ~~~~~~~~~~~~~~
-app/(tabs)/(app)/journal/[id].tsx:27:9 - error TS2488: Type 'UseMutationResult<DeleteJournalEntryMutation, unknown, Exact<{ id: string; }>, unknown>' must have a '[Symbol.iterator]()' method that returns an iterator.
-27   const [deleteMutation] = useDeleteJournalEntryMutation({
-           ~~~~~~~~~~~~~~~~
-app/(tabs)/(app)/journal/[id].tsx:28:5 - error TS2353: Object literal may only specify known properties, and 'refetchQueries' does not exist in type 'UseMutationOptions<DeleteJournalEntryMutation, unknown, Exact<{ id: string; }>, unknown>'.
-28     refetchQueries: [{ query: GetJournalEntriesDocument }],
-       ~~~~~~~~~~~~~~
-app/(tabs)/(app)/journal/[id].tsx:47:16 - error TS2345: Argument of type '{ __typename?: "JournalEntry" | undefined; id: string; title: string; content: string; mood?: string | null | undefined; tags?: string[] | null | undefined; createdAt: any; updatedAt: any; }' is not assignable to parameter of type 'SetStateAction<JournalEntry | null>'.
-  Property 'body' is missing in type '{ __typename?: "JournalEntry" | undefined; id: string; title: string; content: string; mood?: string | null | undefined; tags?: string[] | null | undefined; createdAt: any; updatedAt: any; }' but required in type 'JournalEntry'.
-47       setEntry(found);
-                  ~~~~~
-  lib/journal.ts:8:3
-    8   body: string;
-        ~~~~
-    'body' is declared here.
-app/(tabs)/(app)/journal/[id].tsx:137:26 - error TS2339: Property 'content' does not exist on type 'JournalEntry'.
-137             value={entry.content}
-                             ~~~~~~~
-app/(tabs)/(app)/journal/[id].tsx:138:55 - error TS2353: Object literal may only specify known properties, and 'content' does not exist in type 'JournalEntry | ((prevState: JournalEntry | null) => JournalEntry | null)'.
-138             onChangeText={(t) => setEntry({ ...entry, content: t })}
-                                                          ~~~~~~~
-app/(tabs)/(app)/journal/history.tsx:15:17 - error TS2339: Property 'loading' does not exist on type 'UseQueryResult<GetJournalEntriesQuery, unknown>'.
-15   const { data, loading, error } = useGetJournalEntriesQuery();
-                   ~~~~~~~
-app/(tabs)/(app)/journal/new.tsx:19:5 - error TS2353: Object literal may only specify known properties, and 'refetchQueries' does not exist in type 'UseMutationOptions<UpsertJournalEntryMutation, unknown, Exact<{ input: JournalEntryInput; }>, unknown>'.
-19     refetchQueries: [{ query: GetJournalEntriesDocument }],
-       ~~~~~~~~~~~~~~
-app/(tabs)/(app)/mindful-hours.tsx:15:3 - error TS2305: Module '"@/gql/generated"' has no exported member 'useGetMindfulnessHistoryQuery'.
-15   useGetMindfulnessHistoryQuery,
-     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-app/(tabs)/(app)/mindful-hours.tsx:17:3 - error TS2305: Module '"@/gql/generated"' has no exported member 'GetMindfulnessHistoryDocument'.
-17   GetMindfulnessHistoryDocument,
-     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-app/(tabs)/(app)/mindful-hours.tsx:113:9 - error TS2488: Type 'UseMutationResult<AddMindfulMinutesMutation, unknown, Exact<{ minutes: number; }>, unknown>' must have a '[Symbol.iterator]()' method that returns an iterator.
-113   const [addMinutes] = useAddMindfulMinutesMutation({
-            ~~~~~~~~~~~~
-app/(tabs)/(app)/mindful-hours.tsx:114:5 - error TS2353: Object literal may only specify known properties, and 'refetchQueries' does not exist in type 'UseMutationOptions<AddMindfulMinutesMutation, unknown, Exact<{ minutes: number; }>, unknown>'.
-114     refetchQueries: [{ query: GetMindfulnessHistoryDocument }],
-        ~~~~~~~~~~~~~~
-app/(tabs)/(app)/mood/history.tsx:20:9 - error TS2488: Type 'UseMutationResult<DeleteMoodCheckInMutation, unknown, Exact<{ id: string; }>, unknown>' must have a '[Symbol.iterator]()' method that returns an iterator.
-20   const [deleteMoodMutation] = useDeleteMoodCheckInMutation({
-           ~~~~~~~~~~~~~~~~~~~~
-app/(tabs)/(app)/mood/history.tsx:21:5 - error TS2353: Object literal may only specify known properties, and 'refetchQueries' does not exist in type 'UseMutationOptions<DeleteMoodCheckInMutation, unknown, Exact<{ id: string; }>, unknown>'.
-21     refetchQueries: [{ query: GetMoodCheckInsDocument }],
-       ~~~~~~~~~~~~~~
-app/(tabs)/(app)/mood/history.tsx:28:41 - error TS2345: Argument of type '(i: MoodCheckIn) => string' is not assignable to parameter of type '(value: { __typename?: "MoodCheckIn" | undefined; id: string; mood: string; energy: number; stress: number; tags: string[]; note?: string | null | undefined; createdAt: any; }, index: number, array: { ...; }[]) => string'.
-  Types of parameters 'i' and 'value' are incompatible.
-    Type '{ __typename?: "MoodCheckIn" | undefined; id: string; mood: string; energy: number; stress: number; tags: string[]; note?: string | null | undefined; createdAt: any; }' is not assignable to type 'MoodCheckIn'.
-      Types of property 'mood' are incompatible.
-        Type 'string' is not assignable to type '"Great" | "Good" | "Okay" | "Low" | "Bad"'.
-28     return Array.from(new Set(items.map((i: MoodCheckIn) => i.createdAt.split('T')[0])));
-                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-app/(tabs)/(app)/mood/history.tsx:33:25 - error TS2769: No overload matches this call.
-  Overload 1 of 2, '(predicate: (value: { __typename?: "MoodCheckIn" | undefined; id: string; mood: string; energy: number; stress: number; tags: string[]; note?: string | null | undefined; createdAt: any; }, index: number, array: { ...; }[]) => value is { ...; }, thisArg?: any): { ...; }[]', gave the following error.
-    Argument of type '(i: MoodCheckIn) => boolean' is not assignable to parameter of type '(value: { __typename?: "MoodCheckIn" | undefined; id: string; mood: string; energy: number; stress: number; tags: string[]; note?: string | null | undefined; createdAt: any; }, index: number, array: { ...; }[]) => value is { ...; }'.
-      Types of parameters 'i' and 'value' are incompatible.
-        Type '{ __typename?: "MoodCheckIn" | undefined; id: string; mood: string; energy: number; stress: number; tags: string[]; note?: string | null | undefined; createdAt: any; }' is not assignable to type 'MoodCheckIn'.
-          Types of property 'mood' are incompatible.
-            Type 'string' is not assignable to type '"Great" | "Good" | "Okay" | "Low" | "Bad"'.
-  Overload 2 of 2, '(predicate: (value: { __typename?: "MoodCheckIn" | undefined; id: string; mood: string; energy: number; stress: number; tags: string[]; note?: string | null | undefined; createdAt: any; }, index: number, array: { ...; }[]) => unknown, thisArg?: any): { ...; }[]', gave the following error.
-    Argument of type '(i: MoodCheckIn) => boolean' is not assignable to parameter of type '(value: { __typename?: "MoodCheckIn" | undefined; id: string; mood: string; energy: number; stress: number; tags: string[]; note?: string | null | undefined; createdAt: any; }, index: number, array: { ...; }[]) => unknown'.
-      Types of parameters 'i' and 'value' are incompatible.
-        Type '{ __typename?: "MoodCheckIn" | undefined; id: string; mood: string; energy: number; stress: number; tags: string[]; note?: string | null | undefined; createdAt: any; }' is not assignable to type 'MoodCheckIn'.
-          Types of property 'mood' are incompatible.
-            Type 'string' is not assignable to type '"Great" | "Good" | "Okay" | "Low" | "Bad"'.
-33     return items.filter((i: MoodCheckIn) => i.createdAt.split('T')[0] === iso);
-                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-app/(tabs)/(app)/mood/index.tsx:37:17 - error TS2339: Property 'loading' does not exist on type 'DefinedUseQueryResult<GetMoodCheckInsQuery, unknown>'.
-37   const { data, loading } = useGetMoodCheckInsQuery();
-                   ~~~~~~~
-app/(tabs)/(app)/mood/index.tsx:38:9 - error TS2488: Type 'UseMutationResult<AddMoodCheckInMutation, unknown, Exact<{ input: MoodCheckInInput; }>, unknown>' must have a '[Symbol.iterator]()' method that returns an iterator.
-38   const [addMoodMutation] = useAddMoodCheckInMutation({
-           ~~~~~~~~~~~~~~~~~
-app/(tabs)/(app)/mood/index.tsx:39:5 - error TS2353: Object literal may only specify known properties, and 'refetchQueries' does not exist in type 'UseMutationOptions<AddMoodCheckInMutation, unknown, Exact<{ input: MoodCheckInInput; }>, unknown>'.
-39     refetchQueries: [{ query: GetMoodCheckInsDocument }],
-       ~~~~~~~~~~~~~~
-app/(tabs)/(app)/mood/index.tsx:61:59 - error TS2345: Argument of type 'string' is not assignable to parameter of type '"Great" | "Good" | "Okay" | "Low" | "Bad"'.
-61     const avgMood = last.reduce((a, x) => a + moodToScore(x.mood), 0) / last.length;
-                                                             ~~~~~~
-app/(tabs)/(app)/mood/index.tsx:136:22 - error TS2322: Type '{ __typename?: "MoodCheckIn" | undefined; id: string; mood: string; energy: number; stress: number; tags: string[]; note?: string | null | undefined; createdAt: any; }[]' is not assignable to type 'MoodCheckIn[]'.
-  Type '{ __typename?: "MoodCheckIn" | undefined; id: string; mood: string; energy: number; stress: number; tags: string[]; note?: string | null | undefined; createdAt: any; }' is not assignable to type 'MoodCheckIn'.
-    Types of property 'mood' are incompatible.
-      Type 'string' is not assignable to type '"Great" | "Good" | "Okay" | "Low" | "Bad"'.
-136           <MoodChart items={items} />
-                         ~~~~~
-  components/MoodChart.tsx:27:57
-    27 export default function MoodChart({ items }: Readonly<{ items: MoodCheckIn[] }>) {
-                                                               ~~~~~
-    The expected type comes from property 'items' which is declared here on type 'IntrinsicAttributes & Readonly<{ items: MoodCheckIn[]; }>'
-app/(tabs)/(app)/profile-edit.tsx:83:9 - error TS2488: Type 'UseMutationResult<SetProfileMutation, unknown, Exact<{ input: any; }>, unknown>' must have a '[Symbol.iterator]()' method that returns an iterator.
-83   const [updateProfile] = useSetProfileMutation({
-           ~~~~~~~~~~~~~~~
-app/(tabs)/(app)/profile-edit.tsx:84:5 - error TS2353: Object literal may only specify known properties, and 'refetchQueries' does not exist in type 'UseMutationOptions<SetProfileMutation, unknown, Exact<{ input: any; }>, unknown>'.
-84     refetchQueries: [{ query: GetUserDataDocument }],
-       ~~~~~~~~~~~~~~
-app/(tabs)/(app)/sleep/history.tsx:15:17 - error TS2339: Property 'loading' does not exist on type 'UseQueryResult<GetSleepEntriesQuery, unknown>'.
-15   const { data, loading } = useGetSleepEntriesQuery();
-                   ~~~~~~~
-app/(tabs)/(app)/sleep/log.tsx:23:9 - error TS2488: Type 'UseMutationResult<AddSleepEntryMutation, unknown, Exact<{ input: SleepEntryInput; }>, unknown>' must have a '[Symbol.iterator]()' method that returns an iterator.
-23   const [addSleepEntry, { loading }] = useAddSleepEntryMutation({
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-app/(tabs)/(app)/sleep/log.tsx:24:5 - error TS2353: Object literal may only specify known properties, and 'refetchQueries' does not exist in type 'UseMutationOptions<AddSleepEntryMutation, unknown, Exact<{ input: SleepEntryInput; }>, unknown>'.
-24     refetchQueries: [{ query: GetSleepEntriesDocument }],
-       ~~~~~~~~~~~~~~
-app/(tabs)/(app)/stress/breathing.tsx:11:9 - error TS2488: Type 'UseMutationResult<AddStressCompletionMutation, unknown, Exact<{ exerciseId: string; title: string; }>, unknown>' must have a '[Symbol.iterator]()' method that returns an iterator.
-11   const [addCompletion] = useAddStressCompletionMutation({
-           ~~~~~~~~~~~~~~~
-app/(tabs)/(app)/stress/breathing.tsx:12:5 - error TS2353: Object literal may only specify known properties, and 'refetchQueries' does not exist in type 'UseMutationOptions<AddStressCompletionMutation, unknown, Exact<{ exerciseId: string; title: string; }>, unknown>'.
-12     refetchQueries: [{ query: GetStressKitDocument }],
-       ~~~~~~~~~~~~~~
-app/(tabs)/(app)/stress/grounding.tsx:12:5 - error TS2353: Object literal may only specify known properties, and 'refetchQueries' does not exist in type 'UseMutationOptions<AddStressCompletionMutation, unknown, Exact<{ exerciseId: string; title: string; }>, unknown>'.
-12     refetchQueries: [{ query: GetStressKitDocument }],
-       ~~~~~~~~~~~~~~
-app/(tabs)/(app)/stress/plan.tsx:9:3 - error TS2305: Module '"@/gql/generated"' has no exported member 'useUpdateStressKitMutation'.
-9   useUpdateStressKitMutation,
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~
-app/(tabs)/(app)/stress/plan.tsx:25:49 - error TS2345: Argument of type '{}' is not assignable to parameter of type 'StressKit | (() => StressKit)'.
-25   const [draft, setDraft] = useState<StressKit>(kit);
-                                                   ~~~
-app/(tabs)/(app)/stress/plan.tsx:36:16 - error TS2345: Argument of type '{ __typename?: "StressKit" | undefined; level: number; triggers?: string[] | null | undefined; people?: string[] | null | undefined; helpfulActions?: string[] | null | undefined; quickPhrase?: string | ... 1 more ... | undefined; notes?: string | ... 1 more ... | undefined; lastCheckIn?: any; exercises: { ...; }[]; }' is not assignable to parameter of type 'SetStateAction<StressKit>'.
-  Type '{ __typename?: "StressKit" | undefined; level: number; triggers?: string[] | null | undefined; people?: string[] | null | undefined; helpfulActions?: string[] | null | undefined; quickPhrase?: string | ... 1 more ... | undefined; notes?: string | ... 1 more ... | undefined; lastCheckIn?: any; exercises: { ...; }[]; }' is not assignable to type 'StressKit'.
-    Types of property 'quickPhrase' are incompatible.
-      Type 'string | null | undefined' is not assignable to type 'string | undefined'.
-        Type 'null' is not assignable to type 'string | undefined'.
-36       setDraft(data.stressKit);
-                  ~~~~~~~~~~~~~~
-app/(tabs)/(app)/stress/watch.tsx:27:5 - error TS2353: Object literal may only specify known properties, and 'refetchQueries' does not exist in type 'UseMutationOptions<AddStressCompletionMutation, unknown, Exact<{ exerciseId: string; title: string; }>, unknown>'.
-27     refetchQueries: [{ query: GetStressKitDocument }],
-       ~~~~~~~~~~~~~~
-app/(tabs)/(app)/stress/watch.tsx:40:33 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'VideoSource'.
-  Type 'undefined' is not assignable to type 'VideoSource'.
-40   const player = useVideoPlayer(video?.url, (p) => {
-                                   ~~~~~~~~~~
-app/(tabs)/journal.tsx:22:29 - error TS2552: Cannot find name 'useSubscription'. Did you mean 'PushSubscription'?
-22   const { hasFullAccess } = useSubscription();
-                               ~~~~~~~~~~~~~~~
-  node_modules/typescript/lib/lib.dom.d.ts:24386:13
-    24386 declare var PushSubscription: {
-                      ~~~~~~~~~~~~~~~~
-    'PushSubscription' is declared here.
-app/index.tsx:43:31 - error TS2345: Argument of type '{ getSleepStartISO: () => string | null; setSuggestedWake: (wakeISO: string) => void; }' is not assignable to parameter of type '{ getSleepStartISO: () => string | null | undefined; c: any; setSuggestedWake: (wakeISO: string) => void; minHours?: number | undefined; maxHours?: number | undefined; }'.
-  Property 'c' is missing in type '{ getSleepStartISO: () => string | null; setSuggestedWake: (wakeISO: string) => void; }' but required in type '{ getSleepStartISO: () => string | null | undefined; c: any; setSuggestedWake: (wakeISO: string) => void; minHours?: number | undefined; maxHours?: number | undefined; }'.
-43     return setupWakeDetection({
-                                 ~
-44       getSleepStartISO: () => sleepModeVar().sleepModeStartISO,
-   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-45       setSuggestedWake: setSuggestedWake,
-   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-46     });
-   ~~~~~
-  lib/wakeDetection.ts:12:3
-    12   c;
-         ~
-    'c' is declared here.
-gql/generated.ts:464:7 - error TS2554: Expected 1-2 arguments, but got 3.
-464       options
-          ~~~~~~~
-gql/generated.ts:488:7 - error TS2554: Expected 1-2 arguments, but got 3.
-488       options
-          ~~~~~~~
-gql/generated.ts:701:7 - error TS2554: Expected 1-2 arguments, but got 3.
-701       options
-          ~~~~~~~
-gql/generated.ts:718:7 - error TS2554: Expected 1-2 arguments, but got 3.
-718       options
-          ~~~~~~~
-gql/generated.ts:735:7 - error TS2554: Expected 1-2 arguments, but got 3.
-735       options
-          ~~~~~~~
-Found 44 errors in 17 files.
-Errors  Files
-     2  app/(tabs)/(app)/chat/[issueKey].tsx:191
-     7  app/(tabs)/(app)/journal/[id].tsx:24
-     1  app/(tabs)/(app)/journal/history.tsx:15
-     1  app/(tabs)/(app)/journal/new.tsx:19
-     4  app/(tabs)/(app)/mindful-hours.tsx:15
-     4  app/(tabs)/(app)/mood/history.tsx:20
-     5  app/(tabs)/(app)/mood/index.tsx:37
-     2  app/(tabs)/(app)/profile-edit.tsx:83
-     1  app/(tabs)/(app)/sleep/history.tsx:15
-     2  app/(tabs)/(app)/sleep/log.tsx:23
-     2  app/(tabs)/(app)/stress/breathing.tsx:11
-     1  app/(tabs)/(app)/stress/grounding.tsx:12
-     3  app/(tabs)/(app)/stress/plan.tsx:9
-     2  app/(tabs)/(app)/stress/watch.tsx:27
-     1  app/(tabs)/journal.tsx:22
-     1  app/index.tsx:43
-     5  gql/generated.ts:464
+On branch main
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        new file:   .env.example
+        deleted:    coverage/clover.xml
+        deleted:    coverage/coverage-final.json
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(auth)/_layout.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(auth)/index.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(auth)/sign-in.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(auth)/sign-up.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(auth)/trial-upgrade.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(auth)/upgrade-required.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(onboarding)/_layout.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(onboarding)/assessment-summary.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(onboarding)/assessment.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(onboarding)/index.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(onboarding)/profile-completion.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(onboarding)/profile-setup.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(onboarding)/splash-loading.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(onboarding)/suggested-categories.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(onboarding)/welcome.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/_layout.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/chat/[issueKey].tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/chat/index.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/community.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/index.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/journal/[id].tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/journal/_layout.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/journal/history.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/journal/index.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/journal/new.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/journal/prompts.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/mindful-hours.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/mood/_layout.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/mood/history.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/mood/index.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/mood/index.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/notifications.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/profile-edit.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/profile-overview.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/settings.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/sleep/_layout.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/sleep/index.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/sleep/index.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/stress/_layout.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/stress/breathing.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/stress/grounding.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/stress/index.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/stress/index.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/stress/plan.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/(app)/stress/videos.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/_layout.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/chat.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/home.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/index.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/journal.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(tabs)/profile.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(utils)/_layout.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(utils)/empty.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(utils)/error.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(utils)/help-center.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(utils)/index.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(utils)/offline.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/(utils)/utilities.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/_layout.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/index.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/index.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/menu.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/resources.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/app/search.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/components/AlertModal.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/components/Calendar.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/components/CarouselDots.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/components/Chips.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/components/MenuButton.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/components/MoodChart.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/components/ProfileProgressRing.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/components/ScoreCard.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/components/ScreenHeader.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/components/SelectField.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/components/SoundPulse.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/components/TypingBubble.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/components/Welcome.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/components/collapsible.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/components/external-link.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/components/haptic-tab.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/components/hello-wave.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/components/icon-symbol.ios.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/components/icon-symbol.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/components/index.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/components/parallax-scroll-view.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/components/themed-text.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/components/themed-view.tsx.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/constants/affirmations.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/constants/index.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/constants/theme.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/data/index.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/data/issues.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/data/journalPrompts.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/data/stressVideos.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/eslint.config.js.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/expo-env.d.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/hooks/index.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/hooks/use-color-scheme.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/hooks/use-color-scheme.web.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/hooks/use-theme-color.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/hooks/useSubscription.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/index.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/jest.config.js.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/lib/api.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/lib/index.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/lib/journal.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/lib/mood.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/lib/recorder.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/lib/sleep.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/lib/stress.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/lib/suggestCategories.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/lib/wakeDetection.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/scripts/index.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/scripts/reset-project.js.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/store/chat.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/store/index.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/store/index.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/store/journal.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/store/mindfulness.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/store/mood.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/store/reduxHooks.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/store/selectors.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/store/sleep.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/store/stress.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/store/ui.ts.html
+        deleted:    coverage/lcov-report/Mind-Matter-App-main/store/user.ts.html
+        deleted:    coverage/lcov-report/app/(auth)/_layout.tsx.html
+        deleted:    coverage/lcov-report/app/(auth)/index.html
+        deleted:    coverage/lcov-report/app/(auth)/sign-in.tsx.html
+        deleted:    coverage/lcov-report/app/(auth)/sign-up.tsx.html
+        deleted:    coverage/lcov-report/app/(auth)/trial-upgrade.tsx.html
+        deleted:    coverage/lcov-report/app/(auth)/upgrade-required.tsx.html
+        deleted:    coverage/lcov-report/app/(onboarding)/_layout.tsx.html
+        deleted:    coverage/lcov-report/app/(onboarding)/assessment-summary.tsx.html
+        deleted:    coverage/lcov-report/app/(onboarding)/assessment.tsx.html
+        deleted:    coverage/lcov-report/app/(onboarding)/index.html
+        deleted:    coverage/lcov-report/app/(onboarding)/profile-completion.tsx.html
+        deleted:    coverage/lcov-report/app/(onboarding)/profile-setup.tsx.html
+        deleted:    coverage/lcov-report/app/(onboarding)/splash-loading.tsx.html
+        deleted:    coverage/lcov-report/app/(onboarding)/suggested-categories.tsx.html
+        deleted:    coverage/lcov-report/app/(onboarding)/welcome.tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/_layout.tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/chat/[issueKey].tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/chat/index.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/community.tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/index.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/journal/[id].tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/journal/_layout.tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/journal/history.tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/journal/index.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/journal/new.tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/journal/prompts.tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/mindful-hours.tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/mood/_layout.tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/mood/history.tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/mood/index.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/mood/index.tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/notifications.tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/profile-edit.tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/profile-overview.tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/settings.tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/sleep/_layout.tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/sleep/index.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/sleep/index.tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/stress/_layout.tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/stress/breathing.tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/stress/grounding.tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/stress/index.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/stress/index.tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/stress/plan.tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/(app)/stress/videos.tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/_layout.tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/chat.tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/home.tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/index.html
+        deleted:    coverage/lcov-report/app/(tabs)/journal.tsx.html
+        deleted:    coverage/lcov-report/app/(tabs)/profile.tsx.html
+        deleted:    coverage/lcov-report/app/(utils)/_layout.tsx.html
+        deleted:    coverage/lcov-report/app/(utils)/empty.tsx.html
+        deleted:    coverage/lcov-report/app/(utils)/error.tsx.html
+        deleted:    coverage/lcov-report/app/(utils)/help-center.tsx.html
+        deleted:    coverage/lcov-report/app/(utils)/index.html
+        deleted:    coverage/lcov-report/app/(utils)/offline.tsx.html
+        deleted:    coverage/lcov-report/app/(utils)/utilities.tsx.html
+        deleted:    coverage/lcov-report/app/_layout.tsx.html
+        deleted:    coverage/lcov-report/app/index.html
+        deleted:    coverage/lcov-report/app/index.tsx.html
+        deleted:    coverage/lcov-report/app/menu.tsx.html
+        deleted:    coverage/lcov-report/app/resources.tsx.html
+        deleted:    coverage/lcov-report/app/search.tsx.html
+        deleted:    coverage/lcov-report/base.css
+        deleted:    coverage/lcov-report/block-navigation.js
+        deleted:    coverage/lcov-report/components/AlertModal.tsx.html
+        deleted:    coverage/lcov-report/components/Calendar.tsx.html
+        deleted:    coverage/lcov-report/components/CarouselDots.tsx.html
+        deleted:    coverage/lcov-report/components/Chips.tsx.html
+        deleted:    coverage/lcov-report/components/MenuButton.tsx.html
+        deleted:    coverage/lcov-report/components/MoodChart.tsx.html
+        deleted:    coverage/lcov-report/components/ProfileProgressRing.tsx.html
+        deleted:    coverage/lcov-report/components/ScoreCard.tsx.html
+        deleted:    coverage/lcov-report/components/ScreenHeader.tsx.html
+        deleted:    coverage/lcov-report/components/SelectField.tsx.html
+        deleted:    coverage/lcov-report/components/SoundPulse.tsx.html
+        deleted:    coverage/lcov-report/components/TypingBubble.tsx.html
+        deleted:    coverage/lcov-report/components/Welcome.tsx.html
+        deleted:    coverage/lcov-report/components/collapsible.tsx.html
+        deleted:    coverage/lcov-report/components/external-link.tsx.html
+        deleted:    coverage/lcov-report/components/haptic-tab.tsx.html
+        deleted:    coverage/lcov-report/components/hello-wave.tsx.html
+        deleted:    coverage/lcov-report/components/icon-symbol.ios.tsx.html
+        deleted:    coverage/lcov-report/components/icon-symbol.tsx.html
+        deleted:    coverage/lcov-report/components/index.html
+        deleted:    coverage/lcov-report/components/parallax-scroll-view.tsx.html
+        deleted:    coverage/lcov-report/components/themed-text.tsx.html
+        deleted:    coverage/lcov-report/components/themed-view.tsx.html
+        deleted:    coverage/lcov-report/favicon.png
+        deleted:    coverage/lcov-report/hooks/index.html
+        deleted:    coverage/lcov-report/hooks/use-color-scheme.ts.html
+        deleted:    coverage/lcov-report/hooks/use-color-scheme.web.ts.html
+        deleted:    coverage/lcov-report/hooks/use-theme-color.ts.html
+        deleted:    coverage/lcov-report/hooks/useSubscription.ts.html
+        deleted:    coverage/lcov-report/index.html
+        deleted:    coverage/lcov-report/lib/api.ts.html
+        deleted:    coverage/lcov-report/lib/index.html
+        deleted:    coverage/lcov-report/lib/journal.ts.html
+        deleted:    coverage/lcov-report/lib/mood.ts.html
+        deleted:    coverage/lcov-report/lib/recorder.ts.html
+        deleted:    coverage/lcov-report/lib/sleep.ts.html
+        deleted:    coverage/lcov-report/lib/stress.ts.html
+        deleted:    coverage/lcov-report/lib/suggestCategories.ts.html
+        deleted:    coverage/lcov-report/lib/wakeDetection.ts.html
+        deleted:    coverage/lcov-report/prettify.css
+        deleted:    coverage/lcov-report/prettify.js
+        deleted:    coverage/lcov-report/sort-arrow-sprite.png
+        deleted:    coverage/lcov-report/sorter.js
+        deleted:    coverage/lcov-report/store/chat.ts.html
+        deleted:    coverage/lcov-report/store/index.html
+        deleted:    coverage/lcov-report/store/index.ts.html
+        deleted:    coverage/lcov-report/store/journal.ts.html
+        deleted:    coverage/lcov-report/store/mindfulness.ts.html
+        deleted:    coverage/lcov-report/store/mood.ts.html
+        deleted:    coverage/lcov-report/store/reduxHooks.ts.html
+        deleted:    coverage/lcov-report/store/selectors.ts.html
+        deleted:    coverage/lcov-report/store/sleep.ts.html
+        deleted:    coverage/lcov-report/store/stress.ts.html
+        deleted:    coverage/lcov-report/store/ui.ts.html
+        deleted:    coverage/lcov-report/store/user.ts.html
+        deleted:    coverage/lcov.info
+        new file:   lib/graphql.ts
+        deleted:    lib/query-client.ts
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   .output.txt
+        modified:   __tests__/Home-test.tsx
+        modified:   __tests__/TrialUpgrade-test.tsx
+        modified:   app/(auth)/payment-success.tsx
+        modified:   app/(auth)/sign-in.tsx
+        modified:   app/(auth)/sign-up.tsx
+        modified:   app/(auth)/trial-upgrade.tsx
+        modified:   app/(onboarding)/assessment.tsx
+        modified:   app/(onboarding)/profile-completion.tsx
+        modified:   app/(onboarding)/profile-setup.tsx
+        modified:   app/(onboarding)/suggested-categories.tsx
+        modified:   app/(tabs)/(app)/chat/[issueKey].tsx
+        modified:   app/(tabs)/(app)/journal/[id].tsx
+        modified:   app/(tabs)/(app)/journal/history.tsx
+        modified:   app/(tabs)/(app)/journal/new.tsx
+        modified:   app/(tabs)/(app)/mindful-hours.tsx
+        modified:   app/(tabs)/(app)/mood/history.tsx
+        modified:   app/(tabs)/(app)/mood/index.tsx
+        modified:   app/(tabs)/(app)/notifications.tsx
+        modified:   app/(tabs)/(app)/profile-edit.tsx
+        modified:   app/(tabs)/(app)/settings.tsx
+        modified:   app/(tabs)/(app)/sleep/history.tsx
+        modified:   app/(tabs)/(app)/sleep/index.tsx
+        modified:   app/(tabs)/(app)/sleep/log.tsx
+        modified:   app/(tabs)/(app)/stress/breathing.tsx
+        modified:   app/(tabs)/(app)/stress/grounding.tsx
+        modified:   app/(tabs)/(app)/stress/index.tsx
+        modified:   app/(tabs)/(app)/stress/plan.tsx
+        modified:   app/(tabs)/(app)/stress/watch.tsx
+        modified:   app/(tabs)/home.tsx
+        modified:   app/(tabs)/journal.tsx
+        modified:   app/(tabs)/profile.tsx
+        modified:   app/_layout.tsx
+        modified:   app/index.tsx
+        modified:   codegen.ts
+        modified:   components/ScreenHeader.tsx
+        deleted:    components/collapsible.tsx
+        deleted:    components/external-link.tsx
+        deleted:    components/hello-wave.tsx
+        deleted:    components/parallax-scroll-view.tsx
+        deleted:    components/themed-text.tsx
+        deleted:    components/themed-view.tsx
+        modified:   constants/theme.ts
+        modified:   gql/generated.ts
+        modified:   gql/operations.ts
+        deleted:    hooks/use-theme-color.ts
+        modified:   hooks/useSubscription.ts
+        modified:   lib/graphql.ts
+        modified:   lib/journal.ts
+        modified:   lib/mood.ts
+        modified:   lib/sleep.ts
+        modified:   lib/state.ts
+        modified:   lib/stress.ts
+        modified:   schema.graphql

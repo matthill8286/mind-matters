@@ -11,10 +11,12 @@ import {
 } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
 import { router } from 'expo-router';
+import { useGraphQLQuery, useGraphQLMutation } from '@/lib/graphql';
+import { GET_MINDFULNESS_HISTORY, ADD_MINDFUL_MINUTES } from '@/gql/operations';
 import {
-  useGetMindfulnessHistoryQuery,
-  useAddMindfulMinutesMutation,
-  GetMindfulnessHistoryDocument,
+  GetMindfulnessHistoryQuery,
+  AddMindfulMinutesMutation,
+  AddMindfulMinutesMutationVariables,
 } from '@/gql/generated';
 import { showAlert } from '@/lib/state';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -33,7 +35,10 @@ export default function MindfulHours() {
   const colors = Colors[theme];
   const [activeTab, setActiveTab] = useState<'timer' | 'history'>('timer');
 
-  const { data, isPending: loading } = useGetMindfulnessHistoryQuery();
+  const { data } = useGraphQLQuery<GetMindfulnessHistoryQuery>(
+    ['GetMindfulnessHistory'],
+    GET_MINDFULNESS_HISTORY,
+  );
   const history = data?.mindfulnessHistory || [];
 
   return (
@@ -110,7 +115,10 @@ export default function MindfulHours() {
 }
 
 function TimerView({ colors }: { colors: any }) {
-  const { mutateAsync: addMinutes } = useAddMindfulMinutesMutation();
+  const { mutateAsync: addMinutes } = useGraphQLMutation<
+    AddMindfulMinutesMutation,
+    AddMindfulMinutesMutationVariables
+  >(['AddMindfulMinutes'], ADD_MINDFUL_MINUTES);
   const [secondsRemaining, setSecondsRemaining] = useState(300);
   const [initialSeconds, setInitialSeconds] = useState(300);
   const [isActive, setIsActive] = useState(false);

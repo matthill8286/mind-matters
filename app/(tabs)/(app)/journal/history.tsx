@@ -1,8 +1,9 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, Pressable, ScrollView, Platform } from 'react-native';
 import Calendar from '@/components/Calendar';
-import { useGetJournalEntriesQuery } from '@/gql/generated';
-import { showAlert } from '@/lib/state';
+import { useGraphQLQuery } from '@/lib/graphql';
+import { GET_JOURNAL_ENTRIES } from '@/gql/operations';
+import { GetJournalEntriesQuery } from '@/gql/generated';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 import { router } from 'expo-router';
@@ -12,7 +13,10 @@ import ScreenHeader from '@/components/ScreenHeader';
 export default function JournalHistory() {
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
-  const { data, isPending: loading, error } = useGetJournalEntriesQuery();
+  const { data } = useGraphQLQuery<GetJournalEntriesQuery>(
+    ['GetJournalEntries'],
+    GET_JOURNAL_ENTRIES,
+  );
   const entries = data?.journalEntries || [];
   const [selectedDate, setSelectedDate] = useState(new Date());
 
