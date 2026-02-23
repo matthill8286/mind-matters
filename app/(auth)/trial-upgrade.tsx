@@ -2,24 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable, ScrollView, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useGraphQLMutation } from '@/lib/graphql';
-import { SET_SUBSCRIPTION } from '@/gql/operations';
-import { SetSubscriptionMutation, SetSubscriptionMutationVariables } from '@/gql/generated';
-import { showAlert } from '@/lib/state';
+import { showAlert, withLoading } from '@/lib/state';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
+import { readSession, userScopedKey } from '@/lib/storage';
 
 export default function TrialUpgrade() {
-  const { mutateAsync: updateSubscription } = useGraphQLMutation<
-    SetSubscriptionMutation,
-    SetSubscriptionMutationVariables
-  >(['SetSubscription'], SET_SUBSCRIPTION);
   const [isNewUser, setIsNewUser] = useState(true);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     (async () => {
-      const assessment = await AsyncStorage.getItem('assessment:v1');
+      const session = await readSession();
+      const assessment = await AsyncStorage.getItem(
+        userScopedKey('assessment:v1', session?.userId),
+      );
       if (assessment) {
         setIsNewUser(false);
       }
@@ -27,23 +24,15 @@ export default function TrialUpgrade() {
   }, []);
 
   async function selectTrial() {
-    setLoading(true);
-    try {
+    await withLoading('select-trial', async () => {
       const expiryDate = new Date();
       expiryDate.setDate(expiryDate.getDate() + 7);
-      await updateSubscription({
-        input: {
-          type: 'trial',
-          expiryDate: expiryDate.toISOString(),
-        },
-      });
+      await AsyncStorage.setItem(
+        'auth:subscription:v1',
+        JSON.stringify({ type: 'trial', expiryDate: expiryDate.toISOString() }),
+      );
       router.push('/(auth)/payment-success');
-    } catch (error) {
-      console.error('Error starting trial:', error);
-      showAlert('Error', 'Failed to start free trial. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+    });
   }
 
   // Helper to get formatted expiry date
@@ -63,7 +52,7 @@ export default function TrialUpgrade() {
   ) => {
     try {
       // Replace with your actual API URL
-      const API_URL = 'http://localhost:3000';
+      const API_URL = 'http://localhost:4000';
       const successUrl = Linking.createURL('/(auth)/payment-success');
       const cancelUrl = Linking.createURL('/(auth)/payment-failure');
 
@@ -112,12 +101,10 @@ export default function TrialUpgrade() {
       // but usually the backend should handle it via webhooks.
       // However, for the purpose of "using gql", if we want to record the intent:
       try {
-        await updateSubscription({
-          input: {
-            type: type,
-            expiryDate: getExpiryDate(type),
-          },
-        });
+        await AsyncStorage.setItem(
+          'auth:subscription:v1',
+          JSON.stringify({ type, expiryDate: getExpiryDate(type) }),
+        );
       } catch (e) {
         console.error('Failed to update subscription intent:', e);
       }
@@ -174,10 +161,12 @@ export default function TrialUpgrade() {
         <View style={{ marginTop: 40, gap: 20 }}>
           <Pressable
             onPress={selectTrial}
+            disabled={loading}
             style={{
               backgroundColor: 'white',
               borderRadius: 24,
               padding: 24,
+              opacity: loading ? 0.7 : 1,
             }}
           >
             <Text style={{ fontSize: 20, fontWeight: '900', color: '#6a5e55' }}>
@@ -195,18 +184,22 @@ export default function TrialUpgrade() {
                 alignItems: 'center',
               }}
             >
-              <Text style={{ color: 'white', fontWeight: '900' }}>Start Free Trial</Text>
+              <Text style={{ color: 'white', fontWeight: '900' }}>
+                {loading ? 'Starting...' : 'Start Free Trial'}
+              </Text>
             </View>
           </Pressable>
 
           <Pressable
             onPress={() => buyPlan('monthly')}
+            disabled={loading}
             style={{
               backgroundColor: '#828a6a',
               borderRadius: 24,
               padding: 24,
               borderWidth: 2,
               borderColor: 'white',
+              opacity: loading ? 0.7 : 1,
             }}
           >
             <View
@@ -242,12 +235,14 @@ export default function TrialUpgrade() {
 
           <Pressable
             onPress={() => buyPlan('lifetime')}
+            disabled={loading}
             style={{
               backgroundColor: 'rgba(255,255,255,0.1)',
               borderRadius: 24,
               padding: 24,
               borderWidth: 1,
               borderColor: 'rgba(255,255,255,0.2)',
+              opacity: loading ? 0.7 : 1,
             }}
           >
             <View

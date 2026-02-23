@@ -22,7 +22,29 @@ export default function Chatbot() {
         paddingTop: Platform.OS === 'ios' ? 18 : 8,
       }}
     >
-      <ScreenHeader title="AI Therapy Chatbot" subtitle="Pick a topic to chat about." />
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 8,
+        }}
+      >
+        <ScreenHeader title="AI Therapy Chatbot" subtitle="Pick a topic to chat about." />
+        <Pressable
+          onPress={() => router.push('/(app)/chat/history')}
+          style={{
+            paddingVertical: 6,
+            paddingHorizontal: 12,
+            borderRadius: 20,
+            backgroundColor: colors.card,
+            borderWidth: 1,
+            borderColor: colors.border,
+          }}
+        >
+          <Text style={{ fontSize: 13, fontWeight: '700', color: colors.text }}>History</Text>
+        </Pressable>
+      </View>
 
       <FlatList
         style={{ marginTop: 16 }}
@@ -44,7 +66,7 @@ export default function Chatbot() {
                 return;
               }
               router.push({
-                pathname: '/(tabs)/(app)/chat/[issueKey]',
+                pathname: '/(app)/chat/[issueKey]',
                 params: { issueKey: item.key },
               });
             }}

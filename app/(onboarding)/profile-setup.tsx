@@ -3,18 +3,15 @@ import { View, Text, Pressable, TextInput, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import ProfileProgressRing from '@/components/ProfileProgressRing';
 import Chips from '@/components/Chips';
-import { useGraphQLMutation } from '@/lib/graphql';
-import { SET_PROFILE } from '@/gql/operations';
-import { SetProfileMutation, SetProfileMutationVariables } from '@/gql/generated';
+import { useProfileStore } from '@/store/useProfileStore';
+import { withLoading } from '@/lib/state';
 
 type StepKey = 'intro' | 'name' | 'intention' | 'routine' | 'finish';
 const STEPS: StepKey[] = ['intro', 'name', 'intention', 'routine', 'finish'];
 
 export default function ProfileSetup() {
-  const { mutateAsync: saveProfile } = useGraphQLMutation<
-    SetProfileMutation,
-    SetProfileMutationVariables
-  >(['SetProfile'], SET_PROFILE);
+  const [saving, setSaving] = useState(false);
+  const { saveProfile } = useProfileStore();
 
   const [step, setStep] = useState(0);
   const [name, setName] = useState('');
@@ -26,15 +23,15 @@ export default function ProfileSetup() {
 
   async function next() {
     if (stepKey === 'finish') {
-      await saveProfile({
-        input: {
+      await withLoading('save-profile', async () => {
+        await saveProfile({
           name: name.trim() || null,
           intention: intention ?? null,
           routine: routine ?? null,
           updatedAt: new Date().toISOString(),
-        },
+        });
+        router.replace('/(onboarding)/profile-completion');
       });
-      router.replace('/(onboarding)/profile-completion');
       return;
     }
     setStep((s) => Math.min(s + 1, STEPS.length - 1));
@@ -189,6 +186,7 @@ export default function ProfileSetup() {
         <View style={{ marginTop: 30 }}>
           <Pressable
             onPress={next}
+            disabled={saving}
             style={{
               paddingVertical: 20,
               borderRadius: 35,
@@ -197,6 +195,7 @@ export default function ProfileSetup() {
               flexDirection: 'row',
               justifyContent: 'center',
               gap: 10,
+              opacity: saving ? 0.7 : 1,
               shadowColor: '#000',
               shadowOffset: { width: 0, height: 4 },
               shadowOpacity: 0.1,
@@ -205,9 +204,9 @@ export default function ProfileSetup() {
             }}
           >
             <Text style={{ color: 'white', fontWeight: '800', fontSize: 18 }}>
-              {stepKey === 'finish' ? 'Complete' : 'Next'}
+              {saving ? 'Saving...' : stepKey === 'finish' ? 'Complete' : 'Next'}
             </Text>
-            <Text style={{ color: 'white', fontSize: 20 }}>→</Text>
+            {!saving && <Text style={{ color: 'white', fontSize: 20 }}>→</Text>}
           </Pressable>
         </View>
 

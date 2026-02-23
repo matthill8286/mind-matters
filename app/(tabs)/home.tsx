@@ -1,31 +1,77 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { View, Text, Pressable, ScrollView, Platform } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
 import { router } from 'expo-router';
-import { GET_ALL_DATA } from '@/gql/operations';
-import { useGraphQLQuery } from '@/lib/graphql';
-import { GetAllDataQuery } from '@/gql/generated';
 import { calculateWellnessScore } from '@/lib/wellness';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Colors, UI } from '@/constants/theme';
 import { AFFIRMATIONS } from '@/constants/affirmations';
+import { useActivityStore } from '@/store/useActivityStore';
+import { useProfileStore } from '@/store/useProfileStore';
 
 import ScoreCard from '@/components/ScoreCard';
 import { IconSymbol } from '@/components/icon-symbol';
+import { SkeletonRect } from '@/components/Skeleton';
 
 export default function Home() {
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
   const { isExpired } = useSubscription();
-  const { data } = useGraphQLQuery<GetAllDataQuery, never>(['allData'], GET_ALL_DATA);
-  const moodCheckIns = data?.moodCheckIns || [];
-  const journalEntries = data?.journalEntries || [];
-  const assessment = data?.assessment;
-  const wellness = useMemo(() => calculateWellnessScore(data), [data]);
 
-  const moodCount = moodCheckIns.length;
-  const journalCount = journalEntries.length;
+  const [loading, setLoading] = useState(true);
+  const { assessment, fetchAssessment } = useProfileStore();
+  const {
+    moodCheckIns,
+    fetchMoodCheckIns,
+    journalEntries,
+    fetchJournalEntries,
+    stressHistory,
+    fetchStressHistory,
+    mindfulnessHistory,
+    fetchMindfulnessHistory,
+    sleepEntries,
+    fetchSleepEntries,
+  } = useActivityStore();
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      await Promise.all([
+        fetchMoodCheckIns(),
+        fetchJournalEntries(),
+        fetchAssessment(),
+        fetchStressHistory(),
+        fetchMindfulnessHistory(),
+        fetchSleepEntries(),
+      ]);
+      setLoading(false);
+    })();
+  }, [
+    fetchAssessment,
+    fetchJournalEntries,
+    fetchMindfulnessHistory,
+    fetchMoodCheckIns,
+    fetchSleepEntries,
+    fetchStressHistory,
+  ]);
+
+  const allData = useMemo(
+    () => ({
+      moodCheckIns,
+      journalEntries,
+      assessment,
+      stressHistory,
+      mindfulnessHistory,
+      sleepEntries,
+    }),
+    [moodCheckIns, journalEntries, assessment, stressHistory, mindfulnessHistory, sleepEntries],
+  );
+
+  const wellness = useMemo(() => calculateWellnessScore(allData), [allData]);
+
+  const moodCount = moodCheckIns?.length || 0;
+  const journalCount = journalEntries?.length || 0;
 
   const affirmation = useMemo(() => {
     const today = new Date().toDateString();
@@ -43,14 +89,14 @@ export default function Home() {
       {
         title: 'Stress toolkit',
         subtitle: 'Breathing, grounding, and your Stress Plan.',
-        onPress: () => router.push('/(tabs)/(app)/stress'),
+        onPress: () => router.push('/(app)/stress'),
         icon: 'bolt.fill' as const,
         color: '#f2a65a',
       },
       {
         title: 'Mood check-in',
         subtitle: 'Log mood, energy, and stress in 30 seconds.',
-        onPress: () => router.push('/(tabs)/(app)/mood'),
+        onPress: () => router.push('/(app)/mood'),
         icon: 'text.bubble' as const,
         color: '#6bbf8e',
       },
@@ -86,200 +132,205 @@ export default function Home() {
         contentContainerStyle={{ paddingBottom: 26, marginTop: 14 }}
         showsVerticalScrollIndicator={false}
       >
-        {isExpired && (
-          <Pressable
-            onPress={() => router.push('/(auth)/trial-upgrade')}
-            style={{
-              backgroundColor: '#a07b55',
-              borderRadius: UI.radius.lg,
-              padding: 16,
-              marginTop: 14,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <View style={{ flex: 1 }}>
-              <Text style={{ color: 'white', fontWeight: '900', fontSize: 16 }}>Trial Expired</Text>
-              <Text style={{ color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>
-                Upgrade to lifetime access to unlock all features.
-              </Text>
+        {loading ? (
+          <View style={{ gap: 14 }}>
+            <SkeletonRect height={100} borderRadius={UI.radius.xl} />
+            <SkeletonRect height={380} borderRadius={UI.radius.xl} />
+            <SkeletonRect height={30} width={120} style={{ marginTop: 16 }} />
+            <View style={{ gap: 12 }}>
+              <SkeletonRect height={80} borderRadius={UI.radius.lg} />
+              <SkeletonRect height={80} borderRadius={UI.radius.lg} />
+              <SkeletonRect height={80} borderRadius={UI.radius.lg} />
             </View>
-            <Text style={{ color: 'white', fontSize: 24, fontWeight: '900', marginLeft: 10 }}>
-              →
-            </Text>
-          </Pressable>
-        )}
-
-        <View
-          style={{
-            backgroundColor: '#828a6a',
-            borderRadius: UI.radius.xl,
-            padding: 20,
-            marginTop: 14,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.1,
-            shadowRadius: 10,
-            elevation: 4,
-          }}
-        >
-          <Text
-            style={{
-              color: 'rgba(255,255,255,0.8)',
-              fontWeight: '800',
-              fontSize: 12,
-              textTransform: 'uppercase',
-              letterSpacing: 1,
-            }}
-          >
-            Daily Affirmation
-          </Text>
-          <Text
-            style={{
-              color: 'white',
-              fontSize: 20,
-              fontWeight: '700',
-              marginTop: 8,
-              fontStyle: 'italic',
-              lineHeight: 28,
-            }}
-          >
-            {affirmation}
-          </Text>
-        </View>
-
-        <View
-          style={{
-            backgroundColor: colors.card,
-            borderRadius: UI.radius.xl,
-            padding: 16,
-            marginTop: 14,
-          }}
-        >
-          <Text style={{ fontWeight: '900', color: colors.mutedText, marginBottom: 4 }}>
-            Wellness Snapshot
-          </Text>
-
-          <ScoreCard
-            score={wellness.score}
-            title="MindMate Wellness Score"
-            subtitle="Your current wellbeing baseline."
-            bg="#6bbf8e"
-          />
-          <ScoreCard
-            score={100 - wellness.breakdown.stress}
-            title="Stress Load"
-            subtitle="Let’s keep your stress levels manageable."
-            bg="#f2a65a"
-          />
-          <ScoreCard
-            score={100 - wellness.breakdown.sleep}
-            title="Sleep Quality"
-            subtitle="Prioritize rest to boost your energy."
-            bg="#9b8df1"
-          />
-
-          <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
-            <MiniStat label="Mood check-ins" value={String(moodCount)} />
-            <MiniStat label="Journal entries" value={String(journalCount)} />
           </View>
+        ) : (
+          <>
+            {isExpired && (
+              <Pressable
+                onPress={() => router.push('/(auth)/trial-upgrade')}
+                style={{
+                  backgroundColor: '#a07b55',
+                  borderRadius: UI.radius.lg,
+                  padding: 16,
+                  marginTop: 14,
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text style={{ color: 'white', fontWeight: '900', fontSize: 16 }}>
+                    Trial Expired
+                  </Text>
+                  <Text style={{ color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>
+                    Upgrade to lifetime access to unlock all features.
+                  </Text>
+                </View>
+                <Text style={{ color: 'white', fontSize: 24, fontWeight: '900', marginLeft: 10 }}>
+                  →
+                </Text>
+              </Pressable>
+            )}
 
-          {assessment ? null : (
-            <Pressable
-              onPress={() => router.push('/(onboarding)/assessment')}
+            <View
               style={{
+                backgroundColor: '#828a6a',
+                borderRadius: UI.radius.xl,
+                padding: 20,
                 marginTop: 14,
-                backgroundColor: colors.primary,
-                padding: 14,
-                borderRadius: UI.radius.lg,
-                alignItems: 'center',
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.1,
+                shadowRadius: 10,
+                elevation: 4,
               }}
             >
-              <Text style={{ color: colors.onPrimary, fontWeight: '900' }}>
-                Complete assessment
+              <Text
+                style={{
+                  color: 'rgba(255,255,255,0.8)',
+                  fontWeight: '800',
+                  fontSize: 12,
+                  textTransform: 'uppercase',
+                  letterSpacing: 1,
+                }}
+              >
+                Daily Affirmation
               </Text>
-            </Pressable>
-          )}
-        </View>
+              <Text
+                style={{
+                  color: 'white',
+                  fontSize: 20,
+                  fontWeight: '700',
+                  marginTop: 8,
+                  fontStyle: 'italic',
+                  lineHeight: 28,
+                }}
+              >
+                {affirmation}
+              </Text>
+            </View>
 
-        <Text style={{ marginTop: 16, fontWeight: '900', fontSize: 16, color: colors.text }}>
-          Quick actions
-        </Text>
+            <View
+              style={{
+                backgroundColor: colors.card,
+                borderRadius: UI.radius.xl,
+                padding: 16,
+                marginTop: 14,
+              }}
+            >
+              <Text style={{ fontWeight: '900', color: colors.mutedText, marginBottom: 4 }}>
+                Wellness Snapshot
+              </Text>
 
-        <View style={{ marginTop: 10, gap: 12 }}>
-          {quickCards.map((c) => (
-            <Pressable
-              key={c.title}
-              onPress={c.onPress}
+              <ScoreCard
+                score={wellness.score}
+                title="MindMate Wellness Score"
+                subtitle="Your current wellbeing baseline."
+                bg="#6bbf8e"
+              />
+              <ScoreCard
+                score={100 - wellness.breakdown.stress}
+                title="Stress Load"
+                subtitle="Let’s keep your stress levels manageable."
+                bg="#f2a65a"
+              />
+              <ScoreCard
+                score={100 - wellness.breakdown.sleep}
+                title="Sleep Quality"
+                subtitle="Prioritize rest to boost your energy."
+                bg="#9b8df1"
+              />
+
+              <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
+                <MiniStat label="Mood check-ins" value={String(moodCount)} />
+                <MiniStat label="Journal entries" value={String(journalCount)} />
+              </View>
+            </View>
+
+            <Text style={{ marginTop: 16, fontWeight: '900', fontSize: 16, color: colors.text }}>
+              Quick actions
+            </Text>
+
+            <View style={{ marginTop: 10, gap: 12 }}>
+              {quickCards.map((c) => (
+                <Pressable
+                  key={c.title}
+                  onPress={c.onPress}
+                  style={{
+                    backgroundColor: colors.card,
+                    borderRadius: UI.radius.lg,
+                    padding: 16,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.05,
+                    shadowRadius: 5,
+                    elevation: 2,
+                  }}
+                >
+                  <View
+                    style={{
+                      width: 48,
+                      height: 48,
+                      borderRadius: 14,
+                      backgroundColor: colors.background,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginRight: 16,
+                    }}
+                  >
+                    <IconSymbol name={c.icon} size={24} color={c.color} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 16, fontWeight: '900', color: colors.text }}>
+                      {c.title}
+                    </Text>
+                    <Text style={{ color: colors.mutedText, marginTop: 4, fontSize: 14 }}>
+                      {c.subtitle}
+                    </Text>
+                  </View>
+                  <Text
+                    style={{
+                      fontSize: 20,
+                      color: colors.primary,
+                      fontWeight: '900',
+                      marginLeft: 10,
+                    }}
+                  >
+                    →
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+
+            <View
               style={{
                 backgroundColor: colors.card,
                 borderRadius: UI.radius.lg,
-                padding: 16,
-                flexDirection: 'row',
-                alignItems: 'center',
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.05,
-                shadowRadius: 5,
-                elevation: 2,
+                padding: 14,
+                marginTop: 16,
               }}
             >
-              <View
+              <Text style={{ fontWeight: '900', color: colors.text }}>Need a quick reset?</Text>
+              <Text style={{ color: colors.mutedText, marginTop: 6 }}>
+                Tap to start guided breathing or grounding exercises right away.
+              </Text>
+              <Pressable
+                onPress={() => router.push('/(app)/stress')}
                 style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: 14,
-                  backgroundColor: colors.background,
+                  marginTop: 12,
+                  backgroundColor: colors.divider,
+                  padding: 14,
+                  borderRadius: UI.radius.lg,
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  marginRight: 16,
                 }}
               >
-                <IconSymbol name={c.icon} size={24} color={c.color} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 16, fontWeight: '900', color: colors.text }}>
-                  {c.title}
-                </Text>
-                <Text style={{ color: colors.mutedText, marginTop: 4, fontSize: 14 }}>
-                  {c.subtitle}
-                </Text>
-              </View>
-              <Text
-                style={{ fontSize: 20, color: colors.primary, fontWeight: '900', marginLeft: 10 }}
-              >
-                →
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-
-        <View
-          style={{
-            backgroundColor: colors.card,
-            borderRadius: UI.radius.lg,
-            padding: 14,
-            marginTop: 16,
-          }}
-        >
-          <Text style={{ fontWeight: '900', color: colors.text }}>Need a quick reset?</Text>
-          <Text style={{ color: colors.mutedText, marginTop: 6 }}>
-            Tap to start guided breathing or grounding exercises right away.
-          </Text>
-          <Pressable
-            onPress={() => router.push('/(tabs)/(app)/stress')}
-            style={{
-              marginTop: 12,
-              backgroundColor: colors.divider,
-              padding: 14,
-              borderRadius: UI.radius.lg,
-              alignItems: 'center',
-            }}
-          >
-            <Text style={{ fontWeight: '900', color: colors.text }}>Open Stress toolkit</Text>
-          </Pressable>
-        </View>
+                <Text style={{ fontWeight: '900', color: colors.text }}>Open Stress toolkit</Text>
+              </Pressable>
+            </View>
+          </>
+        )}
       </ScrollView>
     </View>
   );

@@ -4,13 +4,12 @@ import { router } from 'expo-router';
 import ScreenHeader from '@/components/ScreenHeader';
 import { IconSymbol } from '@/components/icon-symbol';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { GET_JOURNAL_ENTRIES } from '@/gql/operations';
-import { useGraphQLQuery } from '@/lib/graphql';
-import { GetJournalEntriesQuery } from '@/gql/generated';
+import { useActivityStore } from '@/store/useActivityStore';
 import { useSubscription } from '@/hooks/useSubscription';
 import { showAlert } from '@/lib/state';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
+import { SkeletonRect } from '@/components/Skeleton';
 
 function formatDate(iso: string) {
   try {
@@ -24,11 +23,14 @@ export default function Journal() {
   const theme = useColorScheme() ?? 'light';
   const { hasFullAccess } = useSubscription();
   const colors = Colors[theme];
-  const { data } = useGraphQLQuery<GetJournalEntriesQuery, never>(
-    ['journalEntries'],
-    GET_JOURNAL_ENTRIES,
-  );
-  const entries = data?.journalEntries || [];
+
+  const { journalEntries: entries, fetchJournalEntries, isLoading: loading } = useActivityStore();
+
+  React.useEffect(() => {
+    (async () => {
+      await fetchJournalEntries();
+    })();
+  }, [fetchJournalEntries]);
 
   return (
     <View
@@ -44,7 +46,7 @@ export default function Journal() {
         subtitle="Write, reflect, and notice patterns over time."
         rightElement={
           <Pressable
-            onPress={() => router.push('/(tabs)/(app)/journal/history')}
+            onPress={() => router.push('/(app)/journal/history')}
             style={({ pressed }) => ({
               width: 44,
               height: 44,
@@ -74,7 +76,7 @@ export default function Journal() {
               );
               return;
             }
-            router.push('/(tabs)/(app)/journal/new');
+            router.push('/(app)/journal/new');
           }}
           style={{
             flex: 1,
@@ -100,7 +102,7 @@ export default function Journal() {
               ]);
               return;
             }
-            router.push('/(tabs)/(app)/journal/prompts');
+            router.push('/(app)/journal/prompts');
           }}
           style={{
             flex: 1,
@@ -121,7 +123,14 @@ export default function Journal() {
         </Pressable>
       </View>
 
-      {entries.length === 0 ? (
+      {loading ? (
+        <View style={{ gap: 10, marginTop: 14 }}>
+          <SkeletonRect height={120} borderRadius={UI.radius.lg} />
+          <SkeletonRect height={120} borderRadius={UI.radius.lg} />
+          <SkeletonRect height={120} borderRadius={UI.radius.lg} />
+          <SkeletonRect height={120} borderRadius={UI.radius.lg} />
+        </View>
+      ) : entries.length === 0 ? (
         <View
           style={{
             marginTop: 14,
@@ -137,55 +146,55 @@ export default function Journal() {
             Start with a prompt or write freely. Even a few lines can help.
           </Text>
         </View>
-      ) : null}
-
-      <FlatList
-        style={{ marginTop: 14 }}
-        data={entries}
-        keyExtractor={(e) => e.id}
-        contentContainerStyle={{ gap: 10, paddingBottom: 18 }}
-        renderItem={({ item }) => (
-          <Pressable
-            onPress={() =>
-              router.push({ pathname: '/(tabs)/(app)/journal/[id]', params: { id: item.id } })
-            }
-            style={{ padding: 14, borderRadius: UI.radius.lg, backgroundColor: colors.card }}
-          >
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 10 }}>
-              <Text style={{ fontSize: 16, fontWeight: '900', flex: 1, color: colors.text }}>
-                {item.title || 'Untitled'}
+      ) : (
+        <FlatList
+          style={{ marginTop: 14 }}
+          data={entries}
+          keyExtractor={(e) => e.id}
+          contentContainerStyle={{ gap: 10, paddingBottom: 18 }}
+          renderItem={({ item }) => (
+            <Pressable
+              onPress={() =>
+                router.push({ pathname: '/(app)/journal/[id]', params: { id: item.id } })
+              }
+              style={{ padding: 14, borderRadius: UI.radius.lg, backgroundColor: colors.card }}
+            >
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 10 }}>
+                <Text style={{ fontSize: 16, fontWeight: '900', flex: 1, color: colors.text }}>
+                  {item.title || 'Untitled'}
+                </Text>
+                {item.mood ? (
+                  <View
+                    style={{
+                      paddingHorizontal: 10,
+                      paddingVertical: 6,
+                      borderRadius: UI.radius.pill,
+                      backgroundColor: colors.inputBg,
+                    }}
+                  >
+                    <Text style={{ fontWeight: '800', color: colors.mutedText }}>{item.mood}</Text>
+                  </View>
+                ) : null}
+              </View>
+              <Text style={{ color: colors.subtleText, marginTop: 6 }}>
+                {formatDate(item.createdAt)}
               </Text>
-              {item.mood ? (
-                <View
-                  style={{
-                    paddingHorizontal: 10,
-                    paddingVertical: 6,
-                    borderRadius: UI.radius.pill,
-                    backgroundColor: colors.inputBg,
-                  }}
-                >
-                  <Text style={{ fontWeight: '800', color: colors.mutedText }}>{item.mood}</Text>
-                </View>
+              <Text style={{ color: colors.mutedText, marginTop: 6 }} numberOfLines={2}>
+                {item.content}
+              </Text>
+              {(item.tags ?? []).length ? (
+                <Text style={{ color: colors.subtleText, marginTop: 8, fontWeight: '800' }}>
+                  {(item.tags ?? [])
+                    .slice(0, 4)
+                    .map((t) => `#${t}`)
+                    .join(' ')}
+                  {(item.tags ?? []).length > 4 ? ' …' : ''}
+                </Text>
               ) : null}
-            </View>
-            <Text style={{ color: colors.subtleText, marginTop: 6 }}>
-              {formatDate(item.createdAt)}
-            </Text>
-            <Text style={{ color: colors.mutedText, marginTop: 6 }} numberOfLines={2}>
-              {item.content}
-            </Text>
-            {(item.tags ?? []).length ? (
-              <Text style={{ color: colors.subtleText, marginTop: 8, fontWeight: '800' }}>
-                {(item.tags ?? [])
-                  .slice(0, 4)
-                  .map((t) => `#${t}`)
-                  .join(' ')}
-                {(item.tags ?? []).length > 4 ? ' …' : ''}
-              </Text>
-            ) : null}
-          </Pressable>
-        )}
-      />
+            </Pressable>
+          )}
+        />
+      )}
     </View>
   );
 }

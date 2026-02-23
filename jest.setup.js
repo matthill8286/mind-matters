@@ -31,10 +31,14 @@ jest.mock('./components/icon-symbol.ios', () => {
   };
 });
 
-jest.mock('@stripe/stripe-react-native', () => ({
-  StripeProvider: ({ children }) => children,
-  usePaymentSheet: () => ({
-    initPaymentSheet: jest.fn(() => Promise.resolve({ error: null })),
-    presentPaymentSheet: jest.fn(() => Promise.resolve({ error: null })),
-  }),
-}));
+try {
+  jest.mock('@stripe/stripe-react-native', () => ({
+    StripeProvider: ({ children }) => children,
+    usePaymentSheet: () => ({
+      initPaymentSheet: jest.fn(() => Promise.resolve({ error: null })),
+      presentPaymentSheet: jest.fn(() => Promise.resolve({ error: null })),
+    }),
+  }));
+} catch (e) {
+  // stripe-react-native not installed
+}

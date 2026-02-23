@@ -1,9 +1,25 @@
-export type MoodCheckIn = {
-  id: string;
-  createdAt: string; // ISO
-  mood: 'Great' | 'Good' | 'Okay' | 'Low' | 'Bad';
-  energy: 1 | 2 | 3 | 4 | 5;
-  stress: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
-  note?: string;
-  tags?: string[];
-};
+import { readSession } from './storage';
+import { MoodCheckIn } from './types';
+
+/**
+ * @deprecated Use useActivityStore().moodCheckIns or useActivityStore().fetchMoodCheckIns()
+ */
+export async function listMoodCheckIns(): Promise<MoodCheckIn[]> {
+  return [];
+}
+
+/**
+ * @deprecated Use useActivityStore().addMoodCheckIn()
+ */
+export async function addMoodCheckIn(
+  input: Omit<MoodCheckIn, 'id' | 'createdAt'> & Partial<Pick<MoodCheckIn, 'id' | 'createdAt'>>,
+): Promise<MoodCheckIn> {
+  throw new Error('Deprecated. Use useActivityStore().addMoodCheckIn() instead.');
+}
+
+/**
+ * @deprecated Use useActivityStore().deleteMoodCheckIn()
+ */
+export async function deleteMoodCheckIn(id: string): Promise<boolean> {
+  throw new Error('Deprecated. Use useActivityStore().deleteMoodCheckIn() instead.');
+}

@@ -3,13 +3,16 @@ import { View, Text, Pressable, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import ScoreCard from '@/components/ScoreCard';
+import { readSession, userScopedKey } from '@/lib/storage';
 
 export default function AssessmentSummary() {
   const [a, setA] = useState<any>(null);
 
   useEffect(() => {
     (async () => {
-      const raw = await AsyncStorage.getItem('assessment:v1');
+      const session = await readSession();
+      const key = userScopedKey('assessment:v1', session?.userId);
+      const raw = await AsyncStorage.getItem(key);
       setA(raw ? JSON.parse(raw) : null);
     })();
   }, []);

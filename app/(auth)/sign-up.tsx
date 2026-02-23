@@ -1,29 +1,45 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable, TextInput } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
+import { apiFetch } from '@/lib/api';
 import { authTokenVar } from '@/lib/state';
+import { writeSession } from '@/lib/storage';
 
 export default function SignUp() {
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function onCreate() {
-    if (!email || !pass) return;
-    const token = 'mock-token-' + Math.random().toString(36).substring(7);
-    await AsyncStorage.setItem(
-      'auth:session:v1',
-      JSON.stringify({ email, token, createdAt: new Date().toISOString() }),
-    );
-    authTokenVar(token);
-    router.replace('/(auth)/trial-upgrade');
+    if (!email || !pass) {
+      setError('Email and password are required');
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await apiFetch('/auth/signup', {
+        method: 'POST',
+        body: JSON.stringify({ email, password: pass }),
+      });
+
+      const { token, user } = response;
+      await writeSession({ email, token, userId: user.id });
+      authTokenVar(token);
+      router.replace('/(auth)/trial-upgrade');
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <View style={{ flex: 1, backgroundColor: '#6f6660', padding: 24, justifyContent: 'center' }}>
       <View style={{ backgroundColor: 'white', borderRadius: 28, padding: 26 }}>
         <Text style={{ fontSize: 26, fontWeight: '900' }}>Sign up</Text>
-        <Text style={{ opacity: 0.7, marginTop: 8 }}>Placeholder screen (design route).</Text>
+        {error && <Text style={{ color: 'red', marginTop: 12, fontWeight: '600' }}>{error}</Text>}
         <Text style={{ marginTop: 18, fontWeight: '900' }}>Email</Text>
         <TextInput
           value={email}
@@ -40,12 +56,14 @@ export default function SignUp() {
           style={input}
           secureTextEntry
         />
-        {/*// @ts-ignore*/}
-        <Pressable onPress={onCreate} style={primaryBtn}>
-          {/*// @ts-ignore*/}
-          <Text style={primaryBtnText}>Create account</Text>
+        <Pressable
+          onPress={onCreate}
+          style={[primaryBtn, loading && { opacity: 0.7 }]}
+          disabled={loading}
+        >
+          <Text style={primaryBtnText}>{loading ? 'Creating...' : 'Create account'}</Text>
         </Pressable>
-        <Pressable onPress={() => router.back()} style={{ marginTop: 12 }}>
+        <Pressable onPress={() => router.navigate('/(auth)/sign-in')} style={{ marginTop: 12 }}>
           <Text style={{ textAlign: 'center', fontWeight: '800', opacity: 0.75 }}>
             Back to sign in
           </Text>
@@ -61,6 +79,5 @@ const primaryBtn = {
   backgroundColor: '#a07b55',
   padding: 16,
   borderRadius: 18,
-  alignItems: 'center',
 };
-const primaryBtnText = { color: 'white', fontWeight: '900' };
+const primaryBtnText = { color: 'white' };

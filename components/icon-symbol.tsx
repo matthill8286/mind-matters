@@ -25,6 +25,7 @@ const MAPPING = {
   'note.text': 'description',
   save: 'save',
   calendar: 'calendar-today',
+  search: 'search',
 } as Partial<IconMapping>;
 
 type IconSymbolName = keyof typeof MAPPING;

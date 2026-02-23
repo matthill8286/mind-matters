@@ -2,26 +2,60 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useGraphQLQuery } from '@/lib/graphql';
-import { GET_ALL_DATA } from '@/gql/operations';
-import { GetAllDataQuery } from '@/gql/generated';
-import { calculateWellnessScore } from '@/lib/wellness';
+import { useActivityStore } from '@/store/useActivityStore';
+import { useProfileStore } from '@/store/useProfileStore';
+import { useMemo } from 'react';
 import ScoreCard from '@/components/ScoreCard';
+import { SkeletonRect } from '@/components/Skeleton';
+import { UI } from '@/constants/theme';
 
 export default function ProfileCompletion() {
-  const { data } = useGraphQLQuery<GetAllDataQuery>(['GetAllData'], GET_ALL_DATA);
-  const [name, setName] = useState<string | null>(null);
-  const wellness = calculateWellnessScore(data);
+  const [loading, setLoading] = useState(true);
+  const { profile, assessment, fetchProfile, fetchAssessment } = useProfileStore();
+  const {
+    moodCheckIns,
+    fetchMoodCheckIns,
+    journalEntries,
+    fetchJournalEntries,
+    stressHistory,
+    fetchStressHistory,
+    mindfulnessHistory,
+    fetchMindfulnessHistory,
+    sleepEntries,
+    fetchSleepEntries,
+  } = useActivityStore();
+
+  const allData = useMemo(
+    () => ({
+      moodCheckIns,
+      journalEntries,
+      assessment,
+      stressHistory,
+      mindfulnessHistory,
+      sleepEntries,
+    }),
+    [moodCheckIns, journalEntries, assessment, stressHistory, mindfulnessHistory, sleepEntries],
+  );
+
+  const wellness = calculateWellnessScore(allData);
 
   useEffect(() => {
     (async () => {
-      const raw = await AsyncStorage.getItem('profile:v1');
-      if (raw) {
-        const p = JSON.parse(raw);
-        setName(p?.name ?? null);
-      }
+      setLoading(true);
+      await Promise.all([
+        fetchProfile(),
+        fetchAssessment(),
+        fetchMoodCheckIns(),
+        fetchJournalEntries(),
+        fetchStressHistory(),
+        fetchMindfulnessHistory(),
+        fetchSleepEntries(),
+      ]);
+      setLoading(false);
     })();
   }, []);
+
+  const name = profile?.name;
 
   return (
     <View style={{ flex: 1, backgroundColor: '#6f6660', padding: 24, paddingTop: 60 }}>
@@ -56,33 +90,47 @@ export default function ProfileCompletion() {
         contentContainerStyle={{ paddingBottom: 40 }}
       >
         <View style={{ backgroundColor: 'white', borderRadius: 32, padding: 26, minHeight: 400 }}>
-          <Text style={{ fontSize: 26, fontWeight: '900', color: '#6a5e55' }}>
-            {name ? `Nice to meet you, ${name}` : 'Profile complete'}
-          </Text>
-          <Text style={{ opacity: 0.7, marginTop: 8, color: '#6a5e55', fontSize: 16 }}>
-            Here’s a snapshot from your check-in.
-          </Text>
+          {loading ? (
+            <View style={{ gap: 14 }}>
+              <SkeletonRect height={30} width={180} />
+              <SkeletonRect height={20} width={240} />
+              <View style={{ marginTop: 20, gap: 12 }}>
+                <SkeletonRect height={100} borderRadius={UI.radius.xl} />
+                <SkeletonRect height={100} borderRadius={UI.radius.xl} />
+                <SkeletonRect height={100} borderRadius={UI.radius.xl} />
+              </View>
+            </View>
+          ) : (
+            <>
+              <Text style={{ fontSize: 26, fontWeight: '900', color: '#6a5e55' }}>
+                {name ? `Nice to meet you, ${name}` : 'Profile complete'}
+              </Text>
+              <Text style={{ opacity: 0.7, marginTop: 8, color: '#6a5e55', fontSize: 16 }}>
+                Here’s a snapshot from your check-in.
+              </Text>
 
-          <View style={{ marginTop: 10 }}>
-            <ScoreCard
-              score={wellness.score}
-              title="MindMate Wellness Score"
-              subtitle="A gentle baseline of wellbeing today."
-              bg="#6bbf8e"
-            />
-            <ScoreCard
-              score={100 - wellness.breakdown.stress}
-              title="Stress Load"
-              subtitle="A moderate stress signal—let’s keep it manageable."
-              bg="#f2a65a"
-            />
-            <ScoreCard
-              score={100 - wellness.breakdown.sleep}
-              title="Sleep Quality"
-              subtitle="Low energy risk detected—prioritize rest when possible."
-              bg="#9b8df1"
-            />
-          </View>
+              <View style={{ marginTop: 10 }}>
+                <ScoreCard
+                  score={wellness.score}
+                  title="MindMate Wellness Score"
+                  subtitle="A gentle baseline of wellbeing today."
+                  bg="#6bbf8e"
+                />
+                <ScoreCard
+                  score={100 - wellness.breakdown.stress}
+                  title="Stress Load"
+                  subtitle="A moderate stress signal—let’s keep it manageable."
+                  bg="#f2a65a"
+                />
+                <ScoreCard
+                  score={100 - wellness.breakdown.sleep}
+                  title="Sleep Quality"
+                  subtitle="Low energy risk detected—prioritize rest when possible."
+                  bg="#9b8df1"
+                />
+              </View>
+            </>
+          )}
         </View>
 
         <View style={{ marginTop: 30 }}>

@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, Pressable, Platform } from 'react-native';
-import MenuButton from './MenuButton';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors } from '@/constants/theme';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -24,7 +23,7 @@ export default function ScreenHeader({
     <View style={{ marginTop: Platform.OS === 'ios' ? 26 : 16 }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
-          {showBack ? (
+          {showBack && (
             <Pressable
               onPress={() => router.back()}
               style={({ pressed }) => ({
@@ -38,8 +37,6 @@ export default function ScreenHeader({
                 color={colors.text}
               />
             </Pressable>
-          ) : (
-            <MenuButton />
           )}
           <Text
             style={{
@@ -58,12 +55,6 @@ export default function ScreenHeader({
           {!rightElement && !showBack && (
             <View style={{ flexDirection: 'row', gap: 12 }}>
               <Pressable
-                onPress={() => router.push('/search')}
-                style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-              >
-                <MaterialIcons name="search" size={26} color={colors.text} />
-              </Pressable>
-              <Pressable
                 onPress={() => router.push('/(tabs)/profile')}
                 style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
               >
@@ -71,7 +62,6 @@ export default function ScreenHeader({
               </Pressable>
             </View>
           )}
-          {showBack && <MenuButton />}
         </View>
       </View>
       {subtitle ? <Text style={{ color: colors.mutedText, marginTop: 8 }}>{subtitle}</Text> : null}

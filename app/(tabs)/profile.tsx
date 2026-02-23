@@ -5,15 +5,23 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSubscription } from '@/hooks/useSubscription';
-import { GET_USER_DATA } from '@/gql/operations';
-import { useGraphQLQuery } from '@/lib/graphql';
-import { GetUserDataQuery } from '@/gql/generated';
+import { useProfileStore } from '@/store/useProfileStore';
 import { Colors, UI } from '@/constants/theme';
 import { IconSymbol } from '@/components/icon-symbol';
 import { authTokenVar } from '@/lib/state';
+import { SkeletonRect } from '@/components/Skeleton';
+import { readSession, SESSION_KEY } from '@/lib/storage';
+
+import { useActivityStore } from '@/store/useActivityStore';
+import { useStressStore } from '@/store/useStressStore';
+import { useChatStore } from '@/store/useChatStore';
 
 async function signOut() {
-  await AsyncStorage.removeItem('auth:session:v1');
+  await AsyncStorage.removeItem(SESSION_KEY);
+  useProfileStore.getState().clearProfile();
+  useActivityStore.getState().clearActivity();
+  useStressStore.getState().clearStress();
+  useChatStore.getState().clearAllChat();
   authTokenVar(null);
   router.replace('/(auth)/sign-in');
 }
@@ -22,14 +30,17 @@ export default function Profile() {
   const [email, setEmail] = useState<string | null>(null);
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
-  const { data } = useGraphQLQuery<GetUserDataQuery, never>(['userData'], GET_USER_DATA);
-  const profile = data?.profile;
+  const { profile, fetchProfile } = useProfileStore();
+  const [loading, setLoading] = useState(true);
   const { subscription, isExpired, isLifetime } = useSubscription();
 
   useEffect(() => {
     (async () => {
-      const raw = await AsyncStorage.getItem('auth:session:v1');
-      if (raw) setEmail(JSON.parse(raw)?.email ?? null);
+      const session = await readSession();
+      setEmail(session?.email ?? null);
+
+      await fetchProfile();
+      setLoading(false);
     })();
   }, []);
 
@@ -78,129 +89,155 @@ export default function Profile() {
           subtitle={email ? `Signed in as ${email}` : 'Not signed in'}
         />
 
-        <View style={cardStyle}>
-          <View
-            style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
-          >
-            <Text style={{ fontSize: 20, fontWeight: '900', color: colors.text }}>
-              {profile?.name || 'Your Profile'}
-            </Text>
-            <Pressable
-              onPress={() => router.push('/(tabs)/(app)/profile-edit')}
-              style={{
-                backgroundColor: '#828a6a',
-                paddingHorizontal: 12,
-                paddingVertical: 6,
-                borderRadius: 12,
-              }}
-            >
-              <Text style={{ color: 'white', fontWeight: '700', fontSize: 12 }}>Edit</Text>
-            </Pressable>
+        {loading ? (
+          <View style={{ gap: 14 }}>
+            <SkeletonRect height={140} borderRadius={UI.radius.xl} />
+            <SkeletonRect height={24} width={120} style={{ marginTop: 24 }} />
+            <SkeletonRect height={80} borderRadius={UI.radius.xl} />
+            <SkeletonRect height={24} width={120} style={{ marginTop: 24 }} />
+            <SkeletonRect height={50} borderRadius={UI.radius.lg} />
+            <SkeletonRect height={50} borderRadius={UI.radius.lg} />
+            <SkeletonRect height={50} borderRadius={UI.radius.lg} />
           </View>
-
-          <View style={{ marginTop: 16, gap: 12 }}>
-            <View>
-              <Text
+        ) : (
+          <>
+            <View style={cardStyle}>
+              <View
                 style={{
-                  color: colors.mutedText,
-                  fontSize: 12,
-                  fontWeight: '800',
-                  textTransform: 'uppercase',
-                }}
-              >
-                Primary Goal
-              </Text>
-              <Text style={{ fontSize: 16, fontWeight: '700', color: colors.text, marginTop: 2 }}>
-                {profile?.intention || 'Not set'}
-              </Text>
-            </View>
-            <View>
-              <Text
-                style={{
-                  color: colors.mutedText,
-                  fontSize: 12,
-                  fontWeight: '800',
-                  textTransform: 'uppercase',
-                }}
-              >
-                Check-in Routine
-              </Text>
-              <Text style={{ fontSize: 16, fontWeight: '700', color: colors.text, marginTop: 2 }}>
-                {profile?.routine || 'Not set'}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        <Text style={{ marginTop: 24, fontSize: 16, fontWeight: '900', color: colors.text }}>
-          Subscription
-        </Text>
-
-        <View style={cardStyle}>
-          <View
-            style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
-          >
-            <View>
-              <Text style={{ fontSize: 18, fontWeight: '900', color: colors.text }}>
-                {subTypeLabel}
-              </Text>
-              {subscription?.expiryDate && !isLifetime && (
-                <Text style={{ color: colors.mutedText, fontSize: 13, marginTop: 4 }}>
-                  {isExpired ? 'Expired on' : 'Renews/Expires on'}{' '}
-                  {new Date(subscription.expiryDate).toLocaleDateString()}
-                </Text>
-              )}
-            </View>
-            {!isLifetime && (
-              <Pressable
-                onPress={() => router.push('/(auth)/trial-upgrade')}
-                style={{
-                  backgroundColor: colors.primary,
-                  paddingHorizontal: 16,
-                  paddingVertical: 10,
-                  borderRadius: UI.radius.md,
                   flexDirection: 'row',
+                  justifyContent: 'space-between',
                   alignItems: 'center',
-                  gap: 6,
                 }}
               >
-                <IconSymbol name="bolt.fill" size={16} color={colors.onPrimary} />
-                <Text style={{ color: colors.onPrimary, fontWeight: '900' }}>Upgrade</Text>
-              </Pressable>
-            )}
-          </View>
-        </View>
+                <Text style={{ fontSize: 20, fontWeight: '900', color: colors.text }}>
+                  {profile?.name || 'Your Profile'}
+                </Text>
+                <Pressable
+                  onPress={() => router.push('/(app)/profile-edit')}
+                  style={{
+                    backgroundColor: '#828a6a',
+                    paddingHorizontal: 12,
+                    paddingVertical: 6,
+                    borderRadius: 12,
+                  }}
+                >
+                  <Text style={{ color: 'white', fontWeight: '700', fontSize: 12 }}>Edit</Text>
+                </Pressable>
+              </View>
 
-        <Text style={{ marginTop: 24, fontSize: 16, fontWeight: '900', color: colors.text }}>
-          App Settings
-        </Text>
+              <View style={{ marginTop: 16, gap: 12 }}>
+                <View>
+                  <Text
+                    style={{
+                      color: colors.mutedText,
+                      fontSize: 12,
+                      fontWeight: '800',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Primary Goal
+                  </Text>
+                  <Text
+                    style={{ fontSize: 16, fontWeight: '700', color: colors.text, marginTop: 2 }}
+                  >
+                    {profile?.intention || 'Not set'}
+                  </Text>
+                </View>
+                <View>
+                  <Text
+                    style={{
+                      color: colors.mutedText,
+                      fontSize: 12,
+                      fontWeight: '800',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Check-in Routine
+                  </Text>
+                  <Text
+                    style={{ fontSize: 16, fontWeight: '700', color: colors.text, marginTop: 2 }}
+                  >
+                    {profile?.routine || 'Not set'}
+                  </Text>
+                </View>
+              </View>
+            </View>
 
-        <Pressable onPress={() => router.push('/(tabs)/(app)/settings')} style={btnStyle}>
-          <Text style={{ fontWeight: '800', color: colors.text }}>Manage Categories</Text>
-          <Text style={{ color: colors.primary, fontWeight: '900' }}>→</Text>
-        </Pressable>
+            <Text style={{ marginTop: 24, fontSize: 16, fontWeight: '900', color: colors.text }}>
+              Subscription
+            </Text>
 
-        <Pressable onPress={() => router.push('/(utils)/help-center')} style={btnStyle}>
-          <Text style={{ fontWeight: '800', color: colors.text }}>Help Center</Text>
-          <Text style={{ color: colors.primary, fontWeight: '900' }}>→</Text>
-        </Pressable>
+            <View style={cardStyle}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <View>
+                  <Text style={{ fontSize: 18, fontWeight: '900', color: colors.text }}>
+                    {subTypeLabel}
+                  </Text>
+                  {subscription?.expiryDate && !isLifetime && (
+                    <Text style={{ color: colors.mutedText, fontSize: 13, marginTop: 4 }}>
+                      {isExpired ? 'Expired on' : 'Renews/Expires on'}{' '}
+                      {new Date(subscription.expiryDate).toLocaleDateString()}
+                    </Text>
+                  )}
+                </View>
+                {!isLifetime && (
+                  <Pressable
+                    onPress={() => router.push('/(auth)/trial-upgrade')}
+                    style={{
+                      backgroundColor: colors.primary,
+                      paddingHorizontal: 16,
+                      paddingVertical: 10,
+                      borderRadius: UI.radius.md,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 6,
+                    }}
+                  >
+                    <IconSymbol name="bolt.fill" size={16} color={colors.onPrimary} />
+                    <Text style={{ color: colors.onPrimary, fontWeight: '900' }}>Upgrade</Text>
+                  </Pressable>
+                )}
+              </View>
+            </View>
 
-        <Pressable onPress={() => router.push('/(utils)/utilities')} style={btnStyle}>
-          <Text style={{ fontWeight: '800', color: colors.text }}>Error & Other Utilities</Text>
-          <Text style={{ color: colors.primary, fontWeight: '900' }}>→</Text>
-        </Pressable>
+            <Text style={{ marginTop: 24, fontSize: 16, fontWeight: '900', color: colors.text }}>
+              App Settings
+            </Text>
 
-        <Pressable
-          onPress={signOut}
-          style={[
-            btnStyle,
-            { marginTop: 24, backgroundColor: theme === 'light' ? '#ffe8e8' : '#442222' },
-          ]}
-        >
-          <Text style={{ fontWeight: '900', color: theme === 'light' ? '#b22' : '#f88' }}>
-            Sign out
-          </Text>
-        </Pressable>
+            <Pressable onPress={() => router.push('/(app)/settings')} style={btnStyle}>
+              <Text style={{ fontWeight: '800', color: colors.text }}>Manage Categories</Text>
+              <Text style={{ color: colors.primary, fontWeight: '900' }}>→</Text>
+            </Pressable>
+
+            <Pressable onPress={() => router.push('/(utils)/help-center')} style={btnStyle}>
+              <Text style={{ fontWeight: '800', color: colors.text }}>Help Center</Text>
+              <Text style={{ color: colors.primary, fontWeight: '900' }}>→</Text>
+            </Pressable>
+
+            <Pressable onPress={() => router.push('/(utils)/utilities')} style={btnStyle}>
+              <Text style={{ fontWeight: '800', color: colors.text }}>Error & Other Utilities</Text>
+              <Text style={{ color: colors.primary, fontWeight: '900' }}>→</Text>
+            </Pressable>
+
+            <Pressable
+              onPress={signOut}
+              style={[
+                btnStyle,
+                { marginTop: 24, backgroundColor: theme === 'light' ? '#ffe8e8' : '#442222' },
+              ]}
+            >
+              <Text style={{ fontWeight: '900', color: theme === 'light' ? '#b22' : '#f88' }}>
+                Sign out
+              </Text>
+            </Pressable>
+          </>
+        )}
       </ScrollView>
     </View>
   );
