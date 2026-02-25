@@ -67,7 +67,7 @@ function VideoCard({ video }: { video: StressVideo }) {
         <Pressable
           onPress={() => {
             router.push({
-              pathname: '/(app)/stress/watch',
+              pathname: '/(tabs)/stress/watch',
               params: { videoId: video.id },
             });
           }}

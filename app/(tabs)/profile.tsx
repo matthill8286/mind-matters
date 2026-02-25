@@ -113,7 +113,7 @@ export default function Profile() {
                   {profile?.name || 'Your Profile'}
                 </Text>
                 <Pressable
-                  onPress={() => router.push('/(app)/profile-edit')}
+                  onPress={() => router.push('/(tabs)/profile-edit')}
                   style={{
                     backgroundColor: '#828a6a',
                     paddingHorizontal: 12,
@@ -210,7 +210,7 @@ export default function Profile() {
               App Settings
             </Text>
 
-            <Pressable onPress={() => router.push('/(app)/settings')} style={btnStyle}>
+            <Pressable onPress={() => router.push('/(tabs)/settings')} style={btnStyle}>
               <Text style={{ fontWeight: '800', color: colors.text }}>Manage Categories</Text>
               <Text style={{ color: colors.primary, fontWeight: '900' }}>→</Text>
             </Pressable>

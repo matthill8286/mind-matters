@@ -39,7 +39,9 @@ export default function TabsLayout() {
         name="search"
         options={{
           title: 'Search',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="search" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="magnifyingglass.circle.fill" color={color} />
+          ),
         }}
       />
       <Tabs.Screen
@@ -56,6 +58,19 @@ export default function TabsLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.2.fill" color={color} />,
         }}
       />
+
+      {/* Hidden from tab bar but present for tab layout persistence */}
+      <Tabs.Screen name="stress" options={{ href: null }} />
+      <Tabs.Screen name="mood" options={{ href: null }} />
+      <Tabs.Screen name="sleep" options={{ href: null }} />
+      <Tabs.Screen name="chat/history" options={{ href: null }} />
+      <Tabs.Screen name="chat/[issueKey]" options={{ href: null }} />
+      <Tabs.Screen name="mindful-hours" options={{ href: null }} />
+      <Tabs.Screen name="community" options={{ href: null }} />
+      <Tabs.Screen name="notifications" options={{ href: null }} />
+      <Tabs.Screen name="settings" options={{ href: null }} />
+      <Tabs.Screen name="profile-edit" options={{ href: null }} />
+      <Tabs.Screen name="profile-overview" options={{ href: null }} />
     </Tabs>
   );
 }

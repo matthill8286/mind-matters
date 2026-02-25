@@ -34,7 +34,7 @@ export default function SleepHistoryScreen() {
               No sleep entries yet.
             </Text>
             <Pressable
-              onPress={() => router.push('/(app)/sleep/log')}
+              onPress={() => router.push('/(tabs)/sleep/log')}
               style={[styles.button, { backgroundColor: colors.primary }]}
             >
               <Text style={styles.buttonText}>Log Sleep</Text>

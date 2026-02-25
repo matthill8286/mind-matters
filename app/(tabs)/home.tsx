@@ -89,14 +89,14 @@ export default function Home() {
       {
         title: 'Stress toolkit',
         subtitle: 'Breathing, grounding, and your Stress Plan.',
-        onPress: () => router.push('/(app)/stress'),
+        onPress: () => router.push('/(tabs)/stress'),
         icon: 'bolt.fill' as const,
         color: '#f2a65a',
       },
       {
         title: 'Mood check-in',
         subtitle: 'Log mood, energy, and stress in 30 seconds.',
-        onPress: () => router.push('/(app)/mood'),
+        onPress: () => router.push('/(tabs)/mood'),
         icon: 'text.bubble' as const,
         color: '#6bbf8e',
       },
@@ -113,6 +113,13 @@ export default function Home() {
         onPress: () => router.push('/(tabs)/chat'),
         icon: 'paperplane.fill' as const,
         color: '#a07b55',
+      },
+      {
+        title: 'Sleep check-in',
+        subtitle: 'Log sleep quality and duration.',
+        onPress: () => router.push('/(tabs)/sleep'),
+        icon: 'moon.stars.fill' as const,
+        color: '#6e8b6f',
       },
     ],
     [],
@@ -317,7 +324,7 @@ export default function Home() {
                 Tap to start guided breathing or grounding exercises right away.
               </Text>
               <Pressable
-                onPress={() => router.push('/(app)/stress')}
+                onPress={() => router.push('/(tabs)/stress')}
                 style={{
                   marginTop: 12,
                   backgroundColor: colors.divider,

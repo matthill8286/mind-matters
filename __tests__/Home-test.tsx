@@ -77,7 +77,7 @@ describe('Home Screen', () => {
     );
 
     fireEvent.press(getByText('Stress toolkit'));
-    expect(router.push).toHaveBeenCalledWith('/(app)/stress');
+    expect(router.push).toHaveBeenCalledWith('/(tabs)/stress');
   });
 
   it('shows trial expired banner when expired', () => {

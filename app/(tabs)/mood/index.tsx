@@ -111,7 +111,7 @@ export default function Mood() {
         subtitle="Quick check-ins to spot patterns over time."
         rightElement={
           <Pressable
-            onPress={() => router.push('/(app)/mood/history')}
+            onPress={() => router.push('/(tabs)/mood/history')}
             style={({ pressed }) => ({
               width: 44,
               height: 44,
@@ -261,7 +261,6 @@ export default function Mood() {
 
               <Pressable
                 onPress={saveCheckIn}
-                disabled={saving}
                 style={{
                   marginTop: 20,
                   backgroundColor: colors.primary,
@@ -271,7 +270,7 @@ export default function Mood() {
                   flexDirection: 'row',
                   justifyContent: 'center',
                   gap: 8,
-                  opacity: saving ? 0.7 : 1,
+                  opacity: 1,
                   shadowColor: '#000',
                   shadowOffset: { width: 0, height: 2 },
                   shadowOpacity: 0.1,
@@ -279,10 +278,8 @@ export default function Mood() {
                   elevation: 3,
                 }}
               >
-                {/* @ts-expect-error - mappings aren't being collected correctly */}
-                {!saving && <IconSymbol name="save" size={20} color={colors.onPrimary} />}
                 <Text style={{ color: colors.onPrimary, fontWeight: '900', fontSize: 16 }}>
-                  {saving ? 'Saving...' : 'Save check-in'}
+                  Save check-in
                 </Text>
               </Pressable>
             </View>

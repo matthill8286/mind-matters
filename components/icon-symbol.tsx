@@ -26,6 +26,7 @@ const MAPPING = {
   save: 'save',
   calendar: 'calendar-today',
   search: 'search',
+  'moon.stars.fill': 'nightlight-round',
 } as Partial<IconMapping>;
 
 type IconSymbolName = keyof typeof MAPPING;

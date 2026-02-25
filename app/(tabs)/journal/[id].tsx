@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable, TextInput, ScrollView, Platform } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import ScreenHeader from '@/components/ScreenHeader';

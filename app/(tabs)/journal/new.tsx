@@ -16,7 +16,6 @@ const MOODS = ['Calm', 'Okay', 'Anxious', 'Sad', 'Angry', 'Overwhelmed'];
 export default function NewJournalEntry() {
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
-  const { upsertJournalEntry } = useActivityStore();
   const { promptId, date } = useLocalSearchParams<{ promptId?: string; date?: string }>();
   const prompt = useMemo(() => JOURNAL_PROMPTS.find((p) => p.id === promptId), [promptId]);
 
@@ -35,8 +34,6 @@ export default function NewJournalEntry() {
   };
 
   async function save() {
-    const entryDate = date ? new Date(date) : new Date();
-    const now = entryDate.toISOString();
     const entryInput: Omit<JournalEntry, 'id' | 'createdAt' | 'updatedAt'> = {
       title: (title || 'Untitled').trim(),
       content: body.trim(),
@@ -45,7 +42,7 @@ export default function NewJournalEntry() {
     };
     await withLoading('save-journal', async () => {
       await useActivityStore.getState().createJournalEntry(entryInput as any);
-      router.replace('/(tabs)/journal');
+      router.replace('/(tabs)/journal/history');
     });
   }
 

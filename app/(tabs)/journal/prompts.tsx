@@ -53,7 +53,7 @@ export default function JournalPrompts() {
         renderItem={({ item }) => (
           <Pressable
             onPress={() =>
-              router.push({ pathname: '/(app)/journal/new', params: { promptId: item.id } })
+              router.push({ pathname: '/(tabs)/journal/new', params: { promptId: item.id } })
             }
             style={{ padding: 14, borderRadius: UI.radius.lg, backgroundColor: colors.card }}
           >

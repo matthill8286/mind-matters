@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react';
 import { View, Text, Pressable, ScrollView, Platform } from 'react-native';
 import Calendar from '@/components/Calendar';
 import { useActivityStore } from '@/store/useActivityStore';
-import { JournalEntry } from '@/lib/journal';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 import { router } from 'expo-router';
@@ -27,7 +26,7 @@ export default function JournalHistory() {
 
   React.useEffect(() => {
     fetchJournalEntries();
-  }, []);
+  }, [fetchJournalEntries]);
 
   function formatDate(iso: string) {
     try {
@@ -88,7 +87,7 @@ export default function JournalHistory() {
                   <Pressable
                     onPress={() =>
                       router.push({
-                        pathname: '/(app)/journal/new',
+                        pathname: '/(tabs)/journal/new',
                         params: { date: selectedDate.toISOString() },
                       })
                     }
@@ -117,7 +116,7 @@ export default function JournalHistory() {
                         key={item.id}
                         onPress={() =>
                           router.push({
-                            pathname: '/(app)/journal/[id]',
+                            pathname: '/(tabs)/journal/[id]',
                             params: { id: item.id },
                           })
                         }

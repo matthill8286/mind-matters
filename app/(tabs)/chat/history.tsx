@@ -62,7 +62,7 @@ export default function ChatHistory() {
             <Pressable
               onPress={() => {
                 router.push({
-                  pathname: '/(app)/chat/[issueKey]',
+                  pathname: '/(tabs)/chat/[issueKey]',
                   params: { issueKey: item.key },
                 });
               }}

@@ -52,7 +52,7 @@ export default function StressHub() {
             <Card
               title="Breathing Coach"
               subtitle="Guided 4-7-8 breathing with animation."
-              onPress={() => router.push('/(app)/stress/breathing')}
+              onPress={() => router.push('/(tabs)/stress/breathing')}
               icon="air"
               color="#6bbf8e"
             />
@@ -61,7 +61,7 @@ export default function StressHub() {
               subtitle="Exercises to relax the body (video)."
               onPress={() =>
                 router.push({
-                  pathname: '/(app)/stress/videos',
+                  pathname: '/(tabs)/stress/videos',
                   params: { category: 'body' },
                 })
               }
@@ -73,7 +73,7 @@ export default function StressHub() {
               subtitle="Exercises to relax the mind (video)."
               onPress={() =>
                 router.push({
-                  pathname: '/(app)/stress/videos',
+                  pathname: '/(tabs)/stress/videos',
                   params: { category: 'mind' },
                 })
               }
@@ -83,7 +83,7 @@ export default function StressHub() {
             <Card
               title="Grounding 5–4–3–2–1"
               subtitle="Bring attention back to the present (guided checklist)."
-              onPress={() => router.push('/(app)/stress/grounding')}
+              onPress={() => router.push('/(tabs)/stress/grounding')}
               isLocked={!hasFullAccess}
               icon="touch-app"
               color="#f2a65a"
@@ -91,7 +91,7 @@ export default function StressHub() {
             <Card
               title="Your Stress Plan"
               subtitle="Build a personal ‘Stress Kit’ you can use any time."
-              onPress={() => router.push('/(app)/stress/plan')}
+              onPress={() => router.push('/(tabs)/stress/plan')}
               isLocked={!hasFullAccess}
               icon="assignment"
               color="#9b8df1"

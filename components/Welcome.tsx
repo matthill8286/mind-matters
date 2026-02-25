@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   Pressable,
   ImageSourcePropType,
   KeyboardAvoidingView,
+  Animated,
 } from 'react-native';
 
 type Slide = {
@@ -39,6 +40,36 @@ export default function WelcomeComp({
     return (safeIndex + 1) / total;
   }, [safeIndex, total]);
 
+  // Animated values
+  const [trackWidth, setTrackWidth] = useState(86);
+  const progressAnim = useRef(new Animated.Value(progress)).current;
+  const contentOpacity = useRef(new Animated.Value(1)).current;
+  const contentTranslate = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    // Animate progress bar width
+    Animated.timing(progressAnim, {
+      toValue: progress,
+      duration: 350,
+      useNativeDriver: false, // width cannot use native driver
+    }).start();
+
+    // Subtle slide+fade for content on index change;
+    contentTranslate.setValue(12);
+    Animated.parallel([
+      Animated.timing(contentOpacity, {
+        toValue: 1,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+      Animated.timing(contentTranslate, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [contentOpacity, contentTranslate, progress, progressAnim, safeIndex]);
+
   return (
     <KeyboardAvoidingView style={styles.safe}>
       <View style={styles.screen}>
@@ -58,12 +89,22 @@ export default function WelcomeComp({
         <Text style={styles.step}>{slide?.step ?? `Step ${safeIndex + 1}`}</Text>
 
         {/* Illustration */}
-        <View style={styles.illustrationWrap}>
+        <Animated.View
+          style={[
+            styles.illustrationWrap,
+            { opacity: contentOpacity, transform: [{ translateX: contentTranslate }] },
+          ]}
+        >
           <Image source={illustration} style={styles.illustration} resizeMode="cover" />
-        </View>
+        </Animated.View>
 
         {/* Bottom content row */}
-        <View style={styles.bottomRow}>
+        <Animated.View
+          style={[
+            styles.bottomRow,
+            { opacity: contentOpacity, transform: [{ translateX: contentTranslate }] },
+          ]}
+        >
           <View style={{ flex: 1 }}>
             <Text style={styles.headline}>{slide?.title ?? ''}</Text>
             <Text style={styles.body}>{slide?.text ?? ''}</Text>
@@ -79,12 +120,26 @@ export default function WelcomeComp({
             <View style={styles.arrowStem} />
             <View style={styles.arrowHead} />
           </Pressable>
-        </View>
+        </Animated.View>
 
         {/* Bottom progress indicator */}
         <View style={styles.progressTrack}>
-          <View style={styles.progressTrackInner} accessibilityRole="progressbar">
-            <View style={[styles.progressFill, { width: `${Math.round(progress * 100)}%` }]} />
+          <View
+            style={styles.progressTrackInner}
+            accessibilityRole="progressbar"
+            onLayout={(e) => setTrackWidth(Math.max(1, Math.round(e.nativeEvent.layout.width)))}
+          >
+            <Animated.View
+              style={[
+                styles.progressFill,
+                {
+                  width: progressAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, trackWidth],
+                  }),
+                },
+              ]}
+            />
           </View>
         </View>
 

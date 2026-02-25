@@ -51,7 +51,7 @@ export default function SleepScreen() {
             onPress: () => {
               setSleepMode({ ...sleepMode, sleepModeStartISO: null });
               router.push({
-                pathname: '/(app)/sleep/log',
+                pathname: '/(tabs)/sleep/log',
                 params: { duration: diffHrs.toString() },
               });
             },
@@ -108,14 +108,14 @@ export default function SleepScreen() {
 
             <View style={styles.grid}>
               <Pressable
-                onPress={() => router.push('/(app)/sleep/log')}
+                onPress={() => router.push('/(tabs)/sleep/log')}
                 style={[styles.gridItem, { backgroundColor: colors.card }]}
               >
                 <MaterialIcons name="add-circle-outline" size={32} color={colors.primary} />
                 <Text style={[styles.gridLabel, { color: colors.text }]}>Log Sleep</Text>
               </Pressable>
               <Pressable
-                onPress={() => router.push('/(app)/sleep/history')}
+                onPress={() => router.push('/(tabs)/sleep/history')}
                 style={[styles.gridItem, { backgroundColor: colors.card }]}
               >
                 <MaterialIcons name="history" size={32} color={colors.primary} />
@@ -144,7 +144,7 @@ export default function SleepScreen() {
             )}
 
             <Pressable
-              onPress={() => router.push('/(app)/mindful-hours')}
+              onPress={() => router.push('/(tabs)/mindful-hours')}
               style={[styles.mindfulLink, { backgroundColor: colors.card }]}
             >
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>

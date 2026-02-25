@@ -32,7 +32,7 @@ export default function Chatbot() {
       >
         <ScreenHeader title="AI Therapy Chatbot" subtitle="Pick a topic to chat about." />
         <Pressable
-          onPress={() => router.push('/(app)/chat/history')}
+          onPress={() => router.push('/(tabs)/chat/history')}
           style={{
             paddingVertical: 6,
             paddingHorizontal: 12,
@@ -66,7 +66,7 @@ export default function Chatbot() {
                 return;
               }
               router.push({
-                pathname: '/(app)/chat/[issueKey]',
+                pathname: '/(tabs)/chat/[issueKey]',
                 params: { issueKey: item.key },
               });
             }}
