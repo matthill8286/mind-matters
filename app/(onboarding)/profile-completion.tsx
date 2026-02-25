@@ -1,29 +1,25 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { router } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useActivityStore } from '@/store/useActivityStore';
+import { useMoodStore } from '@/store/useMoodStore';
+import { useJournalStore } from '@/store/useJournalStore';
+import { useSleepStore } from '@/store/useSleepStore';
+import { useMindfulnessStore } from '@/store/useMindfulnessStore';
+import { useStressHistoryStore } from '@/store/useStressHistoryStore';
 import { useProfileStore } from '@/store/useProfileStore';
-import { useMemo } from 'react';
 import ScoreCard from '@/components/ScoreCard';
 import { SkeletonRect } from '@/components/Skeleton';
 import { UI } from '@/constants/theme';
+import { calculateWellnessScore } from '@/lib/wellness';
 
 export default function ProfileCompletion() {
   const [loading, setLoading] = useState(true);
   const { profile, assessment, fetchProfile, fetchAssessment } = useProfileStore();
-  const {
-    moodCheckIns,
-    fetchMoodCheckIns,
-    journalEntries,
-    fetchJournalEntries,
-    stressHistory,
-    fetchStressHistory,
-    mindfulnessHistory,
-    fetchMindfulnessHistory,
-    sleepEntries,
-    fetchSleepEntries,
-  } = useActivityStore();
+  const { moodCheckIns, fetchMoodCheckIns } = useMoodStore();
+  const { journalEntries, fetchJournalEntries } = useJournalStore();
+  const { sleepEntries, fetchSleepEntries } = useSleepStore();
+  const { mindfulnessHistory, fetchMindfulnessHistory } = useMindfulnessStore();
+  const { stressHistory, fetchStressHistory } = useStressHistoryStore();
 
   const allData = useMemo(
     () => ({
@@ -53,7 +49,15 @@ export default function ProfileCompletion() {
       ]);
       setLoading(false);
     })();
-  }, []);
+  }, [
+    fetchAssessment,
+    fetchJournalEntries,
+    fetchMindfulnessHistory,
+    fetchMoodCheckIns,
+    fetchProfile,
+    fetchSleepEntries,
+    fetchStressHistory,
+  ]);
 
   const name = profile?.name;
 

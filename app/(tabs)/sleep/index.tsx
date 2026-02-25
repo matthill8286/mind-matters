@@ -5,8 +5,7 @@ import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 import { showAlert } from '@/lib/state';
-import { useActivityStore } from '@/store/useActivityStore';
-import { SleepEntry } from '@/lib/sleep';
+import { useSleepStore } from '@/store/useSleepStore';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SkeletonRect } from '@/components/Skeleton';
 
@@ -20,13 +19,13 @@ export default function SleepScreen() {
     sleepEntries: entries,
     fetchSleepEntries,
     isLoading: loading,
-  } = useActivityStore();
+  } = useSleepStore();
 
   const { sleepModeStartISO } = sleepMode;
 
   React.useEffect(() => {
     fetchSleepEntries();
-  }, []);
+  }, [fetchSleepEntries]);
 
   const lastEntry = entries[0];
 
@@ -124,8 +123,23 @@ export default function SleepScreen() {
             </View>
 
             {lastEntry && (
-              <View style={[styles.card, { backgroundColor: colors.card, marginTop: 12 }]}>
-                <Text style={[styles.sectionTitle, { color: colors.text }]}>Last Night</Text>
+              <Pressable
+                onPress={() => router.push(`/(tabs)/sleep/${lastEntry.id}`)}
+                style={[styles.card, { backgroundColor: colors.card, marginTop: 12 }]}
+              >
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: 8,
+                  }}
+                >
+                  <Text style={[styles.sectionTitle, { color: colors.text, marginBottom: 0 }]}>
+                    Last Night
+                  </Text>
+                  <MaterialIcons name="chevron-right" size={20} color={colors.mutedText} />
+                </View>
                 <View style={styles.statsRow}>
                   <View>
                     <Text style={[styles.statLabel, { color: colors.mutedText }]}>Duration</Text>
@@ -140,7 +154,7 @@ export default function SleepScreen() {
                     </Text>
                   </View>
                 </View>
-              </View>
+              </Pressable>
             )}
 
             <Pressable

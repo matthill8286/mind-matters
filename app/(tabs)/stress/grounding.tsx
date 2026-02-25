@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useActivityStore } from '@/store/useActivityStore';
+import { useStressHistoryStore } from '@/store/useStressHistoryStore';
 import { Alert, Platform, View, Text, Pressable, ScrollView, TextInput } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
 import { useRouter } from 'expo-router';
@@ -18,7 +18,9 @@ export default function Grounding() {
   const [taste, setTaste] = useState<string>('');
 
   async function done() {
-    await useActivityStore.getState().addStressCompletion('grounding-54321', 'Grounding 5–4–3–2–1');
+    await useStressHistoryStore
+      .getState()
+      .addStressCompletion('grounding-54321', 'Grounding 5–4–3–2–1');
     Alert.alert('Nice work', 'You brought your attention back to the present.');
     router.back();
   }

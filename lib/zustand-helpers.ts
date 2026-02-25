@@ -1,4 +1,4 @@
-import { StateCreator, StoreApi, createStore } from 'zustand/vanilla';
+import { StateCreator, createStore } from 'zustand/vanilla';
 import { create } from 'zustand';
 
 // Lightweight helpers to standardize Zustand usage across the app
@@ -6,7 +6,7 @@ import { create } from 'zustand';
 // - Selector hooks: prefer component-level selectors to avoid re-renders
 // - Vanilla store option for non-React modules (e.g., background services)
 
-export type SliceCreator<T, S extends object = {}> = StateCreator<T & S, [], [], T>;
+export type SliceCreator<T, S extends object = object> = StateCreator<T & S, [], [], T>;
 
 // Compose multiple slices into a single store shape
 export function composeSlices<Slices extends Record<string, any>>(

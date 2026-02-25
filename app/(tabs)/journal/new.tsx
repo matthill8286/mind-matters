@@ -5,7 +5,7 @@ import ScreenHeader from '@/components/ScreenHeader';
 import Chips from '@/components/Chips';
 import { JOURNAL_PROMPTS } from '@/data/journalPrompts';
 import { JournalEntry } from '@/lib/types';
-import { useActivityStore } from '@/store/useActivityStore';
+import { useJournalStore } from '@/store/useJournalStore';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
@@ -41,7 +41,7 @@ export default function NewJournalEntry() {
       tags,
     };
     await withLoading('save-journal', async () => {
-      await useActivityStore.getState().createJournalEntry(entryInput as any);
+      await useJournalStore.getState().createJournalEntry(entryInput as any);
       router.replace('/(tabs)/journal/history');
     });
   }

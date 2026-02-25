@@ -2,24 +2,43 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, ScrollView, Platform } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
 import Calendar from '@/components/Calendar';
-import { useActivityStore } from '@/store/useActivityStore';
+import { useMoodStore } from '@/store/useMoodStore';
 import { MoodCheckIn } from '@/lib/types';
-import { showAlert } from '@/lib/state';
+import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 import { SkeletonRect } from '@/components/Skeleton';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+
+function getMoodIcon(mood: MoodCheckIn['mood']) {
+  switch (mood) {
+    case 'Great':
+      return 'sentiment-very-satisfied';
+    case 'Good':
+      return 'sentiment-satisfied';
+    case 'Okay':
+      return 'sentiment-neutral';
+    case 'Low':
+      return 'sentiment-dissatisfied';
+    case 'Bad':
+      return 'sentiment-very-dissatisfied';
+    default:
+      return 'sentiment-neutral';
+  }
+}
 
 export default function MoodHistory() {
+  const router = useRouter();
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
 
-  const { moodCheckIns: items, fetchMoodCheckIns, deleteMoodCheckIn } = useActivityStore();
+  const { moodCheckIns: items, fetchMoodCheckIns } = useMoodStore();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchMoodCheckIns().finally(() => setLoading(false));
-  }, []);
+  }, [fetchMoodCheckIns]);
 
   const markedDates = useMemo(() => {
     return Array.from(new Set(items.map((i) => i.createdAt.split('T')[0])));
@@ -29,19 +48,6 @@ export default function MoodHistory() {
     const iso = selectedDate.toISOString().split('T')[0];
     return items.filter((i) => i.createdAt.split('T')[0] === iso);
   }, [items, selectedDate]);
-
-  async function remove(id: string) {
-    showAlert('Delete check-in?', 'This can’t be undone.', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
-          await deleteMoodCheckIn(id);
-        },
-      },
-    ]);
-  }
 
   return (
     <View
@@ -85,7 +91,9 @@ export default function MoodHistory() {
                     : `Check-ins for ${selectedDate.toLocaleDateString()}`}
                 </Text>
                 <Text style={{ color: colors.mutedText, marginTop: 6 }}>
-                  {filteredItems.length === 0 ? 'No entries for this day.' : 'Tap one to delete.'}
+                  {filteredItems.length === 0
+                    ? 'No entries for this day.'
+                    : 'Tap an entry for details.'}
                 </Text>
 
                 {filteredItems.length > 0 && (
@@ -93,7 +101,7 @@ export default function MoodHistory() {
                     {filteredItems.map((item) => (
                       <Pressable
                         key={item.id}
-                        onPress={() => remove(item.id)}
+                        onPress={() => router.push(`/(tabs)/mood/${item.id}`)}
                         style={{
                           padding: 12,
                           borderRadius: UI.radius.md,
@@ -102,11 +110,28 @@ export default function MoodHistory() {
                         }}
                       >
                         <View
-                          style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 10 }}
+                          style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            gap: 10,
+                            alignItems: 'center',
+                          }}
                         >
-                          <Text style={{ fontWeight: '900', color: colors.text }}>{item.mood}</Text>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                            <MaterialIcons
+                              name={getMoodIcon(item.mood)}
+                              size={20}
+                              color={colors.primary}
+                            />
+                            <Text style={{ fontWeight: '900', color: colors.text }}>
+                              {item.mood}
+                            </Text>
+                          </View>
                           <Text style={{ color: colors.mutedText }}>
-                            {new Date(item.createdAt).toLocaleTimeString()}
+                            {new Date(item.createdAt).toLocaleTimeString([], {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
                           </Text>
                         </View>
                         <Text style={{ color: colors.mutedText, marginTop: 6 }}>
@@ -115,16 +140,6 @@ export default function MoodHistory() {
                         {item.note ? (
                           <Text style={{ color: colors.mutedText, marginTop: 6 }} numberOfLines={2}>
                             {item.note}
-                          </Text>
-                        ) : null}
-                        {(item.tags ?? []).length ? (
-                          <Text
-                            style={{ color: colors.subtleText, marginTop: 6, fontWeight: '800' }}
-                          >
-                            {(item.tags ?? [])
-                              .slice(0, 6)
-                              .map((t) => `#${t}`)
-                              .join(' ')}
                           </Text>
                         ) : null}
                       </Pressable>

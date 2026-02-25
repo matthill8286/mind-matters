@@ -5,7 +5,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Colors, UI } from '@/constants/theme';
-import { useActivityStore } from '@/store/useActivityStore';
+import { useSleepStore } from '@/store/useSleepStore';
 import { showAlert, withLoading } from '@/lib/state';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
@@ -15,13 +15,13 @@ export default function LogSleepScreen() {
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
   const { hasFullAccess } = useSubscription();
-  const { addSleepEntry } = useActivityStore();
+  const { addSleepEntry } = useSleepStore();
 
   const [quality, setQuality] = useState(3);
   const [duration, setDuration] = useState((params.duration as string) || '8');
   const [note, setNote] = useState('');
 
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
 
   const handleSave = async () => {
     if (!hasFullAccess) {

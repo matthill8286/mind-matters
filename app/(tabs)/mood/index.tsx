@@ -3,14 +3,13 @@ import { View, Text, Pressable, TextInput, ScrollView, Platform } from 'react-na
 import ScreenHeader from '@/components/ScreenHeader';
 import Chips from '@/components/Chips';
 import MoodChart from '@/components/MoodChart';
-import { useActivityStore } from '@/store/useActivityStore';
+import { useMoodStore } from '@/store/useMoodStore';
 import { MoodCheckIn } from '@/lib/types';
 import { showAlert, withLoading } from '@/lib/state';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 import { router } from 'expo-router';
 import { useSubscription } from '@/hooks/useSubscription';
-import { IconSymbol } from '@/components/icon-symbol';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { SkeletonRect } from '@/components/Skeleton';
 
@@ -26,6 +25,23 @@ function moodToScore(m: string) {
   return 1;
 }
 
+function getMoodIcon(mood: MoodCheckIn['mood']) {
+  switch (mood) {
+    case 'Great':
+      return 'sentiment-very-satisfied';
+    case 'Good':
+      return 'sentiment-satisfied';
+    case 'Okay':
+      return 'sentiment-neutral';
+    case 'Low':
+      return 'sentiment-dissatisfied';
+    case 'Bad':
+      return 'sentiment-very-dissatisfied';
+    default:
+      return 'sentiment-neutral';
+  }
+}
+
 export default function Mood() {
   const theme = useColorScheme() ?? 'light';
   const { hasFullAccess } = useSubscription();
@@ -36,11 +52,11 @@ export default function Mood() {
     fetchMoodCheckIns,
     addMoodCheckIn,
     isLoading: loading,
-  } = useActivityStore();
+  } = useMoodStore();
 
   useEffect(() => {
     fetchMoodCheckIns();
-  }, []);
+  }, [fetchMoodCheckIns]);
 
   const [mood, setMood] = useState<MoodCheckIn['mood']>('Okay');
   const [energy, setEnergy] = useState<MoodCheckIn['energy']>(3);
@@ -154,6 +170,63 @@ export default function Mood() {
         ) : (
           <View style={{ marginTop: 12, gap: 12 }}>
             <MoodChart items={items as any} />
+
+            {items.length > 0 && (
+              <Pressable
+                onPress={() => router.push(`/(tabs)/mood/${items[0].id}`)}
+                style={{
+                  backgroundColor: colors.card,
+                  borderRadius: UI.radius.lg,
+                  padding: 16,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.05,
+                  shadowRadius: 5,
+                  elevation: 2,
+                }}
+              >
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: 10,
+                  }}
+                >
+                  <Text style={{ fontWeight: '900', color: colors.text, fontSize: 16 }}>
+                    Last Check-In
+                  </Text>
+                  <MaterialIcons name="chevron-right" size={20} color={colors.mutedText} />
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                  <MaterialIcons
+                    name={getMoodIcon(items[0].mood)}
+                    size={32}
+                    color={colors.primary}
+                  />
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontWeight: '800', color: colors.text, fontSize: 18 }}>
+                      {items[0].mood}
+                    </Text>
+                    <Text style={{ color: colors.mutedText, fontSize: 14 }}>
+                      {new Date(items[0].createdAt).toLocaleString(undefined, {
+                        weekday: 'short',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </Text>
+                  </View>
+                  <View style={{ alignItems: 'flex-end' }}>
+                    <Text style={{ color: colors.mutedText, fontSize: 12, fontWeight: '600' }}>
+                      ENERGY
+                    </Text>
+                    <Text style={{ fontWeight: '800', color: colors.text }}>
+                      {items[0].energy}/5
+                    </Text>
+                  </View>
+                </View>
+              </Pressable>
+            )}
 
             {insights ? (
               <View

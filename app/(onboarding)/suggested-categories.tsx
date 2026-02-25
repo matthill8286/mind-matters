@@ -5,13 +5,11 @@ import { ISSUES, IssueKey } from '@/data/issues';
 import { suggestWithReasons } from '@/lib/suggestCategories';
 import { MostCommonChips } from '@/components/MostCommonChips';
 import { SkeletonRect } from '@/components/Skeleton';
-import { UI } from '@/constants/theme';
 import { useProfileStore } from '@/store/useProfileStore';
 import { withLoading } from '@/lib/state';
 
 export default function SuggestedCategories() {
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const { assessment, fetchAssessment, updateProfile } = useProfileStore();
   const [suggested, setSuggested] = useState<{ key: IssueKey; score: number; reasons: string[] }[]>(
     [],
@@ -23,19 +21,18 @@ export default function SuggestedCategories() {
       setLoading(true);
       await fetchAssessment();
     })();
-  }, []);
+  }, [fetchAssessment]);
 
   useEffect(() => {
     if (assessment) {
-      const s = suggestWithReasons(assessment);
-      setSuggested(s);
-      setSelected(new Set(s.slice(0, 3).map((x) => x.key)));
-      setLoading(false);
-    } else if (!loading) {
-      // if finished fetching and no assessment, stop loading
-      setLoading(false);
+      (async () =>
+        await withLoading('suggested', async () => {
+          const s = suggestWithReasons(assessment);
+          setSuggested(s);
+          setSelected(new Set(s.slice(0, 3).map((x) => x.key)));
+        }))();
     }
-  }, [assessment]);
+  }, [assessment, loading]);
 
   const selectedArray = useMemo(() => Array.from(selected), [selected]);
 
@@ -193,7 +190,7 @@ export default function SuggestedCategories() {
         <View style={{ marginTop: 30 }}>
           <Pressable
             onPress={onContinue}
-            disabled={saving}
+            disabled={loading || selected.size === 0}
             style={{
               paddingVertical: 20,
               borderRadius: 35,
@@ -202,7 +199,7 @@ export default function SuggestedCategories() {
               flexDirection: 'row',
               justifyContent: 'center',
               gap: 10,
-              opacity: saving ? 0.7 : 1,
+              opacity: 1,
               shadowColor: '#000',
               shadowOffset: { width: 0, height: 4 },
               shadowOpacity: 0.1,
@@ -210,7 +207,9 @@ export default function SuggestedCategories() {
               elevation: 4,
             }}
           >
-            <Text style={{ color: 'white', fontWeight: '800', fontSize: 18 }}>Continue</Text>
+            <Text style={{ color: 'white', fontWeight: '800', fontSize: 18 }} disabled={loading}>
+              Continue
+            </Text>
             <Text style={{ color: 'white', fontSize: 20 }}>→</Text>
           </Pressable>
         </View>

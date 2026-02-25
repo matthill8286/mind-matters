@@ -12,14 +12,22 @@ import { authTokenVar } from '@/lib/state';
 import { SkeletonRect } from '@/components/Skeleton';
 import { readSession, SESSION_KEY } from '@/lib/storage';
 
-import { useActivityStore } from '@/store/useActivityStore';
+import { useMoodStore } from '@/store/useMoodStore';
+import { useJournalStore } from '@/store/useJournalStore';
+import { useSleepStore } from '@/store/useSleepStore';
+import { useMindfulnessStore } from '@/store/useMindfulnessStore';
+import { useStressHistoryStore } from '@/store/useStressHistoryStore';
 import { useStressStore } from '@/store/useStressStore';
 import { useChatStore } from '@/store/useChatStore';
 
 async function signOut() {
   await AsyncStorage.removeItem(SESSION_KEY);
   useProfileStore.getState().clearProfile();
-  useActivityStore.getState().clearActivity();
+  useMoodStore.getState().clearMood();
+  useJournalStore.getState().clearJournal();
+  useSleepStore.getState().clearSleep();
+  useMindfulnessStore.getState().clearMindfulness();
+  useStressHistoryStore.getState().clearStressHistory();
   useStressStore.getState().clearStress();
   useChatStore.getState().clearAllChat();
   authTokenVar(null);
@@ -42,7 +50,7 @@ export default function Profile() {
       await fetchProfile();
       setLoading(false);
     })();
-  }, []);
+  }, [fetchProfile]);
 
   const cardStyle = {
     backgroundColor: colors.card,

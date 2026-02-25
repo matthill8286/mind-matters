@@ -3,7 +3,7 @@ import { View, Text, Pressable, Animated, Easing, Platform } from 'react-native'
 import ScreenHeader from '@/components/ScreenHeader';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
-import { useActivityStore } from '@/store/useActivityStore';
+import { useStressHistoryStore } from '@/store/useStressHistoryStore';
 
 export default function Breathing() {
   const theme = useColorScheme() ?? 'light';
@@ -60,7 +60,9 @@ export default function Breathing() {
         setCycles((c) => {
           const newCycles = c + 1;
           if (newCycles === 4) {
-            useActivityStore.getState().addStressCompletion('breathing-478', 'Breathing Coach');
+            useStressHistoryStore
+              .getState()
+              .addStressCompletion('breathing-478', 'Breathing Coach');
           }
           return newCycles;
         });

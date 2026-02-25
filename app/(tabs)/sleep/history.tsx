@@ -4,7 +4,7 @@ import ScreenHeader from '@/components/ScreenHeader';
 import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
-import { useActivityStore } from '@/store/useActivityStore';
+import { useSleepStore } from '@/store/useSleepStore';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function SleepHistoryScreen() {
@@ -12,11 +12,11 @@ export default function SleepHistoryScreen() {
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
 
-  const { sleepEntries: entries, fetchSleepEntries, isLoading: loading } = useActivityStore();
+  const { sleepEntries: entries, fetchSleepEntries, isLoading: loading } = useSleepStore();
 
   React.useEffect(() => {
     fetchSleepEntries();
-  }, []);
+  }, [fetchSleepEntries]);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -42,7 +42,11 @@ export default function SleepHistoryScreen() {
           </View>
         ) : (
           entries.map((entry: any) => (
-            <View key={entry.id} style={[styles.entryCard, { backgroundColor: colors.card }]}>
+            <Pressable
+              key={entry.id}
+              onPress={() => router.push(`/(tabs)/sleep/${entry.id}`)}
+              style={[styles.entryCard, { backgroundColor: colors.card }]}
+            >
               <View style={styles.entryHeader}>
                 <Text style={[styles.entryDate, { color: colors.text }]}>
                   {new Date(entry.startISO).toLocaleString()}
@@ -67,9 +71,11 @@ export default function SleepHistoryScreen() {
                 hours of sleep
               </Text>
               {entry.notes && (
-                <Text style={[styles.entryNote, { color: colors.text }]}>{entry.notes}</Text>
+                <Text style={[styles.entryNote, { color: colors.text }]} numberOfLines={2}>
+                  {entry.notes}
+                </Text>
               )}
-            </View>
+            </Pressable>
           ))
         )}
       </ScrollView>

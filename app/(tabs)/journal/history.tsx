@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, Pressable, ScrollView, Platform } from 'react-native';
 import Calendar from '@/components/Calendar';
-import { useActivityStore } from '@/store/useActivityStore';
+import { useJournalStore } from '@/store/useJournalStore';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 import { router } from 'expo-router';
@@ -12,7 +12,7 @@ import { SkeletonRect } from '@/components/Skeleton';
 export default function JournalHistory() {
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
-  const { journalEntries: entries, fetchJournalEntries, isLoading: loading } = useActivityStore();
+  const { journalEntries: entries, fetchJournalEntries, isLoading: loading } = useJournalStore();
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   const markedDates = useMemo(() => {

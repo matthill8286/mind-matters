@@ -7,7 +7,11 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Colors, UI } from '@/constants/theme';
 import { AFFIRMATIONS } from '@/constants/affirmations';
-import { useActivityStore } from '@/store/useActivityStore';
+import { useMoodStore } from '@/store/useMoodStore';
+import { useJournalStore } from '@/store/useJournalStore';
+import { useSleepStore } from '@/store/useSleepStore';
+import { useMindfulnessStore } from '@/store/useMindfulnessStore';
+import { useStressHistoryStore } from '@/store/useStressHistoryStore';
 import { useProfileStore } from '@/store/useProfileStore';
 
 import ScoreCard from '@/components/ScoreCard';
@@ -21,18 +25,11 @@ export default function Home() {
 
   const [loading, setLoading] = useState(true);
   const { assessment, fetchAssessment } = useProfileStore();
-  const {
-    moodCheckIns,
-    fetchMoodCheckIns,
-    journalEntries,
-    fetchJournalEntries,
-    stressHistory,
-    fetchStressHistory,
-    mindfulnessHistory,
-    fetchMindfulnessHistory,
-    sleepEntries,
-    fetchSleepEntries,
-  } = useActivityStore();
+  const { moodCheckIns, fetchMoodCheckIns } = useMoodStore();
+  const { journalEntries, fetchJournalEntries } = useJournalStore();
+  const { sleepEntries, fetchSleepEntries } = useSleepStore();
+  const { mindfulnessHistory, fetchMindfulnessHistory } = useMindfulnessStore();
+  const { stressHistory, fetchStressHistory } = useStressHistoryStore();
 
   useEffect(() => {
     (async () => {

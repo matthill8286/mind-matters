@@ -7,7 +7,7 @@ import { Colors, UI } from '@/constants/theme';
 import { STRESS_VIDEOS } from '@/data/stressVideos';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import ScreenHeader from '@/components/ScreenHeader';
-import { useActivityStore } from '@/store/useActivityStore';
+import { useStressHistoryStore } from '@/store/useStressHistoryStore';
 
 const QUOTES = [
   'Take a deep breath and let go of what you cannot control.',
@@ -29,7 +29,7 @@ export default function WatchVideoScreen() {
 
   useEffect(() => {
     if (video) {
-      useActivityStore.getState().addStressCompletion(video.id, video.title);
+      useStressHistoryStore.getState().addStressCompletion(video.id, video.title);
     }
   }, [video]);
 
