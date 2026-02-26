@@ -1,9 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, Pressable, Switch, FlatList, Platform } from 'react-native';
 import { router } from 'expo-router';
 import ScreenHeader from '@/components/ScreenHeader';
 import { Colors, UI } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import * as Notifications from 'expo-notifications';
+import { scheduleNotification } from '@/lib/notifications';
 
 type NotifSetting = {
   key: string;
@@ -12,7 +14,7 @@ type NotifSetting = {
   enabled: boolean;
 };
 
-export default function Notifications() {
+export default function NotificationsComp() {
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
   const [items, setItems] = useState<NotifSetting[]>([
@@ -44,6 +46,33 @@ export default function Notifications() {
 
   const enabledCount = useMemo(() => items.filter((i) => i.enabled).length, [items]);
 
+  const [hasPermission, setHasPermission] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await Notifications.getPermissionsAsync();
+      setHasPermission(status === 'granted');
+    })();
+  }, []);
+
+  const toggleNotification = async (key: string, value: boolean) => {
+    if (value && !hasPermission) {
+      const { status } = await Notifications.requestPermissionsAsync();
+      setHasPermission(status === 'granted');
+      if (status !== 'granted') return;
+    }
+
+    setItems((prev) => prev.map((x) => (x.key === key ? { ...x, enabled: value } : x)));
+  };
+
+  const testNotification = async () => {
+    await scheduleNotification(
+      'Mind Matters',
+      'This is a test notification to verify your settings!',
+      { type: 'test' },
+    );
+  };
+
   return (
     <View
       style={{
@@ -53,10 +82,7 @@ export default function Notifications() {
         paddingTop: Platform.OS === 'ios' ? 18 : 8,
       }}
     >
-      <ScreenHeader
-        title="Smart Notifications"
-        subtitle="Toggle what you want. (Wiring to Expo Notifications comes next.)"
-      />
+      <ScreenHeader title="Smart Notifications" subtitle="Toggle what you want to stay mindful." />
 
       <View
         style={{
@@ -94,11 +120,8 @@ export default function Notifications() {
               </View>
               <Switch
                 value={item.enabled}
-                onValueChange={(v) =>
-                  setItems((prev) =>
-                    prev.map((x) => (x.key === item.key ? { ...x, enabled: v } : x)),
-                  )
-                }
+                onValueChange={(v) => toggleNotification(item.key, v)}
+                trackColor={{ false: colors.border, true: colors.primary }}
               />
             </View>
           </View>
@@ -106,9 +129,22 @@ export default function Notifications() {
       />
 
       <Pressable
-        onPress={() => router.push('/(utils)/utilities')}
+        onPress={testNotification}
         style={{
           marginTop: 6,
+          padding: 14,
+          borderRadius: 18,
+          backgroundColor: colors.primary,
+          alignItems: 'center',
+        }}
+      >
+        <Text style={{ fontWeight: '900', color: colors.onPrimary }}>Send test notification</Text>
+      </Pressable>
+
+      <Pressable
+        onPress={() => router.push('/(utils)/utilities')}
+        style={{
+          marginTop: 10,
           padding: 14,
           borderRadius: 18,
           backgroundColor: colors.divider,

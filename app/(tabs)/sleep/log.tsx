@@ -39,6 +39,7 @@ export default function LogSleepScreen() {
         startISO: start.toISOString(),
         endISO: end.toISOString(),
         quality: quality as any,
+        duration: hours,
         notes: note || undefined,
       } as any);
       showAlert('Saved', 'Your sleep entry was saved.');

@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable, TextInput } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
 import { apiFetch } from '@/lib/api';
 import { authTokenVar } from '@/lib/state';
 import { writeSession } from '@/lib/storage';
 
 export default function SignUp() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
   const [loading, setLoading] = useState(false);
@@ -13,7 +15,7 @@ export default function SignUp() {
 
   async function onCreate() {
     if (!email || !pass) {
-      setError('Email and password are required');
+      setError(t('auth.emailPasswordRequired'));
       return;
     }
     setLoading(true);
@@ -38,21 +40,21 @@ export default function SignUp() {
   return (
     <View style={{ flex: 1, backgroundColor: '#6f6660', padding: 24, justifyContent: 'center' }}>
       <View style={{ backgroundColor: 'white', borderRadius: 28, padding: 26 }}>
-        <Text style={{ fontSize: 26, fontWeight: '900' }}>Sign up</Text>
+        <Text style={{ fontSize: 26, fontWeight: '900' }}>{t('auth.signUp')}</Text>
         {error && <Text style={{ color: 'red', marginTop: 12, fontWeight: '600' }}>{error}</Text>}
-        <Text style={{ marginTop: 18, fontWeight: '900' }}>Email</Text>
+        <Text style={{ marginTop: 18, fontWeight: '900' }}>{t('auth.email')}</Text>
         <TextInput
           value={email}
           onChangeText={setEmail}
-          placeholder="you@email.com"
+          placeholder={t('auth.emailPlaceholder')}
           style={input}
           autoCapitalize="none"
         />
-        <Text style={{ marginTop: 14, fontWeight: '900' }}>Password</Text>
+        <Text style={{ marginTop: 14, fontWeight: '900' }}>{t('auth.password')}</Text>
         <TextInput
           value={pass}
           onChangeText={setPass}
-          placeholder="Create a password"
+          placeholder={t('auth.createPasswordPlaceholder')}
           style={input}
           secureTextEntry
         />
@@ -61,11 +63,13 @@ export default function SignUp() {
           style={[primaryBtn, loading && { opacity: 0.7 }]}
           disabled={loading}
         >
-          <Text style={primaryBtnText}>{loading ? 'Creating...' : 'Create account'}</Text>
+          <Text style={primaryBtnText}>
+            {loading ? t('auth.creatingAccount') : t('auth.createAccountBtn')}
+          </Text>
         </Pressable>
         <Pressable onPress={() => router.navigate('/(auth)/sign-in')} style={{ marginTop: 12 }}>
           <Text style={{ textAlign: 'center', fontWeight: '800', opacity: 0.75 }}>
-            Back to sign in
+            {t('auth.backToSignIn')}
           </Text>
         </Pressable>
       </View>

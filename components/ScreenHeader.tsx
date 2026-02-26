@@ -9,7 +9,7 @@ export default function ScreenHeader({
   title,
   subtitle,
   rightElement,
-  showBack = false,
+  showBack,
 }: Readonly<{
   title: string;
   subtitle?: string;
@@ -18,12 +18,14 @@ export default function ScreenHeader({
 }>) {
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
+  const canGoBack = router.canGoBack();
+  const shouldShowBack = showBack ?? canGoBack;
 
   return (
     <View style={{ marginTop: Platform.OS === 'ios' ? 26 : 16 }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
-          {showBack && (
+          {shouldShowBack && (
             <Pressable
               onPress={() => router.back()}
               style={({ pressed }) => ({
@@ -50,19 +52,7 @@ export default function ScreenHeader({
             {title}
           </Text>
         </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          {rightElement}
-          {!rightElement && !showBack && (
-            <View style={{ flexDirection: 'row', gap: 12 }}>
-              <Pressable
-                onPress={() => router.push('/(tabs)/profile')}
-                style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-              >
-                <MaterialIcons name="account-circle" size={26} color={colors.text} />
-              </Pressable>
-            </View>
-          )}
-        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>{rightElement}</View>
       </View>
       {subtitle ? <Text style={{ color: colors.mutedText, marginTop: 8 }}>{subtitle}</Text> : null}
     </View>

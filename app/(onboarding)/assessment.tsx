@@ -10,16 +10,16 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
-import { showAlert } from '@/lib/state';
+import { showAlert, withLoading } from '@/lib/state';
 
 import { MostCommonChips, type Chip as MCChip } from '@/components/MostCommonChips';
 import SoundPulse from '@/components/SoundPulse';
 import { useRecorder, usePlayer, computeVoiceMetrics } from '@/lib/recorder';
-import { MoodCheckIn } from '@/lib/mood';
+import { MoodCheckIn } from '@/lib/types';
 import { useProfileStore } from '@/store/useProfileStore';
 import { NumberSelection } from '@/components/NumberSelection';
-import { withLoading } from '@/lib/state';
 
 const TICK_SPACING = 20;
 
@@ -114,7 +114,7 @@ function HorizontalRuler({
       const index = Math.max(0, (value - min) / step);
       flatListRef.current.scrollToOffset({ offset: index * TICK_SPACING, animated: false });
     }
-  }, [width, min, max, step]);
+  }, [width, min, max, step, value]);
 
   return (
     <View
@@ -264,31 +264,6 @@ type Assessment = {
   createdAt: string;
 };
 
-const YESNO = [
-  { label: 'Yes', value: 'Yes' },
-  { label: 'No', value: 'No' },
-  { label: 'Not sure', value: 'Not sure' },
-];
-
-const GENDER = [
-  { label: 'Woman', value: 'Woman' },
-  { label: 'Man', value: 'Man' },
-  { label: 'Non-binary', value: 'Non-binary' },
-  { label: 'Prefer not to say', value: 'Prefer not to say' },
-];
-
-const AGE = Array.from({ length: 88 }).map((_, i) => {
-  const n = 13 + i;
-  return { label: String(n), value: String(n) };
-});
-
-const WEIGHT = Array.from({ length: 23 }).map((_, i) => {
-  const kg = 40 + i * 5;
-  return { label: `${kg} kg`, value: `${kg}` };
-});
-
-const SOUND_PHRASES = ['I am here, taking a moment for myself.'];
-
 const EXPRESSION_PHRASE = 'I am here, taking a moment for myself.';
 
 type StepKey =
@@ -388,6 +363,7 @@ function RadioOption({
 }
 
 function PlaybackButton({ uri }: { uri: string }) {
+  const { t } = useTranslation();
   const { play, pause, isPlaying } = usePlayer(uri);
   return (
     <Pressable
@@ -404,14 +380,31 @@ function PlaybackButton({ uri }: { uri: string }) {
       }}
     >
       <Text style={{ color: 'white', fontWeight: 'bold' }}>
-        {isPlaying ? 'PAUSE' : 'PLAY RECORDING'}
+        {isPlaying ? t('common.pause') : t('common.playRecording')}
       </Text>
     </Pressable>
   );
 }
 
 export default function AssessmentScreen() {
+  const { t } = useTranslation();
   const [step, setStep] = useState(0);
+
+  const YESNO = [
+    { label: t('common.yes'), value: 'Yes' },
+    { label: t('common.no'), value: 'No' },
+    { label: t('common.notSure'), value: 'Not sure' },
+  ];
+
+  const GENDER = [
+    { label: t('common.woman'), value: 'Woman' },
+    { label: t('common.man'), value: 'Man' },
+    { label: t('common.nonBinary'), value: 'Non-binary' },
+    { label: t('common.preferNotToSay'), value: 'Prefer not to say' },
+  ];
+
+  const SOUND_PHRASES = useMemo(() => ['I am here, taking a moment for myself.'], []);
+
   const [a, setA] = useState<Assessment>({
     createdAt: new Date().toISOString(),
     weight: 70,
@@ -468,7 +461,7 @@ export default function AssessmentScreen() {
       setHighlightedWordIndex(-1);
     }
     return () => clearInterval(interval);
-  }, [isRecording, recordingFor]);
+  }, [SOUND_PHRASES, isRecording, recordingFor]);
 
   const key = STEPS[step];
 
@@ -483,7 +476,7 @@ export default function AssessmentScreen() {
 
   async function next() {
     if (!canContinue) {
-      showAlert('Just one more thing', 'Please fill in this step to continue.');
+      showAlert(t('common.justOneMoreThing'), t('common.fillStepToContinue'));
       return;
     }
     if (step === STEPS.length - 1) {
@@ -510,7 +503,7 @@ export default function AssessmentScreen() {
       // Actually expo-audio should be updating the state.
     } catch (e) {
       setRecordingFor(null);
-      showAlert('Microphone needed', 'Please allow microphone access to record.');
+      showAlert(t('common.micNeeded'), t('common.allowMicAccess'));
       console.error('Recording start error:', e);
     }
   }
@@ -546,7 +539,7 @@ export default function AssessmentScreen() {
       setDraftTranscript(''); // Clear transcript after saving
     } catch (e) {
       setRecordingFor(null);
-      showAlert('Recording error', 'Could not save the recording. Please try again.');
+      showAlert(t('common.recordingError'), t('common.couldNotSaveRecording'));
       console.error('Recording stop error:', e);
     }
   }
@@ -554,17 +547,18 @@ export default function AssessmentScreen() {
   function renderStep() {
     switch (key) {
       case 'goal':
+        const goalOpts = [
+          t('assessment.goalOptions.reduceStress'),
+          t('assessment.goalOptions.tryAISupport'),
+          t('assessment.goalOptions.workThroughExperiences'),
+          t('assessment.goalOptions.growAndUnderstand'),
+          t('assessment.goalOptions.justChecking'),
+        ];
         return (
           <>
-            <Text style={styles.h2}>What would you like support with today?</Text>
+            <Text style={styles.h2}>{t('assessment.goalTitle')}</Text>
             <View style={{ marginTop: 24 }}>
-              {[
-                'Reduce daily stress',
-                'Try guided AI support',
-                'Work through difficult experiences',
-                'Grow and understand myself better',
-                'Just checking things out',
-              ].map((opt) => (
+              {goalOpts.map((opt) => (
                 <RadioOption
                   key={opt}
                   label={opt}
@@ -574,19 +568,9 @@ export default function AssessmentScreen() {
               ))}
             </View>
             <TextInput
-              value={
-                [
-                  'Reduce daily stress',
-                  'Try guided AI support',
-                  'Work through difficult experiences',
-                  'Grow and understand myself better',
-                  'Just checking things out',
-                ].includes(a.goal ?? '')
-                  ? ''
-                  : (a.goal ?? '')
-              }
+              value={goalOpts.includes(a.goal ?? '') ? '' : (a.goal ?? '')}
               onChangeText={(t) => setA((p) => ({ ...p, goal: t }))}
-              placeholder="Or type your goal…"
+              placeholder={t('assessment.goalPlaceholder')}
               style={styles.input}
             />
           </>
@@ -594,7 +578,7 @@ export default function AssessmentScreen() {
       case 'gender':
         return (
           <>
-            <Text style={styles.h2}>What’s your gender?</Text>
+            <Text style={styles.h2}>{t('assessment.genderTitle')}</Text>
             <View style={{ marginTop: 24 }}>
               {GENDER.map((opt) => (
                 <RadioOption
@@ -610,7 +594,7 @@ export default function AssessmentScreen() {
       case 'age':
         return (
           <>
-            <Text style={styles.h1}>What’s your age?</Text>
+            <Text style={styles.h1}>{t('assessment.ageTitle')}</Text>
             <View style={{ marginTop: 24 }}>
               <AgePicker value={a.age ?? '18'} onChange={(v) => setA((p) => ({ ...p, age: v }))} />
             </View>
@@ -619,7 +603,7 @@ export default function AssessmentScreen() {
       case 'weight':
         return (
           <>
-            <Text style={styles.h1}>What’s your weight?</Text>
+            <Text style={styles.h1}>{t('assessment.weightTitle')}</Text>
             <View style={{ marginTop: 24 }}>
               <UnitToggle
                 value={a.weightUnit ?? 'kg'}
@@ -638,18 +622,20 @@ export default function AssessmentScreen() {
       case 'mood':
         return (
           <>
-            <Text style={styles.h1}>Describe your mood</Text>
-            <Text style={styles.sub}>A sentence or two is enough.</Text>
+            <Text style={styles.h1}>{t('assessment.moodTitle')}</Text>
+            <Text style={styles.sub}>
+              {t('assessment.moodSubtitle', { defaultValue: 'A sentence or two is enough.' })}
+            </Text>
             <TextInput
               value={a.mood ?? ''}
               onChangeText={(t) => setA((p) => ({ ...p, mood: t }))}
-              placeholder="e.g., anxious, tired, overwhelmed…"
+              placeholder={t('assessment.moodPlaceholder')}
               multiline
               style={[styles.input, { height: 110 }]}
             />
             <View style={{ marginTop: 12 }}>
               <MostCommonChips
-                title="Your words:"
+                title={t('assessment.yourWords', { defaultValue: 'Your words:' })}
                 chips={typedMoodChips}
                 onRemove={(chipId) => {
                   const text = a.mood ?? '';
@@ -684,7 +670,7 @@ export default function AssessmentScreen() {
       case 'help':
         return (
           <>
-            <Text style={styles.h2}>Have you sought help before?</Text>
+            <Text style={styles.h2}>{t('assessment.helpTitle')}</Text>
             <View style={{ marginTop: 24 }}>
               {YESNO.map((opt) => (
                 <RadioOption
@@ -700,7 +686,7 @@ export default function AssessmentScreen() {
       case 'physical':
         return (
           <>
-            <Text style={styles.h2}>Experiencing physical distress?</Text>
+            <Text style={styles.h2}>{t('assessment.physicalTitle')}</Text>
             <View style={{ marginTop: 24 }}>
               {YESNO.map((opt) => (
                 <RadioOption
@@ -714,7 +700,7 @@ export default function AssessmentScreen() {
             <TextInput
               value={a.physicalDistressNotes ?? ''}
               onChangeText={(t) => setA((p) => ({ ...p, physicalDistressNotes: t }))}
-              placeholder="Optional notes (headache, chest tightness, nausea, etc.)"
+              placeholder={t('assessment.physicalPlaceholder')}
               style={styles.input}
             />
           </>
@@ -722,8 +708,10 @@ export default function AssessmentScreen() {
       case 'sleep':
         return (
           <>
-            <Text style={styles.h1}>Rate your sleep quality</Text>
-            <Text style={styles.sub}>1 = poor, 5 = great</Text>
+            <Text style={styles.h1}>{t('assessment.sleepTitle')}</Text>
+            <Text style={styles.sub}>
+              {t('assessment.sleepSubtitle', { defaultValue: '1 = poor, 5 = great' })}
+            </Text>
             <View style={{ marginTop: 24 }}>
               <NumberSelection
                 total={5}
@@ -736,7 +724,7 @@ export default function AssessmentScreen() {
       case 'meds':
         return (
           <>
-            <Text style={styles.h2}>Are you taking meds?</Text>
+            <Text style={styles.h2}>{t('assessment.medsTitle')}</Text>
             <View style={{ marginTop: 24 }}>
               {YESNO.map((opt) => (
                 <RadioOption
@@ -758,12 +746,16 @@ export default function AssessmentScreen() {
       case 'medsSpecify':
         return (
           <>
-            <Text style={styles.h1}>Specify meds (if any)</Text>
-            <Text style={styles.sub}>If you selected “Yes”, please list them.</Text>
+            <Text style={styles.h1}>{t('assessment.medsSpecifyTitle')}</Text>
+            <Text style={styles.sub}>
+              {t('assessment.medsSpecifySubtitle', {
+                defaultValue: 'If you selected “Yes”, please list them.',
+              })}
+            </Text>
             <TextInput
               value={a.meds ?? ''}
               onChangeText={(t) => setA((p) => ({ ...p, meds: t }))}
-              placeholder="Medication names"
+              placeholder={t('assessment.medsPlaceholder')}
               style={styles.input}
             />
           </>
@@ -771,12 +763,14 @@ export default function AssessmentScreen() {
       case 'symptoms':
         return (
           <>
-            <Text style={styles.h1}>Other mental health symptoms</Text>
-            <Text style={styles.sub}>Anything else you’ve noticed?</Text>
+            <Text style={styles.h1}>{t('assessment.symptomsTitle')}</Text>
+            <Text style={styles.sub}>
+              {t('assessment.symptomsSubtitle', { defaultValue: 'Anything else you’ve noticed?' })}
+            </Text>
             <TextInput
               value={a.otherSymptoms ?? ''}
               onChangeText={(t) => setA((p) => ({ ...p, otherSymptoms: t }))}
-              placeholder="e.g., rumination, panic, low appetite…"
+              placeholder={t('assessment.symptomsPlaceholder')}
               multiline
               style={[styles.input, { height: 110 }]}
             />
@@ -785,8 +779,10 @@ export default function AssessmentScreen() {
       case 'stress':
         return (
           <>
-            <Text style={styles.h1}>Rate your stress level</Text>
-            <Text style={styles.sub}>0 = none, 10 = extreme</Text>
+            <Text style={styles.h1}>{t('assessment.stressTitle')}</Text>
+            <Text style={styles.sub}>
+              {t('assessment.stressSubtitle', { defaultValue: '0 = none, 10 = extreme' })}
+            </Text>
             <View style={{ marginTop: 24 }}>
               <HorizontalRuler
                 min={0}
@@ -801,10 +797,8 @@ export default function AssessmentScreen() {
       case 'sound':
         return (
           <View style={{ alignItems: 'center', marginTop: 20 }}>
-            <Text style={[styles.h2, { marginBottom: 12 }]}>Voice Check-In</Text>
-            <Text style={[styles.sub, { marginBottom: 40 }]}>
-              This helps us better understand how you&#39;re feeling today.
-            </Text>
+            <Text style={[styles.h2, { marginBottom: 12 }]}>{t('assessment.soundTitle')}</Text>
+            <Text style={[styles.sub, { marginBottom: 40 }]}>{t('assessment.soundSubtitle')}</Text>
 
             <Pressable
               onPress={() =>
@@ -824,7 +818,9 @@ export default function AssessmentScreen() {
                     alignItems: 'center',
                   }}
                 >
-                  <Text style={{ color: 'white', fontWeight: 'bold' }}>TAP TO START</Text>
+                  <Text style={{ color: 'white', fontWeight: 'bold' }}>
+                    {t('common.tapToStart', { defaultValue: 'TAP TO START' }).toUpperCase()}
+                  </Text>
                 </View>
               )}
             </Pressable>
@@ -957,7 +953,9 @@ export default function AssessmentScreen() {
           >
             <Text style={{ color: '#96784E', fontSize: 24 }}>←</Text>
           </Pressable>
-          <Text style={{ color: '#96784E', fontSize: 18, fontWeight: '700' }}>Assessment</Text>
+          <Text style={{ color: '#96784E', fontSize: 18, fontWeight: '700' }}>
+            {t('assessment.assessmentTitle')}
+          </Text>
         </View>
         <View
           style={{
@@ -968,7 +966,7 @@ export default function AssessmentScreen() {
           }}
         >
           <Text style={{ color: '#96784E', fontSize: 13, fontWeight: '700' }}>
-            {step + 1} of {STEPS.length}
+            {t('assessment.stepCount', { current: step + 1, total: STEPS.length })}
           </Text>
         </View>
       </View>
@@ -1011,9 +1009,8 @@ export default function AssessmentScreen() {
             }}
           >
             <Text style={{ color: 'white', fontWeight: '800', fontSize: 18 }}>
-              {step === STEPS.length - 1 ? 'Finish' : 'Continue'}
+              {step === STEPS.length - 1 ? t('assessment.complete') : t('assessment.next')}
             </Text>
-            {canContinue && <Text style={{ color: 'white', fontSize: 20 }}>→</Text>}
           </Pressable>
         </View>
       </ScrollView>

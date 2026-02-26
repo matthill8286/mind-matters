@@ -2,6 +2,7 @@ import React, { useMemo, useEffect, useState } from 'react';
 import { View, Text, Pressable, ScrollView, Platform } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { calculateWellnessScore } from '@/lib/wellness';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -15,10 +16,12 @@ import { useStressHistoryStore } from '@/store/useStressHistoryStore';
 import { useProfileStore } from '@/store/useProfileStore';
 
 import ScoreCard from '@/components/ScoreCard';
-import { IconSymbol } from '@/components/icon-symbol';
 import { SkeletonRect } from '@/components/Skeleton';
+import { MiniStat } from '@/components/MiniStat';
+import { HorizontalActionList } from '@/components/HorizontalActionList';
 
 export default function Home() {
+  const { t } = useTranslation();
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
   const { isExpired } = useSubscription();
@@ -81,47 +84,6 @@ export default function Home() {
     return AFFIRMATIONS[index];
   }, []);
 
-  const quickCards = useMemo(
-    () => [
-      {
-        title: 'Stress toolkit',
-        subtitle: 'Breathing, grounding, and your Stress Plan.',
-        onPress: () => router.push('/(tabs)/stress'),
-        icon: 'bolt.fill' as const,
-        color: '#f2a65a',
-      },
-      {
-        title: 'Mood check-in',
-        subtitle: 'Log mood, energy, and stress in 30 seconds.',
-        onPress: () => router.push('/(tabs)/mood'),
-        icon: 'text.bubble' as const,
-        color: '#6bbf8e',
-      },
-      {
-        title: 'Journal',
-        subtitle: 'Write a quick entry or use a prompt.',
-        onPress: () => router.push('/(tabs)/journal'),
-        icon: 'note.text' as const,
-        color: '#9b8df1',
-      },
-      {
-        title: 'Chat',
-        subtitle: 'Talk to the AI about a specific topic.',
-        onPress: () => router.push('/(tabs)/chat'),
-        icon: 'paperplane.fill' as const,
-        color: '#a07b55',
-      },
-      {
-        title: 'Sleep check-in',
-        subtitle: 'Log sleep quality and duration.',
-        onPress: () => router.push('/(tabs)/sleep'),
-        icon: 'moon.stars.fill' as const,
-        color: '#6e8b6f',
-      },
-    ],
-    [],
-  );
-
   return (
     <View
       style={{
@@ -131,7 +93,7 @@ export default function Home() {
         paddingTop: Platform.OS === 'ios' ? 18 : 8,
       }}
     >
-      <ScreenHeader title="Home" subtitle="Your wellbeing snapshot and quick actions." />
+      <ScreenHeader title={t('tabs.home')} subtitle={t('home.welcomeSubtitle')} />
       <ScrollView
         contentContainerStyle={{ paddingBottom: 26, marginTop: 14 }}
         showsVerticalScrollIndicator={false}
@@ -141,10 +103,9 @@ export default function Home() {
             <SkeletonRect height={100} borderRadius={UI.radius.xl} />
             <SkeletonRect height={380} borderRadius={UI.radius.xl} />
             <SkeletonRect height={30} width={120} style={{ marginTop: 16 }} />
-            <View style={{ gap: 12 }}>
-              <SkeletonRect height={80} borderRadius={UI.radius.lg} />
-              <SkeletonRect height={80} borderRadius={UI.radius.lg} />
-              <SkeletonRect height={80} borderRadius={UI.radius.lg} />
+            <View style={{ flexDirection: 'row', gap: 12 }}>
+              <SkeletonRect height={120} borderRadius={UI.radius.xl} style={{ flex: 1 }} />
+              <SkeletonRect height={120} borderRadius={UI.radius.xl} style={{ flex: 1 }} />
             </View>
           </View>
         ) : (
@@ -164,10 +125,10 @@ export default function Home() {
               >
                 <View style={{ flex: 1 }}>
                   <Text style={{ color: 'white', fontWeight: '900', fontSize: 16 }}>
-                    Trial Expired
+                    {t('common.trialExpired')}
                   </Text>
                   <Text style={{ color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>
-                    Upgrade to lifetime access to unlock all features.
+                    {t('common.upgradeToLifetime')}
                   </Text>
                 </View>
                 <Text style={{ color: 'white', fontSize: 24, fontWeight: '900', marginLeft: 10 }}>
@@ -198,7 +159,7 @@ export default function Home() {
                   letterSpacing: 1,
                 }}
               >
-                Daily Affirmation
+                {t('common.dailyAffirmation')}
               </Text>
               <Text
                 style={{
@@ -223,102 +184,49 @@ export default function Home() {
               }}
             >
               <Text style={{ fontWeight: '900', color: colors.mutedText, marginBottom: 4 }}>
-                Wellness Snapshot
+                {t('common.wellnessSnapshot')}
               </Text>
 
               <ScoreCard
                 score={wellness.score}
-                title="MindMate Wellness Score"
-                subtitle="Your current wellbeing baseline."
+                title={t('common.mindMateWellnessScore')}
+                subtitle={t('common.wellbeingBaseline')}
                 bg="#6bbf8e"
               />
               <ScoreCard
                 score={100 - wellness.breakdown.stress}
-                title="Stress Load"
-                subtitle="Let’s keep your stress levels manageable."
+                title={t('common.stressLoad')}
+                subtitle={t('common.keepStressManageable')}
                 bg="#f2a65a"
               />
               <ScoreCard
                 score={100 - wellness.breakdown.sleep}
-                title="Sleep Quality"
-                subtitle="Prioritize rest to boost your energy."
+                title={t('common.sleepQuality')}
+                subtitle={t('common.prioritizeRest')}
                 bg="#9b8df1"
               />
 
               <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
-                <MiniStat label="Mood check-ins" value={String(moodCount)} />
-                <MiniStat label="Journal entries" value={String(journalCount)} />
+                <MiniStat label={t('common.moodCheckIns')} value={String(moodCount)} />
+                <MiniStat label={t('common.journalEntries')} value={String(journalCount)} />
               </View>
             </View>
 
-            <Text style={{ marginTop: 16, fontWeight: '900', fontSize: 16, color: colors.text }}>
-              Quick actions
-            </Text>
-
-            <View style={{ marginTop: 10, gap: 12 }}>
-              {quickCards.map((c) => (
-                <Pressable
-                  key={c.title}
-                  onPress={c.onPress}
-                  style={{
-                    backgroundColor: colors.card,
-                    borderRadius: UI.radius.lg,
-                    padding: 16,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.05,
-                    shadowRadius: 5,
-                    elevation: 2,
-                  }}
-                >
-                  <View
-                    style={{
-                      width: 48,
-                      height: 48,
-                      borderRadius: 14,
-                      backgroundColor: colors.background,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      marginRight: 16,
-                    }}
-                  >
-                    <IconSymbol name={c.icon} size={24} color={c.color} />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 16, fontWeight: '900', color: colors.text }}>
-                      {c.title}
-                    </Text>
-                    <Text style={{ color: colors.mutedText, marginTop: 4, fontSize: 14 }}>
-                      {c.subtitle}
-                    </Text>
-                  </View>
-                  <Text
-                    style={{
-                      fontSize: 20,
-                      color: colors.primary,
-                      fontWeight: '900',
-                      marginLeft: 10,
-                    }}
-                  >
-                    →
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
+            <HorizontalActionList title={t('common.quickActions')} />
 
             <View
               style={{
                 backgroundColor: colors.card,
                 borderRadius: UI.radius.lg,
                 padding: 14,
-                marginTop: 16,
+                marginTop: 24,
               }}
             >
-              <Text style={{ fontWeight: '900', color: colors.text }}>Need a quick reset?</Text>
+              <Text style={{ fontWeight: '900', color: colors.text }}>
+                {t('common.needQuickReset')}
+              </Text>
               <Text style={{ color: colors.mutedText, marginTop: 6 }}>
-                Tap to start guided breathing or grounding exercises right away.
+                {t('common.tapForBreathing')}
               </Text>
               <Pressable
                 onPress={() => router.push('/(tabs)/stress')}
@@ -330,33 +238,14 @@ export default function Home() {
                   alignItems: 'center',
                 }}
               >
-                <Text style={{ fontWeight: '900', color: colors.text }}>Open Stress toolkit</Text>
+                <Text style={{ fontWeight: '900', color: colors.text }}>
+                  {t('common.openStressToolkit')}
+                </Text>
               </Pressable>
             </View>
           </>
         )}
       </ScrollView>
-    </View>
-  );
-}
-
-function MiniStat({ label, value }: Readonly<{ label: string; value: string }>) {
-  const theme = useColorScheme() ?? 'light';
-  const colors = Colors[theme];
-
-  return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: colors.background,
-        borderRadius: UI.radius.md,
-        padding: 12,
-      }}
-    >
-      <Text style={{ color: colors.mutedText, fontWeight: '800' }}>{label}</Text>
-      <Text style={{ fontSize: 18, fontWeight: '900', marginTop: 6, color: colors.text }}>
-        {value}
-      </Text>
     </View>
   );
 }

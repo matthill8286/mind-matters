@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Animated, StyleSheet, ViewStyle, DimensionValue } from 'react-native';
-import { Colors } from '@/constants/theme';
+import { Animated, ViewStyle, DimensionValue } from 'react-native';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 interface SkeletonProps {
@@ -12,8 +11,6 @@ interface SkeletonProps {
 
 export const Skeleton = ({ width, height, borderRadius, style }: SkeletonProps) => {
   const theme = useColorScheme() ?? 'light';
-  const colors = Colors[theme];
-
   const opacity = useRef(new Animated.Value(0.3)).current;
 
   useEffect(() => {

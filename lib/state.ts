@@ -1,3 +1,4 @@
+import { t } from 'i18next';
 import { create } from 'zustand';
 import { createLoadingSlice, LoadingState, SliceCreator } from './zustand-helpers';
 
@@ -14,21 +15,11 @@ export interface AlertState {
   actions: AlertAction[];
 }
 
-interface SleepModeState {
-  sleepModeStartISO: string | null;
-  suggestedWakeISO: string | null;
-}
-
 const defaultAlertState: AlertState = {
   visible: false,
   title: '',
   message: '',
   actions: [],
-};
-
-const defaultSleepModeState: SleepModeState = {
-  sleepModeStartISO: null,
-  suggestedWakeISO: null,
 };
 
 // --- Slices ---
@@ -112,7 +103,12 @@ export const isMutatingVar = (val?: boolean) => {
 export const useIsMutating = () => useGlobalStore((s) => s.isLoading);
 
 export const showAlert = (title: string, message: string, actions?: AlertAction[]) => {
-  alertVar({ visible: true, title, message, actions: actions || [{ text: 'OK' }] });
+  alertVar({
+    visible: true,
+    title,
+    message,
+    actions: actions || [{ text: t('common.ok', { defaultValue: 'OK' }) }],
+  });
 };
 
 export const hideAlert = () => useGlobalStore.getState().hideAlert();

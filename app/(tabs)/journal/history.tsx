@@ -28,6 +28,12 @@ export default function JournalHistory() {
     fetchJournalEntries();
   }, [fetchJournalEntries]);
 
+  const sortedEntries = useMemo(() => {
+    return [...filteredEntries].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+  }, [filteredEntries]);
+
   function formatDate(iso: string) {
     try {
       return new Date(iso).toLocaleString();
@@ -109,9 +115,9 @@ export default function JournalHistory() {
                     : 'Tap an entry to view or edit.'}
                 </Text>
 
-                {filteredEntries.length > 0 && (
+                {sortedEntries.length > 0 && (
                   <View style={{ marginTop: 10, gap: 10 }}>
-                    {filteredEntries.map((item) => (
+                    {sortedEntries.map((item) => (
                       <Pressable
                         key={item.id}
                         onPress={() =>

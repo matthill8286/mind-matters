@@ -11,6 +11,7 @@ import { IconSymbol } from '@/components/icon-symbol';
 import { authTokenVar } from '@/lib/state';
 import { SkeletonRect } from '@/components/Skeleton';
 import { readSession, SESSION_KEY } from '@/lib/storage';
+import { useTranslation } from 'react-i18next';
 
 import { useMoodStore } from '@/store/useMoodStore';
 import { useJournalStore } from '@/store/useJournalStore';
@@ -19,6 +20,7 @@ import { useMindfulnessStore } from '@/store/useMindfulnessStore';
 import { useStressHistoryStore } from '@/store/useStressHistoryStore';
 import { useStressStore } from '@/store/useStressStore';
 import { useChatStore } from '@/store/useChatStore';
+import { ActionCard } from '@/components/ActionCard';
 
 async function signOut() {
   await AsyncStorage.removeItem(SESSION_KEY);
@@ -35,6 +37,7 @@ async function signOut() {
 }
 
 export default function Profile() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState<string | null>(null);
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
@@ -52,18 +55,6 @@ export default function Profile() {
     })();
   }, [fetchProfile]);
 
-  const cardStyle = {
-    backgroundColor: colors.card,
-    padding: 20,
-    borderRadius: UI.radius.xl,
-    marginTop: 14,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 2,
-  };
-
   const btnStyle = {
     marginTop: 12,
     backgroundColor: colors.card,
@@ -75,12 +66,12 @@ export default function Profile() {
   };
 
   const subTypeLabel = isLifetime
-    ? 'Lifetime Access'
+    ? t('common.lifetimeAccess')
     : subscription?.type === 'monthly'
-      ? 'Monthly Access'
+      ? t('common.monthlyAccess')
       : isExpired
-        ? 'Trial Expired'
-        : 'Free Trial';
+        ? t('common.trialExpired')
+        : t('common.freeTrial');
 
   return (
     <View
@@ -93,8 +84,8 @@ export default function Profile() {
     >
       <ScrollView showsVerticalScrollIndicator={false}>
         <ScreenHeader
-          title="Profile"
-          subtitle={email ? `Signed in as ${email}` : 'Not signed in'}
+          title={t('common.profile')}
+          subtitle={email ? t('common.signedInAs', { email }) : t('common.notSignedIn')}
         />
 
         {loading ? (
@@ -109,17 +100,18 @@ export default function Profile() {
           </View>
         ) : (
           <>
-            <View style={cardStyle}>
+            <ActionCard
+              title={profile?.name || t('common.yourProfile')}
+              icon="person"
+              style={{ marginTop: 14 }}
+            >
               <View
                 style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
+                  position: 'absolute',
+                  top: 20,
+                  right: 20,
                 }}
               >
-                <Text style={{ fontSize: 20, fontWeight: '900', color: colors.text }}>
-                  {profile?.name || 'Your Profile'}
-                </Text>
                 <Pressable
                   onPress={() => router.push('/(tabs)/profile-edit')}
                   style={{
@@ -129,7 +121,9 @@ export default function Profile() {
                     borderRadius: 12,
                   }}
                 >
-                  <Text style={{ color: 'white', fontWeight: '700', fontSize: 12 }}>Edit</Text>
+                  <Text style={{ color: 'white', fontWeight: '700', fontSize: 12 }}>
+                    {t('common.edit')}
+                  </Text>
                 </Pressable>
               </View>
 
@@ -143,12 +137,12 @@ export default function Profile() {
                       textTransform: 'uppercase',
                     }}
                   >
-                    Primary Goal
+                    {t('common.primaryGoal')}
                   </Text>
                   <Text
                     style={{ fontSize: 16, fontWeight: '700', color: colors.text, marginTop: 2 }}
                   >
-                    {profile?.intention || 'Not set'}
+                    {profile?.intention || t('common.notSet')}
                   </Text>
                 </View>
                 <View>
@@ -160,22 +154,22 @@ export default function Profile() {
                       textTransform: 'uppercase',
                     }}
                   >
-                    Check-in Routine
+                    {t('common.checkInRoutine')}
                   </Text>
                   <Text
                     style={{ fontSize: 16, fontWeight: '700', color: colors.text, marginTop: 2 }}
                   >
-                    {profile?.routine || 'Not set'}
+                    {profile?.routine || t('common.notSet')}
                   </Text>
                 </View>
               </View>
-            </View>
+            </ActionCard>
 
             <Text style={{ marginTop: 24, fontSize: 16, fontWeight: '900', color: colors.text }}>
-              Subscription
+              {t('common.subscription')}
             </Text>
 
-            <View style={cardStyle}>
+            <ActionCard title={subTypeLabel} icon="card-membership" style={{ marginTop: 14 }}>
               <View
                 style={{
                   flexDirection: 'row',
@@ -183,14 +177,16 @@ export default function Profile() {
                   alignItems: 'center',
                 }}
               >
-                <View>
-                  <Text style={{ fontSize: 18, fontWeight: '900', color: colors.text }}>
-                    {subTypeLabel}
-                  </Text>
+                <View style={{ flex: 1 }}>
                   {subscription?.expiryDate && !isLifetime && (
                     <Text style={{ color: colors.mutedText, fontSize: 13, marginTop: 4 }}>
-                      {isExpired ? 'Expired on' : 'Renews/Expires on'}{' '}
-                      {new Date(subscription.expiryDate).toLocaleDateString()}
+                      {isExpired
+                        ? t('common.expiredOn', {
+                            date: new Date(subscription.expiryDate).toLocaleDateString(),
+                          })
+                        : t('common.renewsOn', {
+                            date: new Date(subscription.expiryDate).toLocaleDateString(),
+                          })}
                     </Text>
                   )}
                 </View>
@@ -208,28 +204,41 @@ export default function Profile() {
                     }}
                   >
                     <IconSymbol name="bolt.fill" size={16} color={colors.onPrimary} />
-                    <Text style={{ color: colors.onPrimary, fontWeight: '900' }}>Upgrade</Text>
+                    <Text style={{ color: colors.onPrimary, fontWeight: '900' }}>
+                      {t('common.upgrade')}
+                    </Text>
                   </Pressable>
                 )}
               </View>
-            </View>
+            </ActionCard>
 
             <Text style={{ marginTop: 24, fontSize: 16, fontWeight: '900', color: colors.text }}>
-              App Settings
+              {t('common.appSettings')}
             </Text>
 
+            <Pressable onPress={() => router.push('/(tabs)/notifications')} style={btnStyle}>
+              <Text style={{ fontWeight: '800', color: colors.text }}>
+                {t('common.notifications')}
+              </Text>
+              <Text style={{ color: colors.primary, fontWeight: '900' }}>→</Text>
+            </Pressable>
+
             <Pressable onPress={() => router.push('/(tabs)/settings')} style={btnStyle}>
-              <Text style={{ fontWeight: '800', color: colors.text }}>Manage Categories</Text>
+              <Text style={{ fontWeight: '800', color: colors.text }}>
+                {t('common.manageCategories')}
+              </Text>
               <Text style={{ color: colors.primary, fontWeight: '900' }}>→</Text>
             </Pressable>
 
             <Pressable onPress={() => router.push('/(utils)/help-center')} style={btnStyle}>
-              <Text style={{ fontWeight: '800', color: colors.text }}>Help Center</Text>
+              <Text style={{ fontWeight: '800', color: colors.text }}>
+                {t('common.helpCenter')}
+              </Text>
               <Text style={{ color: colors.primary, fontWeight: '900' }}>→</Text>
             </Pressable>
 
             <Pressable onPress={() => router.push('/(utils)/utilities')} style={btnStyle}>
-              <Text style={{ fontWeight: '800', color: colors.text }}>Error & Other Utilities</Text>
+              <Text style={{ fontWeight: '800', color: colors.text }}>{t('common.utilities')}</Text>
               <Text style={{ color: colors.primary, fontWeight: '900' }}>→</Text>
             </Pressable>
 
@@ -241,7 +250,7 @@ export default function Profile() {
               ]}
             >
               <Text style={{ fontWeight: '900', color: theme === 'light' ? '#b22' : '#f88' }}>
-                Sign out
+                {t('common.signOut')}
               </Text>
             </Pressable>
           </>

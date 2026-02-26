@@ -1,4 +1,6 @@
+import React, { useEffect } from 'react';
 import { View, Text, Pressable, ScrollView, Platform, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import ScreenHeader from '@/components/ScreenHeader';
 import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -9,9 +11,14 @@ import { useStressHistoryStore } from '@/store/useStressHistoryStore';
 import { showAlert } from '@/lib/state';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { SkeletonRect } from '@/components/Skeleton';
-import React, { useEffect } from 'react';
+import { GridCard } from '@/components/GridCard';
+import { HorizontalVideoList } from '@/components/HorizontalVideoList';
+import { STRESS_VIDEOS } from '@/data/stressVideos';
+import { ActionCard } from '@/components/ActionCard';
+import { SummaryCard, SummaryRow } from '@/components/SummaryCard';
 
 export default function StressHub() {
+  const { t } = useTranslation();
   const router = useRouter();
   const theme = useColorScheme() ?? 'light';
   const { hasFullAccess } = useSubscription();
@@ -24,21 +31,16 @@ export default function StressHub() {
 
   useEffect(() => {
     (async () => {
-      if (kitLoading) return;
-      if (!kit) await fetchStressKit();
-      if (historyLoading) return;
-      if (!stressHistory.length) await fetchStressHistory();
+      await fetchStressKit();
+      await fetchStressHistory();
     })();
-  }, [fetchStressKit, fetchStressHistory, kitLoading, kit, historyLoading, stressHistory.length]);
+  }, [fetchStressKit, fetchStressHistory]);
 
   const lastExercise = stressHistory[0];
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScreenHeader
-        title="Stress Management"
-        subtitle="Quick tools for calming your body and clearing your mind."
-      />
+      <ScreenHeader title={t('tabs.stress')} subtitle={t('stress.hubSubtitle')} />
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {loading ? (
@@ -56,27 +58,72 @@ export default function StressHub() {
           </View>
         ) : (
           <>
-            <View style={[styles.card, { backgroundColor: colors.card }]}>
-              <View style={styles.cardHeader}>
-                <MaterialIcons name="psychology" size={24} color={colors.primary} />
-                <Text style={[styles.cardTitle, { color: colors.text }]}>Quick Phrase</Text>
-              </View>
-              <Text
-                style={[styles.cardDescription, { color: colors.mutedText, fontStyle: 'italic' }]}
-              >
-                &quot;{kit?.quickPhrase || 'Take a deep breath. This too shall pass.'}&quot;
-              </Text>
+            <ActionCard
+              title={
+                kit &&
+                (kit.triggers.length > 0 || kit.helpfulActions.length > 0 || kit.people.length > 0)
+                  ? t('stress.yourStressKit')
+                  : t('stress.quickPhrase')
+              }
+              icon="psychology"
+            >
+              {kit &&
+              (kit?.triggers.length > 0 ||
+                kit?.helpfulActions.length > 0 ||
+                kit?.people.length > 0) ? (
+                <View style={{ gap: 12, marginBottom: 20 }}>
+                  <Text
+                    style={[
+                      styles.cardDescription,
+                      { color: colors.mutedText, fontStyle: 'italic', marginBottom: 0 },
+                    ]}
+                  >
+                    &quot;{kit?.quickPhrase || t('stress.defaultQuickPhrase')}&quot;
+                  </Text>
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                    {kit.helpfulActions.slice(0, 3).map((action, idx) => (
+                      <View
+                        key={idx}
+                        style={{
+                          backgroundColor: colors.primary + '15',
+                          paddingHorizontal: 10,
+                          paddingVertical: 4,
+                          borderRadius: UI.radius.sm,
+                        }}
+                      >
+                        <Text
+                          style={{ color: colors.primary, fontSize: 12, fontWeight: '700' }}
+                          numberOfLines={1}
+                        >
+                          {action}
+                        </Text>
+                      </View>
+                    ))}
+                    {kit.helpfulActions.length > 3 && (
+                      <Text style={{ color: colors.mutedText, fontSize: 12 }}>
+                        {t('common.more', { count: kit.helpfulActions.length - 3 })}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+              ) : (
+                <Text
+                  style={[styles.cardDescription, { color: colors.mutedText, fontStyle: 'italic' }]}
+                >
+                  &quot;{kit?.quickPhrase || t('stress.defaultQuickPhrase')}&quot;
+                </Text>
+              )}
+
               <Pressable
                 onPress={() => {
                   if (!hasFullAccess) {
-                    showAlert(
-                      'Premium Feature',
-                      'Upgrade to lifetime access to unlock your stress plan.',
-                      [
-                        { text: 'Cancel', style: 'cancel' },
-                        { text: 'Upgrade', onPress: () => router.push('/(auth)/trial-upgrade') },
-                      ],
-                    );
+                    showAlert(t('common.premiumFeature'), t('stress.upgradeToUnlockPlan'), [
+                      { text: t('common.cancel'), style: 'cancel' },
+                      {
+                        text: t('common.upgrade'),
+                        onPress: () => router.push('/(auth)/trial-upgrade'),
+                      },
+                    ]);
                     return;
                   }
                   router.push('/(tabs)/stress/plan');
@@ -86,31 +133,31 @@ export default function StressHub() {
                   { backgroundColor: colors.primary, opacity: hasFullAccess ? 1 : 0.7 },
                 ]}
               >
-                <Text style={styles.modeButtonText}>Manage Stress Plan</Text>
+                <Text style={styles.modeButtonText}>
+                  {kit &&
+                  (kit.triggers.length > 0 ||
+                    kit.helpfulActions.length > 0 ||
+                    kit.people.length > 0)
+                    ? t('stress.viewFullPlan')
+                    : t('stress.manageStressPlan')}
+                </Text>
               </Pressable>
-            </View>
+            </ActionCard>
 
             <View style={styles.grid}>
               <GridCard
-                title="Breathing"
-                icon="air"
-                color="#6bbf8e"
-                onPress={() => router.push('/(tabs)/stress/breathing')}
-              />
-              <GridCard
-                title="Grounding"
+                title={t('stress.grounding')}
                 icon="touch-app"
                 color="#f2a65a"
                 onPress={() => {
                   if (!hasFullAccess) {
-                    showAlert(
-                      'Premium Feature',
-                      'Upgrade to lifetime access to unlock the grounding tool.',
-                      [
-                        { text: 'Cancel', style: 'cancel' },
-                        { text: 'Upgrade', onPress: () => router.push('/(auth)/trial-upgrade') },
-                      ],
-                    );
+                    showAlert(t('common.premiumFeature'), t('stress.upgradeToUnlockGrounding'), [
+                      { text: t('common.cancel'), style: 'cancel' },
+                      {
+                        text: t('common.upgrade'),
+                        onPress: () => router.push('/(auth)/trial-upgrade'),
+                      },
+                    ]);
                     return;
                   }
                   router.push('/(tabs)/stress/grounding');
@@ -118,55 +165,88 @@ export default function StressHub() {
                 isLocked={!hasFullAccess}
               />
               <GridCard
-                title="Relaxation"
-                icon="spa"
-                color="#9b8df1"
-                onPress={() => router.push('/(tabs)/stress/relax')}
+                title={t('stress.breathing')}
+                icon="air"
+                color="#4fc3f7"
+                onPress={() => router.push('/(tabs)/stress/breathing')}
               />
               <GridCard
-                title="Watch"
+                title={t('stress.relatableVideo')}
+                icon="video-library"
+                color="#e57373"
+                onPress={() =>
+                  router.push({
+                    pathname: '/(tabs)/stress/list/[category]/[videoId]',
+                    params: { category: 'body', videoId: 'yt-1' },
+                  })
+                }
+              />
+              <GridCard
+                title={t('stress.watchLatest')}
                 icon="play-circle-outline"
                 color="#a07b55"
-                onPress={() => router.push('/(tabs)/stress/watch')}
+                onPress={() => {
+                  if (lastExercise) {
+                    const video = STRESS_VIDEOS.find((v) => v.id === lastExercise.id);
+                    router.push({
+                      pathname: '/(tabs)/stress/list/[category]/[videoId]',
+                      params: {
+                        category: video?.category || 'body',
+                        videoId: lastExercise.id,
+                      },
+                    });
+                  } else {
+                    router.push({
+                      pathname: '/(tabs)/stress/list/[category]/[videoId]',
+                      params: { category: 'body', videoId: 'body-1' },
+                    });
+                  }
+                }}
               />
             </View>
 
+            <HorizontalVideoList
+              title={t('stress.bodyRelaxation')}
+              category="body"
+              icon="fitness-center"
+              iconColor="#6bbf8e"
+            />
+
+            <HorizontalVideoList
+              title={t('stress.mindRelaxation')}
+              category="mind"
+              icon="self-improvement"
+              iconColor="#9b8df1"
+            />
+
             {lastExercise && (
-              <View style={[styles.card, { backgroundColor: colors.card, marginTop: 12 }]}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: 8,
-                  }}
-                >
-                  <Text style={[styles.sectionTitle, { color: colors.text, marginBottom: 0 }]}>
-                    Recent Activity
-                  </Text>
-                  <MaterialIcons name="history" size={20} color={colors.mutedText} />
-                </View>
+              <SummaryCard
+                title={t('stress.recentActivity')}
+                icon="history"
+                onPress={() => {
+                  const video = STRESS_VIDEOS.find((v) => v.id === lastExercise.id);
+                  router.push({
+                    pathname: '/(tabs)/stress/list/[category]/[videoId]',
+                    params: {
+                      category: video?.category || 'body',
+                      videoId: lastExercise.id,
+                    },
+                  });
+                }}
+                style={{ marginTop: 12 }}
+              >
                 <View style={styles.statsRow}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={[styles.statLabel, { color: colors.mutedText }]}>
-                      Last Exercise
-                    </Text>
-                    <Text style={[styles.statValue, { color: colors.text }]} numberOfLines={1}>
-                      {lastExercise.title}
-                    </Text>
-                  </View>
-                  <View style={{ width: 12 }} />
-                  <View style={{ alignItems: 'flex-end' }}>
-                    <Text style={[styles.statLabel, { color: colors.mutedText }]}>Date</Text>
-                    <Text style={[styles.statValue, { color: colors.text }]}>
-                      {new Date(lastExercise.date).toLocaleDateString([], {
-                        month: 'short',
-                        day: 'numeric',
-                      })}
-                    </Text>
-                  </View>
+                  <SummaryRow label={t('stress.lastExercise')} value={lastExercise.title} />
+                  <SummaryRow
+                    label={t('common.date')}
+                    value={new Date(lastExercise.date).toLocaleDateString([], {
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                    align="end"
+                  />
                 </View>
-              </View>
+              </SummaryCard>
             )}
 
             <Pressable
@@ -175,7 +255,9 @@ export default function StressHub() {
             >
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                 <MaterialIcons name="self-improvement" size={24} color="#6bbf8e" />
-                <Text style={{ fontWeight: '900', color: colors.text }}>View Mindful Hours</Text>
+                <Text style={{ fontWeight: '900', color: colors.text }}>
+                  {t('stress.viewMindfulHours')}
+                </Text>
               </View>
               <MaterialIcons name="chevron-right" size={24} color={colors.mutedText} />
             </Pressable>
@@ -183,53 +265,6 @@ export default function StressHub() {
         )}
       </ScrollView>
     </View>
-  );
-}
-
-function GridCard({
-  title,
-  icon,
-  color,
-  onPress,
-  isLocked = false,
-}: {
-  title: string;
-  icon: string;
-  color: string;
-  onPress: () => void;
-  isLocked?: boolean;
-}) {
-  const theme = useColorScheme() ?? 'light';
-  const colors = Colors[theme];
-
-  return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.gridItem,
-        { backgroundColor: colors.card, opacity: pressed || isLocked ? 0.7 : 1 },
-      ]}
-    >
-      <View
-        style={{
-          width: 48,
-          height: 48,
-          borderRadius: 16,
-          backgroundColor: colors.background,
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginBottom: 10,
-        }}
-      >
-        <MaterialIcons name={icon as any} size={28} color={isLocked ? colors.mutedText : color} />
-      </View>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-        <Text style={[styles.gridLabel, { color: isLocked ? colors.mutedText : colors.text }]}>
-          {title}
-        </Text>
-        {isLocked && <MaterialIcons name="lock" size={12} color={colors.mutedText} />}
-      </View>
-    </Pressable>
   );
 }
 

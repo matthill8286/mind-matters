@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable, ScrollView, ActivityIndicator } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { showAlert, withLoading } from '@/lib/state';
@@ -8,6 +9,7 @@ import * as Linking from 'expo-linking';
 import { readSession, userScopedKey } from '@/lib/storage';
 
 export default function TrialUpgrade() {
+  const { t } = useTranslation();
   const [isNewUser, setIsNewUser] = useState(true);
   const [loading, setLoading] = useState(false);
 
@@ -77,11 +79,11 @@ export default function TrialUpgrade() {
       if (data.url) {
         return data.url;
       } else {
-        throw new Error(data.error || 'Failed to create checkout session');
+        new Error(data.error || 'Failed to create checkout session');
       }
     } catch (error) {
       console.error('Error creating checkout session:', error);
-      showAlert('Error', String(error));
+      showAlert(t('auth.error'), String(error));
       return null;
     }
   };
@@ -89,7 +91,7 @@ export default function TrialUpgrade() {
   async function buyPlan(type: 'monthly' | 'lifetime') {
     const amount = type === 'monthly' ? 1000 : 7200; // cents
     const currency = 'eur';
-    const name = type === 'monthly' ? 'Monthly Access' : 'Lifetime Access';
+    const name = type === 'monthly' ? t('auth.monthlyPlan') : t('auth.lifetimePlan');
     const mode = type === 'monthly' ? 'subscription' : 'payment';
 
     setLoading(true);
@@ -150,12 +152,12 @@ export default function TrialUpgrade() {
           </Pressable>
         )}
         <Text style={{ color: 'white', fontSize: 32, fontWeight: '900', textAlign: 'center' }}>
-          MindMate Premium
+          {t('auth.premiumTitle')}
         </Text>
         <Text
           style={{ color: 'white', opacity: 0.8, fontSize: 16, textAlign: 'center', marginTop: 12 }}
         >
-          Choose a plan to unlock all features.
+          {t('auth.premiumSubtitle')}
         </Text>
 
         <View style={{ marginTop: 40, gap: 20 }}>
@@ -170,10 +172,10 @@ export default function TrialUpgrade() {
             }}
           >
             <Text style={{ fontSize: 20, fontWeight: '900', color: '#6a5e55' }}>
-              7-Day Free Trial
+              {t('auth.start7DayTrial')}
             </Text>
             <Text style={{ marginTop: 8, color: '#6a5e55', opacity: 0.7 }}>
-              Try all features free for one week.
+              {t('auth.sevenDayTrialDesc')}
             </Text>
             <View
               style={{
@@ -185,7 +187,7 @@ export default function TrialUpgrade() {
               }}
             >
               <Text style={{ color: 'white', fontWeight: '900' }}>
-                {loading ? 'Starting...' : 'Start Free Trial'}
+                {loading ? t('auth.starting') : t('auth.startFreeTrialBtn')}
               </Text>
             </View>
           </Pressable>
@@ -210,12 +212,14 @@ export default function TrialUpgrade() {
               }}
             >
               <Text style={{ fontSize: 20, fontWeight: '900', color: 'white' }}>
-                Monthly Access
+                {t('auth.monthlyPlan')}
               </Text>
-              <Text style={{ fontSize: 18, fontWeight: '900', color: 'white' }}>10€/mo</Text>
+              <Text style={{ fontSize: 18, fontWeight: '900', color: 'white' }}>
+                {t('auth.monthlyPlanPrice')}
+              </Text>
             </View>
             <Text style={{ marginTop: 8, color: 'white', opacity: 0.9 }}>
-              Full access to all AI tools, tracking, and exercises.
+              {t('auth.monthlyPlanDesc')}
             </Text>
             <View
               style={{
@@ -229,7 +233,7 @@ export default function TrialUpgrade() {
                 gap: 8,
               }}
             >
-              <Text style={{ color: '#828a6a', fontWeight: '900' }}>Pay with Card or Mobile</Text>
+              <Text style={{ color: '#828a6a', fontWeight: '900' }}>{t('auth.payWithCard')}</Text>
             </View>
           </Pressable>
 
@@ -253,12 +257,14 @@ export default function TrialUpgrade() {
               }}
             >
               <Text style={{ fontSize: 18, fontWeight: '700', color: 'white' }}>
-                Lifetime Access
+                {t('auth.lifetimePlan')}
               </Text>
-              <Text style={{ fontWeight: '900', fontSize: 16, color: 'white' }}>£60 / 72€</Text>
+              <Text style={{ fontWeight: '900', fontSize: 16, color: 'white' }}>
+                {t('auth.lifetimePlanPrice')}
+              </Text>
             </View>
             <Text style={{ marginTop: 8, color: 'white', opacity: 0.7 }}>
-              Unlock everything forever. Best value.
+              {t('auth.lifetimePlanDesc')}
             </Text>
           </Pressable>
         </View>
@@ -273,8 +279,7 @@ export default function TrialUpgrade() {
             paddingHorizontal: 20,
           }}
         >
-          By continuing, you agree to our Terms of Service and Privacy Policy. Your trial will
-          automatically end after 7 days unless you upgrade.
+          {t('auth.termsAndPrivacy')}
         </Text>
       </ScrollView>
     </View>

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,44 +7,44 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
-  ActivityIndicator,
 } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
 import { useLocalSearchParams } from 'expo-router';
 import { ISSUES } from '@/data/issues';
-import { showAlert, withLoading } from '@/lib/state';
+import { showAlert, withLoading, useIsLoading } from '@/lib/state';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, UI } from '@/constants/theme';
 import { IconSymbol } from '@/components/icon-symbol';
 import { SkeletonRect } from '@/components/Skeleton';
-import { ChatMessage, sendChatToAI } from '@/lib/chat';
+import TypingBubble from '@/components/TypingBubble';
+import { sendChatToAI } from '@/lib/chat';
 import { useChatStore } from '@/store/useChatStore';
+import { ChatMessage } from '@/lib/types';
 
 export default function Chat() {
   const { issueKey } = useLocalSearchParams<{ issueKey: string }>();
   const issue = useMemo(() => ISSUES.find((i) => i.key === issueKey), [issueKey]);
 
-  const {
-    history,
-    fetchHistory,
-    addMessage,
-    clearHistory,
-    isLoading: storeLoading,
-  } = useChatStore();
+  const { history, fetchHistory, addMessage, clearHistory } = useChatStore();
+  const isGlobalLoading = useIsLoading();
   const messages = useMemo(() => (issueKey ? history[issueKey] || [] : []), [history, issueKey]);
   const [loading, setLoading] = useState(true);
 
-  const loadMessages = async () => {
+  const isTyping = loading || isGlobalLoading;
+
+  const loadMessages = useCallback(async () => {
     if (issueKey) {
       setLoading(true);
       await fetchHistory(issueKey);
       setLoading(false);
     }
-  };
+  }, [fetchHistory, issueKey]);
 
   useEffect(() => {
-    loadMessages();
-  }, [issueKey]);
+    (async () => {
+      await loadMessages();
+    })();
+  }, [issueKey, loadMessages]);
 
   const [inputText, setInputText] = useState('');
   const flatListRef = useRef<FlatList>(null);
@@ -57,40 +57,41 @@ export default function Chat() {
     const text = inputText.trim();
     setInputText('');
 
-    await withLoading('send-chat', async () => {
-      // 1. Add user message
-      const userMsg: ChatMessage = {
+    // 1. Add a user message
+    const userMsg: ChatMessage = {
+      id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+      role: 'user',
+      content: text,
+      createdAt: new Date().toISOString(),
+    };
+    await addMessage(issueKey, userMsg);
+
+    // Current history + new user message
+    const updatedMessages = [...messages, userMsg];
+
+    try {
+      setLoading(true);
+      // 2. Call AI API
+      const aiText = await sendChatToAI(
+        issue?.title ?? 'General Support',
+        issue?.tags ?? [],
+        updatedMessages.map((m) => ({ role: m.role, content: m.content })),
+      );
+
+      // 3. Add AI message
+      const aiMsg: ChatMessage = {
         id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
-        role: 'user',
-        content: text,
+        role: 'assistant',
+        content: aiText,
         createdAt: new Date().toISOString(),
       };
-      await addMessage(issueKey, userMsg);
-
-      // Current history + new user message
-      const updatedMessages = [...messages, userMsg];
-
-      try {
-        // 2. Call AI API
-        const aiText = await sendChatToAI(
-          issue?.title ?? 'General Support',
-          issue?.tags ?? [],
-          updatedMessages.map((m) => ({ role: m.role, content: m.content })),
-        );
-
-        // 3. Add AI message
-        const aiMsg: ChatMessage = {
-          id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
-          role: 'assistant',
-          content: aiText,
-          createdAt: new Date().toISOString(),
-        };
-        await addMessage(issueKey, aiMsg);
-      } catch (error) {
-        console.error('Chat error:', error);
-        showAlert('Chat Error', 'Could not get a response from the AI assistant.');
-      }
-    });
+      await addMessage(issueKey, aiMsg);
+      setLoading(false);
+    } catch (error) {
+      console.error('Chat error:', error);
+      setLoading(false);
+      showAlert('Chat Error', 'Could not get a response from the AI assistant.');
+    }
   }
 
   async function handleClear() {
@@ -261,18 +262,20 @@ export default function Chat() {
           }}
         />
 
-        {loading && (
+        {isTyping && (
           <View
             style={{
               alignSelf: 'flex-start',
-              padding: 14,
+              paddingHorizontal: 16,
+              paddingVertical: 12,
               backgroundColor: colors.card,
-              borderRadius: 18,
+              borderRadius: 20,
               borderBottomLeftRadius: 4,
               marginBottom: 12,
+              marginLeft: 8,
             }}
           >
-            <ActivityIndicator color={colors.primary} />
+            <TypingBubble />
           </View>
         )}
 
@@ -305,12 +308,12 @@ export default function Chat() {
           />
           <Pressable
             onPress={handleSend}
-            disabled={!inputText.trim() || loading}
+            disabled={!inputText.trim() || isTyping}
             style={({ pressed }) => ({
               width: 52,
               height: 52,
               borderRadius: 26,
-              backgroundColor: inputText.trim() && !loading ? colors.primary : colors.divider,
+              backgroundColor: inputText.trim() && !isTyping ? colors.primary : colors.divider,
               alignItems: 'center',
               justifyContent: 'center',
               opacity: pressed ? 0.7 : 1,

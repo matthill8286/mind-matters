@@ -42,7 +42,7 @@ export default function NewJournalEntry() {
     };
     await withLoading('save-journal', async () => {
       await useJournalStore.getState().createJournalEntry(entryInput as any);
-      router.replace('/(tabs)/journal/history');
+      router.replace('/(tabs)/journal');
     });
   }
 

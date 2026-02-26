@@ -3,8 +3,10 @@ import React from 'react';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors } from '@/constants/theme';
 import { IconSymbol } from '@/components/icon-symbol';
+import { useTranslation } from 'react-i18next';
 
 export default function TabsLayout() {
+  const { t } = useTranslation();
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
 
@@ -24,44 +26,50 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="home"
         options={{
-          title: 'Home',
+          title: t('tabs.home'),
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
         }}
       />
       <Tabs.Screen
         name="chat"
         options={{
-          title: 'Chat',
+          title: t('tabs.chat'),
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="text.bubble" color={color} />,
         }}
       />
       <Tabs.Screen
         name="search"
         options={{
-          title: 'Search',
+          title: t('tabs.search'),
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="magnifyingglass.circle.fill" color={color} />
+            <IconSymbol size={28} name="1.magnifyingglass" color={color} />
           ),
         }}
       />
       <Tabs.Screen
         name="journal"
         options={{
-          title: 'Journal',
+          title: t('tabs.journal'),
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="note.text" color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: t('tabs.profile'),
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.2.fill" color={color} />,
         }}
       />
 
-      {/* Hidden from tab bar but present for tab layout persistence */}
+      {/* Hidden from the tab bar but present for tab layout persistence */}
       <Tabs.Screen name="stress" options={{ href: null }} />
-      <Tabs.Screen name="mood" options={{ href: null }} />
+      <Tabs.Screen
+        name="mood"
+        options={{
+          href: null,
+          title: t('tabs.mood'),
+        }}
+      />
       <Tabs.Screen name="sleep" options={{ href: null }} />
       <Tabs.Screen name="chat/history" options={{ href: null }} />
       <Tabs.Screen name="chat/[issueKey]" options={{ href: null }} />

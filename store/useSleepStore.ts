@@ -8,6 +8,7 @@ import { createLoadingSlice, LoadingState, SliceCreator } from '@/lib/zustand-he
 interface SleepModeState {
   sleepModeStartISO: string | null;
   suggestedWakeISO: string | null;
+  autoDetectionEnabled: boolean;
 }
 
 interface SleepState {
@@ -23,7 +24,7 @@ interface SleepActions {
       Partial<Pick<SleepEntry, 'id' | 'createdAtISO'>>,
   ) => Promise<SleepEntry>;
   deleteSleepEntry: (id: string) => Promise<void>;
-  setSleepMode: (mode: SleepModeState) => void;
+  setSleepMode: (mode: Partial<SleepModeState>) => void;
   clearSleep: () => void;
 }
 
@@ -38,6 +39,7 @@ const createSleepSlice: SliceCreator<SleepState & SleepActions, LoadingState> = 
   sleepMode: {
     sleepModeStartISO: null,
     suggestedWakeISO: null,
+    autoDetectionEnabled: false,
   },
   error: null,
 
@@ -47,6 +49,7 @@ const createSleepSlice: SliceCreator<SleepState & SleepActions, LoadingState> = 
     set({ error: null });
     try {
       const items = await apiFetch<SleepEntry[]>('/sleep');
+      console.log('fetched sleep entries', items);
       set({ sleepEntries: items });
     } catch (err) {
       set({ error: (err as Error).message });
@@ -57,6 +60,7 @@ const createSleepSlice: SliceCreator<SleepState & SleepActions, LoadingState> = 
 
   addSleepEntry: async (input) => {
     const { id, createdAtISO, ...body } = input;
+    console.log('adding sleep entry', body);
     const item = await apiFetch<SleepEntry>('/sleep', {
       method: 'POST',
       body: JSON.stringify(body),
@@ -72,7 +76,7 @@ const createSleepSlice: SliceCreator<SleepState & SleepActions, LoadingState> = 
     }));
   },
 
-  setSleepMode: (mode) => set({ sleepMode: mode }),
+  setSleepMode: (mode) => set((state) => ({ sleepMode: { ...state.sleepMode, ...mode } })),
 
   clearSleep: () =>
     set({
@@ -80,6 +84,7 @@ const createSleepSlice: SliceCreator<SleepState & SleepActions, LoadingState> = 
       sleepMode: {
         sleepModeStartISO: null,
         suggestedWakeISO: null,
+        autoDetectionEnabled: false,
       },
     }),
 });

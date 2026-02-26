@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Pressable, Platform, ScrollView, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import ScreenHeader from '@/components/ScreenHeader';
 import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -8,8 +9,13 @@ import { showAlert } from '@/lib/state';
 import { useSleepStore } from '@/store/useSleepStore';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SkeletonRect } from '@/components/Skeleton';
+import { getQualityLabel } from '@/lib/sleep-utils';
+import { ActionCard } from '@/components/ActionCard';
+import { GridItem } from '@/components/GridItem';
+import { SummaryCard, SummaryRow } from '@/components/SummaryCard';
 
 export default function SleepScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
@@ -24,7 +30,9 @@ export default function SleepScreen() {
   const { sleepModeStartISO } = sleepMode;
 
   React.useEffect(() => {
-    fetchSleepEntries();
+    (async () => {
+      await fetchSleepEntries();
+    })();
   }, [fetchSleepEntries]);
 
   const lastEntry = entries[0];
@@ -36,27 +44,23 @@ export default function SleepScreen() {
       const diffMs = end.getTime() - start.getTime();
       const diffHrs = Math.round((diffMs / (1000 * 60 * 60)) * 10) / 10;
 
-      showAlert(
-        'Sleep Mode Ended',
-        `You slept for ${diffHrs} hours. Would you like to log this entry?`,
-        [
-          {
-            text: 'No',
-            style: 'cancel',
-            onPress: () => setSleepMode({ ...sleepMode, sleepModeStartISO: null }),
+      showAlert(t('sleep.sleepModeEnded'), t('sleep.sleptFor', { count: diffHrs }), [
+        {
+          text: t('mood.no'),
+          style: 'cancel',
+          onPress: () => setSleepMode({ ...sleepMode, sleepModeStartISO: null }),
+        },
+        {
+          text: t('sleep.logSleep'),
+          onPress: () => {
+            setSleepMode({ ...sleepMode, sleepModeStartISO: null });
+            router.push({
+              pathname: '/(tabs)/sleep/log',
+              params: { duration: diffHrs.toString() },
+            });
           },
-          {
-            text: 'Log Sleep',
-            onPress: () => {
-              setSleepMode({ ...sleepMode, sleepModeStartISO: null });
-              router.push({
-                pathname: '/(tabs)/sleep/log',
-                params: { duration: diffHrs.toString() },
-              });
-            },
-          },
-        ],
-      );
+        },
+      ]);
     } else {
       setSleepMode({ ...sleepMode, sleepModeStartISO: new Date().toISOString() });
     }
@@ -64,7 +68,7 @@ export default function SleepScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScreenHeader title="Sleep Tracking" subtitle="Track your rest and optimize your recovery." />
+      <ScreenHeader title={t('tabs.sleep')} subtitle={t('sleep.hubSubtitle')} />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {loading ? (
@@ -79,19 +83,51 @@ export default function SleepScreen() {
           </View>
         ) : (
           <>
-            <View style={[styles.card, { backgroundColor: colors.card }]}>
-              <View style={styles.cardHeader}>
-                <MaterialIcons name="nightlight-round" size={24} color={colors.primary} />
-                <Text style={[styles.cardTitle, { color: colors.text }]}>Sleep Mode</Text>
+            <ActionCard
+              title={t('sleep.sleepMode')}
+              description={
+                sleepModeStartISO
+                  ? t('sleep.sleepModeStartedAt', {
+                      time: new Date(sleepModeStartISO).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      }),
+                    })
+                  : t('sleep.sleepModeDescription')
+              }
+              icon="nightlight-round"
+            >
+              <View style={styles.autoDetectRow}>
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.autoDetectTitle, { color: colors.text }]}>
+                    {t('sleep.automaticDetection')}
+                  </Text>
+                  <Text style={[styles.autoDetectSubtitle, { color: colors.mutedText }]}>
+                    {t('sleep.detectWakeUp')}
+                  </Text>
+                </View>
+                <Pressable
+                  onPress={() =>
+                    setSleepMode({ autoDetectionEnabled: !sleepMode.autoDetectionEnabled })
+                  }
+                  style={[
+                    styles.toggle,
+                    {
+                      backgroundColor: sleepMode.autoDetectionEnabled
+                        ? colors.primary
+                        : colors.divider,
+                    },
+                  ]}
+                >
+                  <View
+                    style={[
+                      styles.toggleCircle,
+                      { transform: [{ translateX: sleepMode.autoDetectionEnabled ? 20 : 0 }] },
+                    ]}
+                  />
+                </Pressable>
               </View>
-              <Text style={[styles.cardDescription, { color: colors.mutedText }]}>
-                {sleepModeStartISO
-                  ? `Started at ${new Date(sleepModeStartISO).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}`
-                  : 'Switch on when you go to bed to track your duration automatically.'}
-              </Text>
+
               <Pressable
                 onPress={toggleSleepMode}
                 style={[
@@ -100,61 +136,43 @@ export default function SleepScreen() {
                 ]}
               >
                 <Text style={styles.modeButtonText}>
-                  {sleepModeStartISO ? 'Stop Sleep Mode' : 'Start Sleep Mode'}
+                  {sleepModeStartISO ? t('sleep.stopSleepMode') : t('sleep.startSleepMode')}
                 </Text>
               </Pressable>
-            </View>
+            </ActionCard>
 
             <View style={styles.grid}>
-              <Pressable
+              <GridItem
+                title={t('sleep.logSleep')}
+                icon="add-circle-outline"
                 onPress={() => router.push('/(tabs)/sleep/log')}
-                style={[styles.gridItem, { backgroundColor: colors.card }]}
-              >
-                <MaterialIcons name="add-circle-outline" size={32} color={colors.primary} />
-                <Text style={[styles.gridLabel, { color: colors.text }]}>Log Sleep</Text>
-              </Pressable>
-              <Pressable
+              />
+              <GridItem
+                title={t('sleep.history')}
+                icon="history"
                 onPress={() => router.push('/(tabs)/sleep/history')}
-                style={[styles.gridItem, { backgroundColor: colors.card }]}
-              >
-                <MaterialIcons name="history" size={32} color={colors.primary} />
-                <Text style={[styles.gridLabel, { color: colors.text }]}>History</Text>
-              </Pressable>
+              />
             </View>
 
             {lastEntry && (
-              <Pressable
+              <SummaryCard
+                title={t('sleep.lastNight')}
+                icon="chevron-right"
                 onPress={() => router.push(`/(tabs)/sleep/${lastEntry.id}`)}
-                style={[styles.card, { backgroundColor: colors.card, marginTop: 12 }]}
+                style={{ marginTop: 12 }}
               >
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: 8,
-                  }}
-                >
-                  <Text style={[styles.sectionTitle, { color: colors.text, marginBottom: 0 }]}>
-                    Last Night
-                  </Text>
-                  <MaterialIcons name="chevron-right" size={20} color={colors.mutedText} />
-                </View>
                 <View style={styles.statsRow}>
-                  <View>
-                    <Text style={[styles.statLabel, { color: colors.mutedText }]}>Duration</Text>
-                    <Text style={[styles.statValue, { color: colors.text }]}>
-                      {lastEntry.duration} hrs
-                    </Text>
-                  </View>
-                  <View>
-                    <Text style={[styles.statLabel, { color: colors.mutedText }]}>Quality</Text>
-                    <Text style={[styles.statValue, { color: colors.text }]}>
-                      {getQualityLabel(lastEntry.quality)}
-                    </Text>
-                  </View>
+                  <SummaryRow
+                    label={t('sleep.duration')}
+                    value={t('sleep.hours', { count: lastEntry.duration })}
+                  />
+                  <SummaryRow
+                    label={t('sleep.quality')}
+                    value={getQualityLabel(lastEntry.quality)}
+                    align="end"
+                  />
                 </View>
-              </Pressable>
+              </SummaryCard>
             )}
 
             <Pressable
@@ -163,7 +181,9 @@ export default function SleepScreen() {
             >
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                 <MaterialIcons name="self-improvement" size={24} color="#6bbf8e" />
-                <Text style={{ fontWeight: '900', color: colors.text }}>View Mindful Hours</Text>
+                <Text style={{ fontWeight: '900', color: colors.text }}>
+                  {t('stress.viewMindfulHours')}
+                </Text>
               </View>
               <MaterialIcons name="chevron-right" size={24} color={colors.mutedText} />
             </Pressable>
@@ -172,23 +192,6 @@ export default function SleepScreen() {
       </ScrollView>
     </View>
   );
-}
-
-function getQualityLabel(quality?: number) {
-  switch (quality) {
-    case 5:
-      return 'Excellent';
-    case 4:
-      return 'Good';
-    case 3:
-      return 'Fair';
-    case 2:
-      return 'Poor';
-    case 1:
-      return 'Very Poor';
-    default:
-      return 'N/A';
-  }
 }
 
 const styles = StyleSheet.create({
@@ -235,6 +238,34 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '900',
     fontSize: 16,
+  },
+  autoDetectRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.05)',
+  },
+  autoDetectTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  autoDetectSubtitle: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  toggle: {
+    width: 44,
+    height: 24,
+    borderRadius: 12,
+    padding: 2,
+  },
+  toggleCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#fff',
   },
   grid: {
     flexDirection: 'row',

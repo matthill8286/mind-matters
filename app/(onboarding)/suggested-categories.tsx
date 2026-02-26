@@ -6,22 +6,15 @@ import { suggestWithReasons } from '@/lib/suggestCategories';
 import { MostCommonChips } from '@/components/MostCommonChips';
 import { SkeletonRect } from '@/components/Skeleton';
 import { useProfileStore } from '@/store/useProfileStore';
-import { withLoading } from '@/lib/state';
+import { useIsLoading, withLoading } from '@/lib/state';
 
 export default function SuggestedCategories() {
-  const [loading, setLoading] = useState(true);
   const { assessment, fetchAssessment, updateProfile } = useProfileStore();
   const [suggested, setSuggested] = useState<{ key: IssueKey; score: number; reasons: string[] }[]>(
     [],
   );
   const [selected, setSelected] = useState<Set<IssueKey>>(new Set());
-
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
-      await fetchAssessment();
-    })();
-  }, [fetchAssessment]);
+  const loading = useIsLoading();
 
   useEffect(() => {
     if (assessment) {
@@ -31,8 +24,10 @@ export default function SuggestedCategories() {
           setSuggested(s);
           setSelected(new Set(s.slice(0, 3).map((x) => x.key)));
         }))();
+    } else {
+      fetchAssessment();
     }
-  }, [assessment, loading]);
+  }, [assessment, fetchAssessment]);
 
   const selectedArray = useMemo(() => Array.from(selected), [selected]);
 

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, TextInput, ScrollView, Platform } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import ScreenHeader from '@/components/ScreenHeader';
 import Chips from '@/components/Chips';
 import MoodChart from '@/components/MoodChart';
@@ -12,6 +13,7 @@ import { router } from 'expo-router';
 import { useSubscription } from '@/hooks/useSubscription';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { SkeletonRect } from '@/components/Skeleton';
+import { SummaryCard } from '@/components/SummaryCard';
 
 const MOODS: MoodCheckIn['mood'][] = ['Great', 'Good', 'Okay', 'Low', 'Bad'];
 const ENERGY = ['1', '2', '3', '4', '5'];
@@ -43,6 +45,7 @@ function getMoodIcon(mood: MoodCheckIn['mood']) {
 }
 
 export default function Mood() {
+  const { t } = useTranslation();
   const theme = useColorScheme() ?? 'light';
   const { hasFullAccess } = useSubscription();
   const colors = Colors[theme];
@@ -91,9 +94,9 @@ export default function Mood() {
 
   async function saveCheckIn() {
     if (!hasFullAccess) {
-      showAlert('Premium Feature', 'Upgrade to lifetime access to log new mood check-ins.', [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Upgrade', onPress: () => router.push('/(auth)/trial-upgrade') },
+      showAlert(t('common.premiumFeature'), t('mood.upgradeToLogMood'), [
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('common.upgrade'), onPress: () => router.push('/(auth)/trial-upgrade') },
       ]);
       return;
     }
@@ -109,7 +112,7 @@ export default function Mood() {
       setNote('');
       setTags([]);
       setTagText('');
-      showAlert('Saved', 'Your mood check-in was saved.');
+      showAlert(t('common.saved'), t('common.moodSaved'));
     });
   }
 
@@ -123,8 +126,8 @@ export default function Mood() {
       }}
     >
       <ScreenHeader
-        title="Mood Tracker"
-        subtitle="Quick check-ins to spot patterns over time."
+        title={t('tabs.mood')}
+        subtitle={t('mood.hubSubtitle')}
         rightElement={
           <Pressable
             onPress={() => router.push('/(tabs)/mood/history')}
@@ -172,32 +175,11 @@ export default function Mood() {
             <MoodChart items={items as any} />
 
             {items.length > 0 && (
-              <Pressable
+              <SummaryCard
+                title={t('mood.lastCheckIn')}
+                icon="chevron-right"
                 onPress={() => router.push(`/(tabs)/mood/${items[0].id}`)}
-                style={{
-                  backgroundColor: colors.card,
-                  borderRadius: UI.radius.lg,
-                  padding: 16,
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.05,
-                  shadowRadius: 5,
-                  elevation: 2,
-                }}
               >
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: 10,
-                  }}
-                >
-                  <Text style={{ fontWeight: '900', color: colors.text, fontSize: 16 }}>
-                    Last Check-In
-                  </Text>
-                  <MaterialIcons name="chevron-right" size={20} color={colors.mutedText} />
-                </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                   <MaterialIcons
                     name={getMoodIcon(items[0].mood)}
@@ -206,7 +188,7 @@ export default function Mood() {
                   />
                   <View style={{ flex: 1 }}>
                     <Text style={{ fontWeight: '800', color: colors.text, fontSize: 18 }}>
-                      {items[0].mood}
+                      {t(`mood.${items[0].mood.toLowerCase()}`)}
                     </Text>
                     <Text style={{ color: colors.mutedText, fontSize: 14 }}>
                       {new Date(items[0].createdAt).toLocaleString(undefined, {
@@ -218,14 +200,14 @@ export default function Mood() {
                   </View>
                   <View style={{ alignItems: 'flex-end' }}>
                     <Text style={{ color: colors.mutedText, fontSize: 12, fontWeight: '600' }}>
-                      ENERGY
+                      {t('mood.energy').toUpperCase()}
                     </Text>
                     <Text style={{ fontWeight: '800', color: colors.text }}>
                       {items[0].energy}/5
                     </Text>
                   </View>
                 </View>
-              </Pressable>
+              </SummaryCard>
             )}
 
             {insights ? (
@@ -233,43 +215,51 @@ export default function Mood() {
                 style={{ backgroundColor: colors.card, borderRadius: UI.radius.lg, padding: 14 }}
               >
                 <Text style={{ fontWeight: '900', color: colors.text }}>
-                  Insights (last {insights.n})
+                  {t('mood.insightsCount', { count: insights.n })}
                 </Text>
                 <Text style={{ color: colors.mutedText, marginTop: 6 }}>
-                  Avg mood: {insights.avgMood.toFixed(1)} / 5 • Avg stress:{' '}
-                  {insights.avgStress.toFixed(1)} / 10 • Avg energy: {insights.avgEnergy.toFixed(1)}{' '}
-                  / 5
+                  {t('mood.avgMood')}: {insights.avgMood.toFixed(1)} / 5 • {t('mood.avgStress')}:{' '}
+                  {insights.avgStress.toFixed(1)} / 10 • {t('mood.avgEnergy')}:{' '}
+                  {insights.avgEnergy.toFixed(1)} / 5
                 </Text>
               </View>
             ) : (
               <View
                 style={{ backgroundColor: colors.card, borderRadius: UI.radius.lg, padding: 14 }}
               >
-                <Text style={{ fontWeight: '900', color: colors.text }}>Insights</Text>
+                <Text style={{ fontWeight: '900', color: colors.text }}>{t('mood.insights')}</Text>
                 <Text style={{ color: colors.mutedText, marginTop: 6 }}>
-                  Add a few check-ins to see averages and trends.
+                  {t('mood.addCheckInsToSeeTrends')}
                 </Text>
               </View>
             )}
 
             <View style={{ backgroundColor: colors.card, borderRadius: UI.radius.lg, padding: 14 }}>
-              <Text style={{ fontWeight: '900', color: colors.text }}>Today&apos;s check-in</Text>
+              <Text style={{ fontWeight: '900', color: colors.text }}>
+                {t('mood.todaysCheckIn')}
+              </Text>
 
-              <Text style={{ marginTop: 10, fontWeight: '900', color: colors.text }}>Mood</Text>
+              <Text style={{ marginTop: 10, fontWeight: '900', color: colors.text }}>
+                {t('mood.mood')}
+              </Text>
               <Chips
-                options={MOODS}
+                options={MOODS.map((m) => t(`mood.${m.toLowerCase()}`))}
                 value={mood}
                 onChange={(v) => setMood(v as MoodCheckIn['mood'])}
               />
 
-              <Text style={{ marginTop: 10, fontWeight: '900', color: colors.text }}>Energy</Text>
+              <Text style={{ marginTop: 10, fontWeight: '900', color: colors.text }}>
+                {t('mood.energy')}
+              </Text>
               <Chips
                 options={ENERGY}
                 value={String(energy)}
                 onChange={(v) => setEnergy(Number(v) as MoodCheckIn['energy'])}
               />
 
-              <Text style={{ marginTop: 10, fontWeight: '900', color: colors.text }}>Stress</Text>
+              <Text style={{ marginTop: 10, fontWeight: '900', color: colors.text }}>
+                {t('mood.stress')}
+              </Text>
               <Chips
                 options={STRESS}
                 value={String(stress)}
@@ -277,25 +267,25 @@ export default function Mood() {
               />
 
               <Text style={{ marginTop: 10, fontWeight: '900', color: colors.text }}>
-                Note (optional)
+                {t('mood.noteOptional')}
               </Text>
               <TextInput
                 value={note}
                 onChangeText={setNote}
-                placeholder="Anything you want to remember?"
+                placeholder={t('mood.notePlaceholder')}
                 placeholderTextColor={colors.placeholder}
                 style={[inputStyle, { marginTop: 8 }]}
                 multiline
               />
 
               <Text style={{ marginTop: 10, fontWeight: '900', color: colors.text }}>
-                Tags (optional)
+                {t('mood.tagsOptional')}
               </Text>
               <View style={{ flexDirection: 'row', gap: 10, marginTop: 8 }}>
                 <TextInput
                   value={tagText}
                   onChangeText={setTagText}
-                  placeholder="Add a tag…"
+                  placeholder={t('mood.tagPlaceholder')}
                   placeholderTextColor={colors.placeholder}
                   style={[inputStyle, { flex: 1 }]}
                 />
@@ -308,7 +298,9 @@ export default function Mood() {
                     justifyContent: 'center',
                   }}
                 >
-                  <Text style={{ color: colors.onPrimary, fontWeight: '900' }}>Add</Text>
+                  <Text style={{ color: colors.onPrimary, fontWeight: '900' }}>
+                    {t('common.add')}
+                  </Text>
                 </Pressable>
               </View>
 
@@ -328,7 +320,7 @@ export default function Mood() {
                   </Pressable>
                 ))}
                 {tags.length === 0 ? (
-                  <Text style={{ color: colors.subtleText }}>No tags yet.</Text>
+                  <Text style={{ color: colors.subtleText }}>{t('mood.noTagsYet')}</Text>
                 ) : null}
               </View>
 
@@ -352,7 +344,7 @@ export default function Mood() {
                 }}
               >
                 <Text style={{ color: colors.onPrimary, fontWeight: '900', fontSize: 16 }}>
-                  Save check-in
+                  {t('mood.saveCheckIn')}
                 </Text>
               </Pressable>
             </View>

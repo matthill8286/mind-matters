@@ -54,7 +54,7 @@ export default function EditJournalEntry() {
     if (!entry) return;
     await withLoading('save-journal', async () => {
       await upsertJournalEntry({ ...entry, updatedAt: new Date().toISOString() });
-      router.replace('/(tabs)/journal');
+      router.back();
     });
   }
 
@@ -67,7 +67,7 @@ export default function EditJournalEntry() {
         onPress: async () => {
           await withLoading('delete-journal', async () => {
             await deleteJournalEntry(String(id));
-            router.replace('/(tabs)/journal');
+            router.back();
           });
         },
       },

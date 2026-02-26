@@ -38,7 +38,9 @@ export default function MindfulHours() {
   } = useMindfulnessStore();
 
   useEffect(() => {
-    fetchMindfulnessHistory();
+    (async () => {
+      await fetchMindfulnessHistory();
+    })();
   }, [fetchMindfulnessHistory]);
 
   return (

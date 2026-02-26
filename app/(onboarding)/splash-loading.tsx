@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, StyleSheet, Animated, Easing, Image, Platform } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -128,24 +129,20 @@ export default function SplashLoading() {
 }
 
 function SplashStage() {
+  const { t } = useTranslation();
   return (
     <View style={styles.center}>
-      <Text style={styles.logo}>MIND MATE</Text>
+      <Text style={styles.logo}>{t('splash.logo')}</Text>
     </View>
   );
 }
 
 function QuoteStage() {
+  const { t } = useTranslation();
   return (
     <View style={[styles.center, { paddingHorizontal: 28, alignItems: 'center' }]}>
-      <Text style={styles.quote}>
-        “Let everything{'\n'}
-        happen to you{'\n'}
-        beauty and terror.{'\n'}
-        Just keep going.{'\n'}
-        No feeling is final.”
-      </Text>
-      <Text style={styles.quoteAuthor}>— RAINER MARIA RILKE</Text>
+      <Text style={styles.quote}>{t('splash.quote')}</Text>
+      <Text style={styles.quoteAuthor}>{t('splash.quoteAuthor')}</Text>
     </View>
   );
 }

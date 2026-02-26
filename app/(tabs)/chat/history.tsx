@@ -13,7 +13,9 @@ export default function ChatHistory() {
   const { history, fetchAllHistories, isLoading, error } = useChatStore();
 
   useEffect(() => {
-    fetchAllHistories();
+    (async () => {
+      await fetchAllHistories();
+    })();
   }, [fetchAllHistories]);
 
   const historyItems = useMemo(() => {
@@ -32,6 +34,20 @@ export default function ChatHistory() {
       })
       .sort((a, b) => b.timestamp - a.timestamp);
   }, [history]);
+
+  if (error)
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: colors.background,
+          padding: UI.spacing.xl,
+          paddingTop: Platform.OS === 'ios' ? 18 : 8,
+        }}
+      >
+        <ScreenHeader title="Chat History" subtitle="Your past conversations with AI." showBack />
+      </View>
+    );
 
   return (
     <View

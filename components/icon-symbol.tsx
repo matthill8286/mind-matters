@@ -25,7 +25,6 @@ const MAPPING = {
   'note.text': 'description',
   save: 'save',
   calendar: 'calendar-today',
-  search: 'search',
   'moon.stars.fill': 'nightlight-round',
 } as Partial<IconMapping>;
 

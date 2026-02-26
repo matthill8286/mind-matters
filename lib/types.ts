@@ -39,6 +39,7 @@ export const DEFAULT_KIT: StressKit = {
 };
 
 export type StressCompletion = {
+  id: string;
   exerciseId: string;
   title: string;
   date: string;

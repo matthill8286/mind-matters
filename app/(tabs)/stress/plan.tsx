@@ -9,23 +9,25 @@ import { useStressStore } from '@/store/useStressStore';
 import { IconSymbol } from '@/components/icon-symbol';
 import { DEFAULT_KIT, StressKit } from '@/lib/types';
 
-const inputStyle = {
-  padding: 12,
-  borderRadius: UI.radius.md,
-  backgroundColor: Colors.light.inputBg,
-  color: Colors.light.text,
-};
-
 export default function StressPlan() {
   const router = useRouter();
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
 
-  const { stressKit, fetchStressKit, saveStressKit, isLoading: loading } = useStressStore();
+  const inputStyle = {
+    padding: 12,
+    borderRadius: UI.radius.md,
+    backgroundColor: colors.inputBg,
+    color: colors.text,
+  };
+
+  const { stressKit, fetchStressKit, saveStressKit } = useStressStore();
   const [draft, setDraft] = useState<StressKit>(DEFAULT_KIT);
 
   useEffect(() => {
-    fetchStressKit();
+    (async () => {
+      await fetchStressKit();
+    })();
   }, [fetchStressKit]);
 
   useEffect(() => {
@@ -57,7 +59,7 @@ export default function StressPlan() {
     const next = {
       quickPhrase: draft.quickPhrase?.trim() || '',
       triggers: (draft.triggers || []).filter(Boolean),
-      helpfulActions: (DEFAULT_KIT.helpfulActions || []).filter(Boolean),
+      helpfulActions: (draft.helpfulActions || []).filter(Boolean),
       people: (draft.people || []).filter(Boolean),
       notes: draft.notes || '',
     };
@@ -241,10 +243,11 @@ function EditableList({
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
 
-  const handleKeyPress = (e: any) => {
-    if (e.nativeEvent.key === 'Enter') {
-      onAdd();
-    }
+  const inputStyle = {
+    padding: 12,
+    borderRadius: UI.radius.md,
+    backgroundColor: colors.inputBg,
+    color: colors.text,
   };
 
   return (
@@ -267,11 +270,11 @@ function EditableList({
           placeholder={placeholder}
           placeholderTextColor={colors.placeholder}
           style={[inputStyle, { flex: 1 }]}
-          onSubmitEditing={handleKeyPress}
-          returnKeyType="send"
+          onSubmitEditing={onAdd}
+          returnKeyType="done"
         />
         <Pressable
-          onPress={handleKeyPress}
+          onPress={onAdd}
           style={{
             backgroundColor: colors.primary,
             paddingHorizontal: 14,
@@ -285,13 +288,13 @@ function EditableList({
 
       <View style={{ marginTop: 10, gap: 8 }}>
         {items.length === 0 ? (
-          <Text style={{ color: colors.subtleText, fontSize: 13, italic: true } as any}>
+          <Text style={{ color: colors.mutedText, fontSize: 13, fontStyle: 'italic' }}>
             No items yet.
           </Text>
         ) : null}
         {items.map((it, idx) => (
           <View
-            key={it}
+            key={`${it}-${idx}`}
             style={{
               flexDirection: 'row',
               justifyContent: 'space-between',

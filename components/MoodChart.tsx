@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text } from 'react-native';
-import type { MoodCheckIn } from '@/lib/mood';
+import type { MoodCheckIn } from '@/lib/types';
 
 const moodScore: Record<MoodCheckIn['mood'], number> = {
   Great: 5,
